@@ -915,25 +915,201 @@ function LandSearch({ onCreateNew, onExport }: ToolProps) {
 }
 
 function SubsidyManagement({ onCreateNew, onExport }: ToolProps) {
+  const [searchQuery, setSearchQuery] = useState("");
+  const [selectedPref, setSelectedPref] = useState("all");
+  const [activeTab, setActiveTab] = useState<"search" | "alert">("search");
+
+  const prefectures = ["all", "国（全国共通）", "北海道", "青森県", "岩手県", "宮城県", "秋田県", "山形県", "福島県", "茨城県", "栃木県", "群馬県", "埼玉県", "千葉県", "東京都", "神奈川県", "新潟県", "富山県", "石川県", "福井県", "山梨県", "長野県", "岐阜県", "静岡県", "愛知県", "三重県", "滋賀県", "京都府", "大阪府", "兵庫県", "奈良県", "和歌山県", "鳥取県", "島根県", "岡山県", "広島県", "山口県", "徳島県", "香川県", "愛媛県", "高知県", "福岡県", "佐賀県", "長崎県", "熊本県", "大分県", "宮崎県", "鹿児島県", "沖縄県"];
+
+  const allSubsidies = [
+    { id: 1, name: "子育てエコホーム支援事業", category: "新築", amount: "最大100万円", deadline: "2026/03/31", jurisdiction: "国土交通省", pref: "国（全国共通）", status: "受付中", keywords: ["子育て","エコ","省エネ","新築","ZEH"], totalBudget: 210000000000, usedBudget: 136500000000 },
+    { id: 2, name: "先進的窓リノベ事業", category: "リフォーム", amount: "最大200万円", deadline: "2026/03/31", jurisdiction: "環境省", pref: "国（全国共通）", status: "受付中", keywords: ["窓","リノベ","断熱","リフォーム","省エネ"], totalBudget: 135000000000, usedBudget: 108000000000 },
+    { id: 3, name: "給湯省エネ事業", category: "省エネ改修", amount: "最大20万円/台", deadline: "2026/03/31", jurisdiction: "経済産業省", pref: "国（全国共通）", status: "受付中", keywords: ["給湯","エコキュート","省エネ","改修"], totalBudget: 58000000000, usedBudget: 34800000000 },
+    { id: 4, name: "長期優良住宅化リフォーム推進事業", category: "リフォーム", amount: "最大250万円", deadline: "2026/06/30", jurisdiction: "国土交通省", pref: "国（全国共通）", status: "受付中", keywords: ["長期優良","リフォーム","耐震","省エネ"], totalBudget: 45000000000, usedBudget: 13500000000 },
+    { id: 5, name: "住宅省エネキャンペーン2025", category: "新築・リフォーム", amount: "最大60万円", deadline: "2026/03/31", jurisdiction: "経済産業省", pref: "国（全国共通）", status: "受付中", keywords: ["省エネ","住宅","キャンペーン","新築","リフォーム"], totalBudget: 100000000000, usedBudget: 45000000000 },
+    { id: 6, name: "三重県木造住宅耐震補強事業", category: "耐震改修", amount: "最大100万円", deadline: "2026/12/28", jurisdiction: "三重県", pref: "三重県", status: "受付中", keywords: ["耐震","木造","補強","改修"], totalBudget: 500000000, usedBudget: 175000000 },
+    { id: 7, name: "津市住宅リフォーム助成", category: "リフォーム", amount: "最大20万円", deadline: "2026/09/30", jurisdiction: "津市", pref: "三重県", status: "受付中", keywords: ["リフォーム","助成","津市"], totalBudget: 80000000, usedBudget: 48000000 },
+    { id: 8, name: "三重県ZEH導入補助金", category: "新築", amount: "最大55万円", deadline: "2026/06/30", jurisdiction: "三重県", pref: "三重県", status: "準備中", keywords: ["ZEH","ゼッチ","新築","省エネ"], totalBudget: 200000000, usedBudget: 0 },
+    { id: 9, name: "東京都 既存住宅省エネ改修助成", category: "省エネ改修", amount: "最大300万円", deadline: "2026/09/30", jurisdiction: "東京都", pref: "東京都", status: "受付中", keywords: ["省エネ","改修","既存住宅","東京"], totalBudget: 3000000000, usedBudget: 1800000000 },
+    { id: 10, name: "大阪府住宅リフォームマイスター制度", category: "リフォーム", amount: "最大50万円", deadline: "2026/12/31", jurisdiction: "大阪府", pref: "大阪府", status: "受付中", keywords: ["リフォーム","マイスター","大阪"], totalBudget: 1000000000, usedBudget: 350000000 },
+    { id: 11, name: "愛知県住宅用地球温暖化対策設備導入促進費補助金", category: "省エネ設備", amount: "最大10万円", deadline: "2026/03/31", jurisdiction: "愛知県", pref: "愛知県", status: "受付中", keywords: ["温暖化","太陽光","蓄電池","省エネ","愛知"], totalBudget: 500000000, usedBudget: 375000000 },
+    { id: 12, name: "福岡県住宅用エネルギーシステム導入促進事業", category: "省エネ設備", amount: "最大15万円", deadline: "2026/11/30", jurisdiction: "福岡県", pref: "福岡県", status: "受付中", keywords: ["エネルギー","太陽光","蓄電池","福岡"], totalBudget: 800000000, usedBudget: 240000000 },
+    { id: 13, name: "北海道住宅省エネルギー改修補助", category: "省エネ改修", amount: "最大120万円", deadline: "2026/10/31", jurisdiction: "北海道", pref: "北海道", status: "受付中", keywords: ["省エネ","断熱","改修","北海道","寒冷地"], totalBudget: 2000000000, usedBudget: 600000000 },
+    { id: 14, name: "神奈川県既存住宅省エネ改修費補助", category: "省エネ改修", amount: "最大80万円", deadline: "2026/08/31", jurisdiction: "神奈川県", pref: "神奈川県", status: "受付中", keywords: ["省エネ","改修","神奈川","既存"], totalBudget: 1500000000, usedBudget: 1050000000 },
+    { id: 15, name: "広島県住宅耐震化促進事業", category: "耐震改修", amount: "最大90万円", deadline: "2026/12/28", jurisdiction: "広島県", pref: "広島県", status: "受付中", keywords: ["耐震","改修","広島","木造"], totalBudget: 600000000, usedBudget: 180000000 },
+    { id: 16, name: "四日市市住宅リフォーム補助金", category: "リフォーム", amount: "最大30万円", deadline: "2026/07/31", jurisdiction: "四日市市", pref: "三重県", status: "受付中", keywords: ["リフォーム","四日市","助成"], totalBudget: 60000000, usedBudget: 30000000 },
+    { id: 17, name: "伊勢市木造住宅耐震補強補助金", category: "耐震改修", amount: "最大130万円", deadline: "2026/12/28", jurisdiction: "伊勢市", pref: "三重県", status: "受付中", keywords: ["耐震","伊勢","木造","補強"], totalBudget: 40000000, usedBudget: 12000000 },
+    { id: 18, name: "埼玉県住宅における省エネ対策支援事業", category: "省エネ改修", amount: "最大50万円", deadline: "2026/11/30", jurisdiction: "埼玉県", pref: "埼玉県", status: "受付中", keywords: ["省エネ","埼玉","断熱","改修"], totalBudget: 800000000, usedBudget: 320000000 },
+  ];
+
+  const ALERT_LEVELS = [
+    { threshold: 95, label: "危険", color: "#dc2626", bg: "#fef2f2" },
+    { threshold: 85, label: "警告", color: "#ea580c", bg: "#fff7ed" },
+    { threshold: 70, label: "注意", color: "#d97706", bg: "#fffbeb" },
+    { threshold: 50, label: "情報", color: "#2563eb", bg: "#eff6ff" },
+  ];
+
+  const getAlertLevel = (rate: number) => {
+    for (const level of ALERT_LEVELS) {
+      if (rate >= level.threshold) return level;
+    }
+    return null;
+  };
+
+  // Filter subsidies
+  const filtered = allSubsidies.filter(s => {
+    const prefMatch = selectedPref === "all" || s.pref === selectedPref;
+    if (!prefMatch) return false;
+    if (!searchQuery.trim()) return true;
+    const q = searchQuery.trim().toLowerCase();
+    return s.name.toLowerCase().includes(q) || s.category.toLowerCase().includes(q) || s.jurisdiction.toLowerCase().includes(q) || s.keywords.some(k => k.toLowerCase().includes(q));
+  });
+
+  const totalAvailable = allSubsidies.filter(s => s.status === "受付中").length;
+  const filteredCount = filtered.length;
+
   return (<>
     <ToolHeader title="補助金・助成金" color="#7c3aed" onCreateNew={onCreateNew} onExport={onExport} />
     <div className="bg-purple-50 border border-purple-200 rounded-xl p-4 mb-6 flex items-center gap-3">
       <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#7c3aed" strokeWidth="2"><path d="M12 1v22M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/></svg>
-      <div><p className="text-sm font-bold text-purple-800">全国対応 補助金・助成金検索</p><p className="text-xs text-purple-600">国・都道府県・市区町村の最新補助金情報を自動取得</p></div>
+      <div><p className="text-sm font-bold text-purple-800">全国対応 補助金・助成金検索</p><p className="text-xs text-purple-600">国・都道府県・市区町村の最新補助金情報を自動取得 ｜ 予算消化アラート付き</p></div>
     </div>
-    <div className="grid grid-cols-4 gap-4 mb-6">
-      {[{ label: "利用可能な制度", value: "28件", color: "#7c3aed" }, { label: "申請中", value: "3件", color: "#3b82f6" }, { label: "受給済み", value: "¥4.2M", color: "#10b981" }, { label: "申請期限間近", value: "5件", color: "#ef4444" }].map((s, i) => (
-        <div key={i} className="bg-white rounded-xl border border-border p-4"><p className="text-xs text-text-sub">{s.label}</p><p className="text-xl font-black" style={{ color: s.color }}>{s.value}</p></div>
-      ))}
+
+    {/* Tab switcher */}
+    <div className="flex gap-2 mb-6">
+      <button onClick={() => setActiveTab("search")} className={`px-4 py-2 rounded-lg text-sm font-bold transition-colors ${activeTab === "search" ? "bg-purple-600 text-white" : "bg-gray-100 text-text-sub hover:bg-gray-200"}`}>🔍 補助金検索</button>
+      <button onClick={() => setActiveTab("alert")} className={`px-4 py-2 rounded-lg text-sm font-bold transition-colors ${activeTab === "alert" ? "bg-purple-600 text-white" : "bg-gray-100 text-text-sub hover:bg-gray-200"}`}>⚠️ 予算残アラート</button>
     </div>
-    <DataTable headers={["制度名", "対象", "補助額", "申請期限", "管轄", "状態"]} rows={[
-      ["子育てエコホーム支援事業", "新築", "最大100万円", "2026/03/31", "国土交通省", <StatusBadge key="1" status="配信中" />],
-      ["先進的窓リノベ事業", "リフォーム", "最大200万円", "2026/03/31", "環境省", <StatusBadge key="2" status="配信中" />],
-      ["給湯省エネ事業", "省エネ改修", "最大20万円/台", "2026/03/31", "経済産業省", <StatusBadge key="3" status="配信中" />],
-      ["三重県木造住宅耐震補強事業", "耐震改修", "最大100万円", "2026/12/28", "三重県", <StatusBadge key="4" status="配信中" />],
-      ["津市住宅リフォーム助成", "リフォーム", "最大20万円", "2026/09/30", "津市", <StatusBadge key="5" status="配信中" />],
-      ["三重県ZEH導入補助金", "新築", "最大55万円", "2026/06/30", "三重県", <StatusBadge key="6" status="準備中" />],
-    ]} />
+
+    {activeTab === "search" ? (<>
+      {/* KPI cards */}
+      <div className="grid grid-cols-4 gap-4 mb-6">
+        {[{ label: "利用可能な制度", value: totalAvailable + "件", color: "#7c3aed" }, { label: "検索結果", value: filteredCount + "件", color: "#3b82f6" }, { label: "受給済み", value: "¥4.2M", color: "#10b981" }, { label: "申請期限間近", value: "5件", color: "#ef4444" }].map((s, i) => (
+          <div key={i} className="bg-white rounded-xl border border-border p-4"><p className="text-xs text-text-sub">{s.label}</p><p className="text-xl font-black" style={{ color: s.color }}>{s.value}</p></div>
+        ))}
+      </div>
+
+      {/* Search area */}
+      <div className="bg-white border border-border rounded-xl p-5 mb-6">
+        <h3 className="text-sm font-bold text-text-main mb-3">補助金・助成金を検索</h3>
+        <div className="grid grid-cols-1 lg:grid-cols-3 gap-4">
+          <div className="lg:col-span-2">
+            <label className="text-xs text-text-sub mb-1 block">キーワード検索</label>
+            <div className="relative">
+              <svg className="absolute left-3 top-1/2 -translate-y-1/2" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#9ca3af" strokeWidth="2"><circle cx="11" cy="11" r="8"/><path d="M21 21l-4.35-4.35"/></svg>
+              <input type="text" value={searchQuery} onChange={e => setSearchQuery(e.target.value)} placeholder="例: 省エネ, リフォーム, 耐震, ZEH, 太陽光..." className="w-full pl-10 pr-4 py-2.5 border border-border rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-purple-400 focus:border-transparent" />
+            </div>
+            <p className="text-[10px] text-text-sub mt-1">制度名・カテゴリ・管轄・キーワードから簡易検索できます</p>
+          </div>
+          <div>
+            <label className="text-xs text-text-sub mb-1 block">都道府県</label>
+            <select value={selectedPref} onChange={e => setSelectedPref(e.target.value)} className="w-full px-3 py-2.5 border border-border rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-purple-400 focus:border-transparent bg-white">
+              <option value="all">すべて（国＋全都道府県）</option>
+              {prefectures.filter(p => p !== "all").map(p => <option key={p} value={p}>{p}</option>)}
+            </select>
+          </div>
+        </div>
+        {(searchQuery || selectedPref !== "all") && (
+          <div className="mt-3 flex items-center gap-2">
+            {searchQuery && <span className="text-xs bg-purple-100 text-purple-700 px-2 py-1 rounded-full">キーワード: {searchQuery}</span>}
+            {selectedPref !== "all" && <span className="text-xs bg-blue-100 text-blue-700 px-2 py-1 rounded-full">地域: {selectedPref}</span>}
+            <button onClick={() => { setSearchQuery(""); setSelectedPref("all"); }} className="text-xs text-red-500 hover:text-red-700 ml-2">✕ 条件クリア</button>
+          </div>
+        )}
+      </div>
+
+      {/* Results table */}
+      {filtered.length > 0 ? (
+        <DataTable headers={["制度名", "対象", "補助額", "申請期限", "管轄", "消化率", "状態"]} rows={filtered.map((s, i) => {
+          const rate = s.totalBudget > 0 ? (s.usedBudget / s.totalBudget) * 100 : 0;
+          const alert = getAlertLevel(rate);
+          return [
+            s.name,
+            s.category,
+            s.amount,
+            s.deadline,
+            s.jurisdiction,
+            <div key={`rate-${i}`} className="w-24">
+              <div className="flex items-center gap-1.5">
+                <div className="flex-1 bg-gray-100 rounded-full h-2"><div className="h-2 rounded-full" style={{ width: `${Math.min(rate, 100)}%`, backgroundColor: rate >= 85 ? "#dc2626" : rate >= 70 ? "#ea580c" : rate >= 50 ? "#d97706" : "#7c3aed" }} /></div>
+                <span className="text-[10px] font-bold" style={{ color: rate >= 85 ? "#dc2626" : rate >= 70 ? "#ea580c" : "#6b7280" }}>{rate.toFixed(0)}%</span>
+              </div>
+            </div>,
+            <StatusBadge key={`st-${i}`} status={s.status} />,
+          ];
+        })} />
+      ) : (
+        <div className="bg-gray-50 border border-border rounded-xl p-8 text-center">
+          <p className="text-text-sub text-sm">該当する補助金・助成金が見つかりませんでした</p>
+          <p className="text-text-sub text-xs mt-1">キーワードや都道府県を変更してお試しください</p>
+        </div>
+      )}
+    </>) : (<>
+      {/* Budget Alert Tab */}
+      <div className="bg-white border border-border rounded-xl p-5 mb-6">
+        <div className="flex items-center justify-between mb-4">
+          <h3 className="text-sm font-bold text-text-main">予算消化モニタリング（自動監視）</h3>
+          <div className="flex items-center gap-2">
+            <span className="w-2 h-2 rounded-full bg-green-500 animate-pulse" />
+            <span className="text-xs text-green-600 font-medium">監視中 ｜ 毎日 9:00 自動チェック</span>
+          </div>
+        </div>
+        <div className="grid grid-cols-4 gap-3 mb-4">
+          {ALERT_LEVELS.map((lv, i) => (
+            <div key={i} className="rounded-lg p-3 text-center" style={{ backgroundColor: lv.bg }}>
+              <p className="text-xs font-bold" style={{ color: lv.color }}>{lv.label}</p>
+              <p className="text-lg font-black" style={{ color: lv.color }}>{lv.threshold}%〜</p>
+              <p className="text-[10px]" style={{ color: lv.color }}>消化率</p>
+            </div>
+          ))}
+        </div>
+        <p className="text-[10px] text-text-sub">Slack通知連携対応 ｜ 閾値到達時に自動アラート送信 ｜ 重複通知防止機能付き</p>
+      </div>
+
+      {/* Budget alert items */}
+      <div className="space-y-3">
+        {allSubsidies.filter(s => s.totalBudget > 0 && s.usedBudget > 0).sort((a, b) => (b.usedBudget / b.totalBudget) - (a.usedBudget / a.totalBudget)).map((s, i) => {
+          const rate = (s.usedBudget / s.totalBudget) * 100;
+          const remaining = s.totalBudget - s.usedBudget;
+          const dailyBurn = s.usedBudget / 120;
+          const daysLeft = dailyBurn > 0 ? Math.ceil(remaining / dailyBurn) : null;
+          const alert = getAlertLevel(rate);
+          return (
+            <div key={i} className="bg-white border rounded-xl p-4" style={{ borderColor: alert ? alert.color + "40" : "#e5e7eb" }}>
+              <div className="flex items-start justify-between mb-2">
+                <div>
+                  <div className="flex items-center gap-2">
+                    <h4 className="text-sm font-bold text-text-main">{s.name}</h4>
+                    {alert && <span className="text-[10px] px-2 py-0.5 rounded-full font-bold" style={{ backgroundColor: alert.bg, color: alert.color }}>{alert.label} {rate.toFixed(1)}%</span>}
+                  </div>
+                  <p className="text-xs text-text-sub mt-0.5">{s.jurisdiction} ｜ {s.pref}</p>
+                </div>
+                <div className="text-right">
+                  <p className="text-xs text-text-sub">残予算</p>
+                  <p className="text-sm font-bold text-text-main">{(remaining / 100000000).toFixed(1)}億円</p>
+                </div>
+              </div>
+              <div className="mb-2">
+                <div className="flex justify-between text-[10px] text-text-sub mb-1">
+                  <span>消化: {(s.usedBudget / 100000000).toFixed(1)}億円</span>
+                  <span>総予算: {(s.totalBudget / 100000000).toFixed(1)}億円</span>
+                </div>
+                <div className="w-full bg-gray-100 rounded-full h-3">
+                  <div className="h-3 rounded-full transition-all" style={{ width: `${Math.min(rate, 100)}%`, backgroundColor: alert ? alert.color : "#7c3aed" }} />
+                </div>
+              </div>
+              <div className="flex items-center justify-between">
+                <div className="flex items-center gap-3 text-[10px] text-text-sub">
+                  <span>📅 期限: {s.deadline}</span>
+                  {daysLeft && <span>⏳ 予算終了予測: 約{daysLeft}日後</span>}
+                </div>
+                {alert && alert.threshold >= 85 && <span className="text-[10px] font-bold px-2 py-0.5 rounded bg-red-50 text-red-600 animate-pulse">🔔 Slack通知済み</span>}
+              </div>
+            </div>
+          );
+        })}
+      </div>
+    </>)}
   </>);
 }
 
