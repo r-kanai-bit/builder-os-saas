@@ -125,7 +125,7 @@ const formDefs: Record<string, { title: string; fields: FormFieldDef[] }> = {
       { name: "budget", label: "予算（円）", type: "number", placeholder: "例: 500000", required: true },
       { name: "start", label: "配信開始日", type: "date", required: true },
       { name: "end", label: "配信終了日", type: "date" },
-      { name: "target", label: "ターゲットエリア", type: "text", placeholder: "例: 三重県津市・松阪市" },
+      { name: "target", label: "ターゲットエリア", type: "text", placeholder: "例: 東京都世田谷区・目黒区" },
       { name: "creative", label: "広告素材", type: "file" },
       { name: "note", label: "メモ", type: "textarea", placeholder: "訴求ポイント・備考" },
     ],
@@ -177,7 +177,7 @@ const formDefs: Record<string, { title: string; fields: FormFieldDef[] }> = {
   "land-search": {
     title: "土地探し 新規検索",
     fields: [
-      { name: "area", label: "希望エリア", type: "text", placeholder: "例: 三重県津市", required: true },
+      { name: "area", label: "希望エリア", type: "text", placeholder: "例: 東京都世田谷区", required: true },
       { name: "budget", label: "予算上限", type: "number", placeholder: "例: 30000000" },
       { name: "size", label: "希望面積（㎡）", type: "number", placeholder: "例: 200" },
       { name: "use", label: "用途", type: "select", options: ["住宅用地", "事業用地", "分譲用地", "その他"] },
@@ -187,8 +187,8 @@ const formDefs: Record<string, { title: string; fields: FormFieldDef[] }> = {
   subsidy: {
     title: "補助金・助成金 検索",
     fields: [
-      { name: "prefecture", label: "都道府県", type: "text", placeholder: "例: 三重県", required: true },
-      { name: "city", label: "市区町村", type: "text", placeholder: "例: 津市" },
+      { name: "prefecture", label: "都道府県", type: "text", placeholder: "例: 東京都", required: true },
+      { name: "city", label: "市区町村", type: "text", placeholder: "例: 世田谷区" },
       { name: "type", label: "工事種別", type: "select", options: ["新築", "リフォーム", "耐震改修", "省エネ改修", "バリアフリー", "その他"], required: true },
       { name: "note", label: "備考", type: "textarea" },
     ],
@@ -765,17 +765,17 @@ function AdManagement({ onCreateNew, onExport }: ToolProps) {
           ))}
         </div>
         <DataTable headers={["競合他社", "エリア", "検出広告数", "推定月額", "主要媒体", "直近の動き"]} rows={[
-          ["○○ホーム", "津市・松阪市", "8件", "¥350K", "Meta/Google", <StatusBadge key="1" status="配信中" />],
-          ["△△建設", "四日市市", "5件", "¥200K", "Google", <StatusBadge key="2" status="配信中" />],
-          ["□□ハウス", "伊勢市", "6件", "¥280K", "Meta", <StatusBadge key="3" status="配信中" />],
-          ["●●工務店", "鈴鹿市", "3件", "¥150K", "チラシ/DM", <StatusBadge key="4" status="配信中" />],
-          ["◎◎リフォーム", "津市", "1件", "¥80K", "Google", <StatusBadge key="5" status="終了" />],
+          ["○○ホーム", "世田谷区・目黒区", "8件", "¥350K", "Meta/Google", <StatusBadge key="1" status="配信中" />],
+          ["△△建設", "杉並区・中野区", "5件", "¥200K", "Google", <StatusBadge key="2" status="配信中" />],
+          ["□□ハウス", "練馬区", "6件", "¥280K", "Meta", <StatusBadge key="3" status="配信中" />],
+          ["●●工務店", "板橋区・北区", "3件", "¥150K", "チラシ/DM", <StatusBadge key="4" status="配信中" />],
+          ["◎◎リフォーム", "品川区", "1件", "¥80K", "Google", <StatusBadge key="5" status="終了" />],
         ]} />
         <div className="grid lg:grid-cols-2 gap-6 mt-6">
           <div className="bg-white rounded-xl border border-border p-5">
             <h3 className="font-bold text-sm mb-4">競合キーワード重複分析</h3>
             <div className="space-y-3">
-              {[{ kw: "三重県 新築", us: true, comp: 3 }, { kw: "津市 リフォーム", us: true, comp: 2 }, { kw: "松阪 注文住宅", us: false, comp: 4 }, { kw: "三重 工務店", us: true, comp: 5 }, { kw: "伊勢 リノベーション", us: false, comp: 2 }].map((k, i) => (
+              {[{ kw: "東京都 新築", us: true, comp: 3 }, { kw: "世田谷区 リフォーム", us: true, comp: 2 }, { kw: "目黒 注文住宅", us: false, comp: 4 }, { kw: "東京 工務店", us: true, comp: 5 }, { kw: "杉並 リノベーション", us: false, comp: 2 }].map((k, i) => (
                 <div key={i} className="flex items-center justify-between py-1.5 border-b border-border last:border-0">
                   <span className="text-sm text-text-main">{k.kw}</span>
                   <div className="flex items-center gap-2">
@@ -905,11 +905,11 @@ function LandSearch({ onCreateNew, onExport }: ToolProps) {
       ))}
     </div>
     <DataTable headers={["物件名", "所在地", "面積", "価格", "坪単価", "用途地域", "状態"]} rows={[
-      ["津市久居 分譲地A", "三重県津市久居○○町", "198.5㎡", "¥12,800,000", "¥21.3万/坪", "第一種住居", <StatusBadge key="1" status="配信中" />],
-      ["松阪市 住宅用地", "三重県松阪市○○1丁目", "165.2㎡", "¥9,500,000", "¥19.0万/坪", "第一種低層", <StatusBadge key="2" status="配信中" />],
-      ["津市河芸 土地", "三重県津市河芸町○○", "220.0㎡", "¥8,800,000", "¥13.2万/坪", "第一種住居", <StatusBadge key="3" status="配信中" />],
-      ["鈴鹿市 分譲地", "三重県鈴鹿市○○町", "180.3㎡", "¥11,200,000", "¥20.5万/坪", "第二種住居", <StatusBadge key="4" status="準備中" />],
-      ["伊勢市 住宅用地", "三重県伊勢市○○2丁目", "250.0㎡", "¥15,000,000", "¥19.8万/坪", "第一種低層", <StatusBadge key="5" status="配信中" />],
+      ["世田谷区 分譲地A", "東京都世田谷区○○町", "128.5㎡", "¥58,000,000", "¥149万/坪", "第一種住居", <StatusBadge key="1" status="配信中" />],
+      ["目黒区 住宅用地", "東京都目黒区○○1丁目", "105.2㎡", "¥72,000,000", "¥226万/坪", "第一種低層", <StatusBadge key="2" status="配信中" />],
+      ["杉並区 土地", "東京都杉並区○○町", "150.0㎡", "¥48,500,000", "¥106万/坪", "第一種住居", <StatusBadge key="3" status="配信中" />],
+      ["練馬区 分譲地", "東京都練馬区○○町", "135.3㎡", "¥38,000,000", "¥92.8万/坪", "第二種住居", <StatusBadge key="4" status="準備中" />],
+      ["品川区 住宅用地", "東京都品川区○○2丁目", "98.0㎡", "¥85,000,000", "¥286万/坪", "第一種低層", <StatusBadge key="5" status="配信中" />],
     ]} />
   </>);
 }
