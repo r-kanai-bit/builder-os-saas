@@ -7,6 +7,10 @@ export async function POST(request: Request) {
     const { planKey } = await request.json();
     const supabase = await createClient();
 
+    if (!supabase) {
+      return NextResponse.json({ error: "Supabase not configured" }, { status: 503 });
+    }
+
     // Get authenticated user
     const {
       data: { user },
