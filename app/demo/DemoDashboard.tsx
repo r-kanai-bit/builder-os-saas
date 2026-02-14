@@ -7,7 +7,7 @@ import Link from "next/link";
 
 type FormFieldDef = { name: string; label: string; type: "text" | "number" | "date" | "select" | "textarea" | "file"; options?: string[]; placeholder?: string; required?: boolean };
 type ToolDef = { id: string; name: string; icon: string; color: string };
-type ToolProps = { onCreateNew?: () => void };
+type ToolProps = { onCreateNew?: () => void; onExport?: () => void };
 
 // ============ ツール定義（日報削除・写真→広告に変更） ============
 
@@ -24,6 +24,8 @@ const tools: ToolDef[] = [
   { id: "after-service", name: "アフター管理", icon: "M22 11.08V12a10 10 0 1 1-5.93-9.14 M22 4L12 14.01l-3-3", color: "#84cc16" },
   { id: "document", name: "書類管理", icon: "M22 19a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h5l2 3h9a2 2 0 0 1 2 2z", color: "#a855f7" },
   { id: "vendor", name: "業者管理", icon: "M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2 M9 3a4 4 0 1 0 0 8 4 4 0 0 0 0-8z M23 21v-2a4 4 0 0 0-3-3.87 M16 3.13a4 4 0 0 1 0 7.75", color: "#0ea5e9" },
+  { id: "land-search", name: "土地探し", icon: "M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z M12 10a3 3 0 1 0-3-3 3 3 0 0 0 3 3z", color: "#059669" },
+  { id: "subsidy", name: "補助金・助成金", icon: "M12 1v22 M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6", color: "#7c3aed" },
   { id: "analytics", name: "経営分析", icon: "M18 20V10 M12 20V4 M6 20v-6", color: "#e11d48" },
 ];
 
@@ -42,6 +44,7 @@ const formDefs: Record<string, { title: string; fields: FormFieldDef[] }> = {
       { name: "amount", label: "請負金額（税抜）", type: "number", placeholder: "例: 50000000" },
       { name: "start", label: "工事開始日", type: "date", required: true },
       { name: "end", label: "工事完了予定日", type: "date" },
+      { name: "handoverDate", label: "引渡し日", type: "date" },
       { name: "manager", label: "現場責任者", type: "text", placeholder: "例: 山田 太郎" },
       { name: "type", label: "工事種別", type: "select", options: ["新築", "改修", "リフォーム", "外構", "その他"] },
       { name: "note", label: "備考", type: "textarea", placeholder: "特記事項があれば入力" },
@@ -171,6 +174,25 @@ const formDefs: Record<string, { title: string; fields: FormFieldDef[] }> = {
       { name: "note", label: "備考", type: "textarea" },
     ],
   },
+  "land-search": {
+    title: "土地探し 新規検索",
+    fields: [
+      { name: "area", label: "希望エリア", type: "text", placeholder: "例: 三重県津市", required: true },
+      { name: "budget", label: "予算上限", type: "number", placeholder: "例: 30000000" },
+      { name: "size", label: "希望面積（㎡）", type: "number", placeholder: "例: 200" },
+      { name: "use", label: "用途", type: "select", options: ["住宅用地", "事業用地", "分譲用地", "その他"] },
+      { name: "note", label: "備考・希望条件", type: "textarea", placeholder: "駅徒歩10分以内、南向きなど" },
+    ],
+  },
+  subsidy: {
+    title: "補助金・助成金 検索",
+    fields: [
+      { name: "prefecture", label: "都道府県", type: "text", placeholder: "例: 三重県", required: true },
+      { name: "city", label: "市区町村", type: "text", placeholder: "例: 津市" },
+      { name: "type", label: "工事種別", type: "select", options: ["新築", "リフォーム", "耐震改修", "省エネ改修", "バリアフリー", "その他"], required: true },
+      { name: "note", label: "備考", type: "textarea" },
+    ],
+  },
   analytics: {
     title: "レポート生成",
     fields: [
@@ -245,7 +267,7 @@ function CreateForm({ fields, onSubmit, color }: { fields: FormFieldDef[]; onSub
   );
 }
 
-function ToolHeader({ title, color, onCreateNew }: { title: string; color: string; onCreateNew?: () => void }) {
+function ToolHeader({ title, color, onCreateNew, onExport }: { title: string; color: string; onCreateNew?: () => void; onExport?: () => void }) {
   return (
     <div className="flex items-center justify-between mb-6">
       <h2 className="text-lg font-bold text-text-main">{title}</h2>
@@ -253,7 +275,7 @@ function ToolHeader({ title, color, onCreateNew }: { title: string; color: strin
         <button onClick={onCreateNew} className="px-4 py-2 text-sm font-bold text-white rounded-lg hover:opacity-90 transition-opacity" style={{ backgroundColor: color }}>
           + 新規作成
         </button>
-        <button className="px-4 py-2 text-sm font-medium border border-border rounded-lg hover:bg-gray-50">エクスポート</button>
+        <button onClick={onExport} className="px-4 py-2 text-sm font-medium border border-border rounded-lg hover:bg-gray-50 transition-colors">エクスポート</button>
       </div>
     </div>
   );
@@ -279,27 +301,27 @@ function DataTable({ headers, rows }: { headers: string[]; rows: (string | React
 
 // ============ ツール画面 ============
 
-function ConstructionLedger({ onCreateNew }: ToolProps) {
+function ConstructionLedger({ onCreateNew, onExport }: ToolProps) {
   return (<>
-    <ToolHeader title="工事台帳" color="#3b82f6" onCreateNew={onCreateNew} />
+    <ToolHeader title="工事台帳" color="#3b82f6" onCreateNew={onCreateNew} onExport={onExport} />
     <div className="grid grid-cols-3 gap-4 mb-6">
       {[{ label: "進行中", value: "12件", color: "#3b82f6" }, { label: "今月完了", value: "3件", color: "#10b981" }, { label: "受注総額", value: "¥285M", color: "#f59e0b" }].map((s, i) => (
         <div key={i} className="bg-white rounded-xl border border-border p-4"><p className="text-xs text-text-sub">{s.label}</p><p className="text-xl font-black" style={{ color: s.color }}>{s.value}</p></div>
       ))}
     </div>
-    <DataTable headers={["工事番号", "工事名", "発注者", "請負金額", "進捗", "状態"]} rows={[
-      ["K-2026-001", "○○マンション新築工事", "○○不動産", "¥128,500,000", "65%", <StatusBadge key="1" status="進行中" />],
-      ["K-2026-002", "△△ビル改修工事", "△△商事", "¥45,000,000", "30%", <StatusBadge key="2" status="進行中" />],
-      ["K-2026-003", "□□住宅リフォーム", "□□様", "¥8,500,000", "75%", <StatusBadge key="3" status="進行中" />],
-      ["K-2026-004", "●●商業施設外構工事", "●●開発", "¥32,000,000", "90%", <StatusBadge key="4" status="進行中" />],
-      ["K-2025-012", "◎◎事務所ビル新築", "◎◎建設", "¥68,000,000", "100%", <StatusBadge key="5" status="完了" />],
+    <DataTable headers={["工事番号", "工事名", "発注者", "請負金額", "引渡し日", "進捗", "状態"]} rows={[
+      ["K-2026-001", "○○マンション新築工事", "○○不動産", "¥128,500,000", "2026/06/30", "65%", <StatusBadge key="1" status="進行中" />],
+      ["K-2026-002", "△△ビル改修工事", "△△商事", "¥45,000,000", "2026/09/15", "30%", <StatusBadge key="2" status="進行中" />],
+      ["K-2026-003", "□□住宅リフォーム", "□□様", "¥8,500,000", "2026/03/20", "75%", <StatusBadge key="3" status="進行中" />],
+      ["K-2026-004", "●●商業施設外構工事", "●●開発", "¥32,000,000", "2026/04/30", "90%", <StatusBadge key="4" status="進行中" />],
+      ["K-2025-012", "◎◎事務所ビル新築", "◎◎建設", "¥68,000,000", "2025/12/20", "100%", <StatusBadge key="5" status="完了" />],
     ]} />
   </>);
 }
 
-function Estimate({ onCreateNew }: ToolProps) {
+function Estimate({ onCreateNew, onExport }: ToolProps) {
   return (<>
-    <ToolHeader title="見積作成" color="#10b981" onCreateNew={onCreateNew} />
+    <ToolHeader title="見積作成" color="#10b981" onCreateNew={onCreateNew} onExport={onExport} />
     <DataTable headers={["見積番号", "件名", "提出先", "金額", "提出日", "状態"]} rows={[
       ["E-2026-045", "△△ビル空調更新工事", "△△商事", "¥12,800,000", "2026/02/10", <StatusBadge key="1" status="送付済" />],
       ["E-2026-044", "○○邸外壁塗装工事", "○○様", "¥3,200,000", "2026/02/08", <StatusBadge key="2" status="承認済" />],
@@ -309,9 +331,9 @@ function Estimate({ onCreateNew }: ToolProps) {
   </>);
 }
 
-function Budget({ onCreateNew }: ToolProps) {
+function Budget({ onCreateNew, onExport }: ToolProps) {
   return (<>
-    <ToolHeader title="実行予算" color="#f59e0b" onCreateNew={onCreateNew} />
+    <ToolHeader title="実行予算" color="#f59e0b" onCreateNew={onCreateNew} onExport={onExport} />
     <div className="grid grid-cols-4 gap-4 mb-6">
       {[{ label: "予算総額", value: "¥285M" }, { label: "実行額", value: "¥198M" }, { label: "残予算", value: "¥87M" }, { label: "予算消化率", value: "69.5%" }].map((s, i) => (
         <div key={i} className="bg-white rounded-xl border border-border p-4"><p className="text-xs text-text-sub">{s.label}</p><p className="text-xl font-black text-text-main">{s.value}</p></div>
@@ -326,9 +348,9 @@ function Budget({ onCreateNew }: ToolProps) {
   </>);
 }
 
-function OrderManagement({ onCreateNew }: ToolProps) {
+function OrderManagement({ onCreateNew, onExport }: ToolProps) {
   return (<>
-    <ToolHeader title="資材発注" color="#ef4444" onCreateNew={onCreateNew} />
+    <ToolHeader title="資材発注" color="#ef4444" onCreateNew={onCreateNew} onExport={onExport} />
     <DataTable headers={["発注番号", "発注先", "工事名", "金額", "発注日", "納期", "状態"]} rows={[
       ["PO-2026-089", "ABC建材", "○○マンション", "¥3,200,000", "02/12", "02/28", <StatusBadge key="1" status="進行中" />],
       ["PO-2026-088", "○○電気工業", "△△ビル", "¥8,500,000", "02/10", "03/15", <StatusBadge key="2" status="進行中" />],
@@ -338,7 +360,7 @@ function OrderManagement({ onCreateNew }: ToolProps) {
   </>);
 }
 
-function Schedule({ onCreateNew }: ToolProps) {
+function Schedule({ onCreateNew, onExport }: ToolProps) {
   const [showCreate, setShowCreate] = useState(false);
   const [siteName, setSiteName] = useState("");
   const [floorArea, setFloorArea] = useState("");
@@ -373,7 +395,7 @@ function Schedule({ onCreateNew }: ToolProps) {
 
   return (
     <>
-      <ToolHeader title="工程スケジュール" color="#8b5cf6" onCreateNew={() => setShowCreate(true)} />
+      <ToolHeader title="工程スケジュール" color="#8b5cf6" onCreateNew={() => setShowCreate(true)} onExport={onExport} />
 
       {showCreate ? (
         <div className="bg-white rounded-xl border border-border p-6">
@@ -456,9 +478,9 @@ function Schedule({ onCreateNew }: ToolProps) {
   );
 }
 
-function PaymentManagement({ onCreateNew }: ToolProps) {
+function PaymentManagement({ onCreateNew, onExport }: ToolProps) {
   return (<>
-    <ToolHeader title="入金管理" color="#06b6d4" onCreateNew={onCreateNew} />
+    <ToolHeader title="入金管理" color="#06b6d4" onCreateNew={onCreateNew} onExport={onExport} />
     <div className="grid grid-cols-3 gap-4 mb-6">
       {[{ label: "入金済", value: "¥142.5M", color: "#10b981" }, { label: "未入金", value: "¥28.3M", color: "#ef4444" }, { label: "今月入金予定", value: "¥18.7M", color: "#3b82f6" }].map((s, i) => (
         <div key={i} className="bg-white rounded-xl border border-border p-4"><p className="text-xs text-text-sub">{s.label}</p><p className="text-xl font-black" style={{ color: s.color }}>{s.value}</p></div>
@@ -472,9 +494,9 @@ function PaymentManagement({ onCreateNew }: ToolProps) {
   </>);
 }
 
-function CostManagement({ onCreateNew }: ToolProps) {
+function CostManagement({ onCreateNew, onExport }: ToolProps) {
   return (<>
-    <ToolHeader title="原価管理" color="#ec4899" onCreateNew={onCreateNew} />
+    <ToolHeader title="原価管理" color="#ec4899" onCreateNew={onCreateNew} onExport={onExport} />
     <div className="grid grid-cols-4 gap-4 mb-6">
       {[{ label: "請負総額", value: "¥214M" }, { label: "原価合計", value: "¥163M" }, { label: "粗利", value: "¥51M" }, { label: "粗利率", value: "23.8%" }].map((s, i) => (
         <div key={i} className="bg-white rounded-xl border border-border p-4"><p className="text-xs text-text-sub">{s.label}</p><p className="text-xl font-black text-text-main">{s.value}</p></div>
@@ -488,7 +510,7 @@ function CostManagement({ onCreateNew }: ToolProps) {
   </>);
 }
 
-function AdManagement({ onCreateNew }: ToolProps) {
+function AdManagement({ onCreateNew, onExport }: ToolProps) {
   const [view, setView] = useState<"main"|"creative"|"measurement"|"research">("main");
   const [creativeStep, setCreativeStep] = useState(0);
   const [selectedPlatforms, setSelectedPlatforms] = useState<string[]>([]);
@@ -755,9 +777,9 @@ function AdManagement({ onCreateNew }: ToolProps) {
   return null;
 }
 
-function CustomerManagement({ onCreateNew }: ToolProps) {
+function CustomerManagement({ onCreateNew, onExport }: ToolProps) {
   return (<>
-    <ToolHeader title="顧客管理" color="#6366f1" onCreateNew={onCreateNew} />
+    <ToolHeader title="顧客管理" color="#6366f1" onCreateNew={onCreateNew} onExport={onExport} />
     <DataTable headers={["顧客名", "担当者", "電話番号", "メール", "累計取引額", "工事件数"]} rows={[
       ["○○不動産株式会社", "中村 部長", "03-1234-5678", "nakamura@example.co.jp", "¥256,000,000", "8件"],
       ["△△商事株式会社", "高橋 課長", "03-2345-6789", "takahashi@example.co.jp", "¥128,000,000", "5件"],
@@ -767,9 +789,9 @@ function CustomerManagement({ onCreateNew }: ToolProps) {
   </>);
 }
 
-function AfterService({ onCreateNew }: ToolProps) {
+function AfterService({ onCreateNew, onExport }: ToolProps) {
   return (<>
-    <ToolHeader title="アフター管理" color="#84cc16" onCreateNew={onCreateNew} />
+    <ToolHeader title="アフター管理" color="#84cc16" onCreateNew={onCreateNew} onExport={onExport} />
     <DataTable headers={["受付番号", "物件名", "顧客名", "内容", "受付日", "対応期限", "状態"]} rows={[
       ["AF-2026-023", "○○邸", "○○様", "雨漏り（2F寝室天井）", "02/13", "02/20", <StatusBadge key="1" status="対応中" />],
       ["AF-2026-022", "△△マンション301号", "△△様", "クロス剥がれ（リビング）", "02/10", "02/17", <StatusBadge key="2" status="対応済" />],
@@ -778,9 +800,48 @@ function AfterService({ onCreateNew }: ToolProps) {
   </>);
 }
 
-function DocumentManagement({ onCreateNew }: ToolProps) {
+function DocumentManagement({ onCreateNew, onExport }: ToolProps) {
+  const [dlToast, setDlToast] = useState(false);
+  const [dlName, setDlName] = useState("");
+
+  const handleTemplateDownload = (name: string) => {
+    setDlName(name);
+    setDlToast(true);
+    setTimeout(() => setDlToast(false), 3000);
+  };
+
   return (<>
-    <ToolHeader title="書類管理" color="#a855f7" onCreateNew={onCreateNew} />
+    <ToolHeader title="書類管理" color="#a855f7" onCreateNew={onCreateNew} onExport={onExport} />
+    <div className="bg-white rounded-xl border border-border p-5 mb-6">
+      <h3 className="text-sm font-bold text-text-main mb-4">書類雛形ダウンロード</h3>
+      <div className="grid grid-cols-2 lg:grid-cols-4 gap-3">
+        {[
+          { name: "工事請負契約書", icon: "📄" },
+          { name: "見積書テンプレート", icon: "📋" },
+          { name: "注文書", icon: "📝" },
+          { name: "請求書テンプレート", icon: "💰" },
+          { name: "安全管理計画書", icon: "🔒" },
+          { name: "作業日報", icon: "📅" },
+          { name: "施工体制台帳", icon: "🏗" },
+          { name: "竣工届", icon: "✅" },
+        ].map((t, i) => (
+          <button key={i} onClick={() => handleTemplateDownload(t.name)} className="flex items-center gap-2 p-3 border border-border rounded-lg hover:bg-purple-50 hover:border-purple-300 transition-all text-left">
+            <span className="text-lg">{t.icon}</span>
+            <div className="flex-1 min-w-0">
+              <p className="text-xs font-medium text-text-main truncate">{t.name}</p>
+              <p className="text-[10px] text-text-sub">.xlsx</p>
+            </div>
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#a855f7" strokeWidth="2" className="shrink-0"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+          </button>
+        ))}
+      </div>
+    </div>
+    {dlToast && (
+      <div className="fixed bottom-6 right-6 z-[60] bg-purple-600 text-white px-6 py-3 rounded-xl shadow-lg flex items-center gap-2">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+        「{dlName}」をダウンロードしました
+      </div>
+    )}
     <DataTable headers={["ファイル名", "カテゴリ", "工事名", "更新日", "サイズ", "共有"]} rows={[
       ["設計図面_rev3.pdf", "図面", "○○マンション", "02/14", "12.5MB", "5人"],
       ["見積書_最終版.xlsx", "見積", "△△ビル改修", "02/13", "2.1MB", "3人"],
@@ -790,9 +851,9 @@ function DocumentManagement({ onCreateNew }: ToolProps) {
   </>);
 }
 
-function VendorManagement({ onCreateNew }: ToolProps) {
+function VendorManagement({ onCreateNew, onExport }: ToolProps) {
   return (<>
-    <ToolHeader title="業者管理" color="#0ea5e9" onCreateNew={onCreateNew} />
+    <ToolHeader title="業者管理" color="#0ea5e9" onCreateNew={onCreateNew} onExport={onExport} />
     <DataTable headers={["業者名", "業種", "担当者", "電話番号", "評価", "取引額"]} rows={[
       ["ABC建材株式会社", "建材", "松本 営業部長", "03-1111-2222", "4.8", "¥45,200,000"],
       ["○○電気工業", "電気工事", "井上 社長", "03-2222-3333", "4.5", "¥32,100,000"],
@@ -802,9 +863,54 @@ function VendorManagement({ onCreateNew }: ToolProps) {
   </>);
 }
 
-function Analytics({ onCreateNew }: ToolProps) {
+function LandSearch({ onCreateNew, onExport }: ToolProps) {
   return (<>
-    <ToolHeader title="経営分析" color="#e11d48" onCreateNew={onCreateNew} />
+    <ToolHeader title="土地探し" color="#059669" onCreateNew={onCreateNew} onExport={onExport} />
+    <div className="bg-green-50 border border-green-200 rounded-xl p-4 mb-6 flex items-center gap-3">
+      <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#059669" strokeWidth="2"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/><circle cx="12" cy="10" r="3"/></svg>
+      <div><p className="text-sm font-bold text-green-800">SUUMO連動 土地情報検索</p><p className="text-xs text-green-600">SUUMOの最新土地情報をリアルタイムで取得・表示します</p></div>
+    </div>
+    <div className="grid grid-cols-4 gap-4 mb-6">
+      {[{ label: "検索中エリア", value: "3件", color: "#059669" }, { label: "新着物件（24h）", value: "12件", color: "#3b82f6" }, { label: "お気に入り", value: "5件", color: "#f59e0b" }, { label: "平均坪単価", value: "¥18.5万", color: "#8b5cf6" }].map((s, i) => (
+        <div key={i} className="bg-white rounded-xl border border-border p-4"><p className="text-xs text-text-sub">{s.label}</p><p className="text-xl font-black" style={{ color: s.color }}>{s.value}</p></div>
+      ))}
+    </div>
+    <DataTable headers={["物件名", "所在地", "面積", "価格", "坪単価", "用途地域", "状態"]} rows={[
+      ["津市久居 分譲地A", "三重県津市久居○○町", "198.5㎡", "¥12,800,000", "¥21.3万/坪", "第一種住居", <StatusBadge key="1" status="配信中" />],
+      ["松阪市 住宅用地", "三重県松阪市○○1丁目", "165.2㎡", "¥9,500,000", "¥19.0万/坪", "第一種低層", <StatusBadge key="2" status="配信中" />],
+      ["津市河芸 土地", "三重県津市河芸町○○", "220.0㎡", "¥8,800,000", "¥13.2万/坪", "第一種住居", <StatusBadge key="3" status="配信中" />],
+      ["鈴鹿市 分譲地", "三重県鈴鹿市○○町", "180.3㎡", "¥11,200,000", "¥20.5万/坪", "第二種住居", <StatusBadge key="4" status="準備中" />],
+      ["伊勢市 住宅用地", "三重県伊勢市○○2丁目", "250.0㎡", "¥15,000,000", "¥19.8万/坪", "第一種低層", <StatusBadge key="5" status="配信中" />],
+    ]} />
+  </>);
+}
+
+function SubsidyManagement({ onCreateNew, onExport }: ToolProps) {
+  return (<>
+    <ToolHeader title="補助金・助成金" color="#7c3aed" onCreateNew={onCreateNew} onExport={onExport} />
+    <div className="bg-purple-50 border border-purple-200 rounded-xl p-4 mb-6 flex items-center gap-3">
+      <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#7c3aed" strokeWidth="2"><path d="M12 1v22M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/></svg>
+      <div><p className="text-sm font-bold text-purple-800">全国対応 補助金・助成金検索</p><p className="text-xs text-purple-600">国・都道府県・市区町村の最新補助金情報を自動取得</p></div>
+    </div>
+    <div className="grid grid-cols-4 gap-4 mb-6">
+      {[{ label: "利用可能な制度", value: "28件", color: "#7c3aed" }, { label: "申請中", value: "3件", color: "#3b82f6" }, { label: "受給済み", value: "¥4.2M", color: "#10b981" }, { label: "申請期限間近", value: "5件", color: "#ef4444" }].map((s, i) => (
+        <div key={i} className="bg-white rounded-xl border border-border p-4"><p className="text-xs text-text-sub">{s.label}</p><p className="text-xl font-black" style={{ color: s.color }}>{s.value}</p></div>
+      ))}
+    </div>
+    <DataTable headers={["制度名", "対象", "補助額", "申請期限", "管轄", "状態"]} rows={[
+      ["子育てエコホーム支援事業", "新築", "最大100万円", "2026/03/31", "国土交通省", <StatusBadge key="1" status="配信中" />],
+      ["先進的窓リノベ事業", "リフォーム", "最大200万円", "2026/03/31", "環境省", <StatusBadge key="2" status="配信中" />],
+      ["給湯省エネ事業", "省エネ改修", "最大20万円/台", "2026/03/31", "経済産業省", <StatusBadge key="3" status="配信中" />],
+      ["三重県木造住宅耐震補強事業", "耐震改修", "最大100万円", "2026/12/28", "三重県", <StatusBadge key="4" status="配信中" />],
+      ["津市住宅リフォーム助成", "リフォーム", "最大20万円", "2026/09/30", "津市", <StatusBadge key="5" status="配信中" />],
+      ["三重県ZEH導入補助金", "新築", "最大55万円", "2026/06/30", "三重県", <StatusBadge key="6" status="準備中" />],
+    ]} />
+  </>);
+}
+
+function Analytics({ onCreateNew, onExport }: ToolProps) {
+  return (<>
+    <ToolHeader title="経営分析" color="#e11d48" onCreateNew={onCreateNew} onExport={onExport} />
     <div className="grid grid-cols-4 gap-4 mb-6">
       {[{ label: "年間売上", value: "¥680M", change: "+12.3%" }, { label: "年間粗利", value: "¥158M", change: "+8.7%" }, { label: "平均粗利率", value: "23.2%", change: "+1.5%" }, { label: "受注残", value: "¥420M", change: "+15.2%" }].map((s, i) => (
         <div key={i} className="bg-white rounded-xl border border-border p-4"><p className="text-xs text-text-sub">{s.label}</p><p className="text-xl font-black text-text-main">{s.value}</p><p className="text-xs text-green-600 font-bold mt-1">{s.change} 前年比</p></div>
@@ -904,6 +1010,8 @@ const toolComponents: Record<string, React.FC<ToolProps>> = {
   "after-service": AfterService,
   document: DocumentManagement,
   vendor: VendorManagement,
+  "land-search": LandSearch,
+  subsidy: SubsidyManagement,
   analytics: Analytics,
 };
 
@@ -925,13 +1033,32 @@ export default function DemoDashboard() {
     setTimeout(() => setShowToast(false), 3000);
   };
 
+  const handleExport = () => {
+    setToastMsg("CSVエクスポートを開始しました");
+    setShowToast(true);
+    setTimeout(() => setShowToast(false), 3000);
+  };
+
   const [expandedGroups, setExpandedGroups] = useState<string[]>([]);
   const toggleGroup = (group: string) => setExpandedGroups(prev => prev.includes(group) ? prev.filter(g => g !== group) : [...prev, group]);
 
   const estimateChildren = ["budget", "schedule", "order", "cost"];
   const managementChildren = ["document", "customer", "after-service", "vendor"];
-  const estimateGroupOpen = expandedGroups.includes("estimate") || activeTool === "estimate" || estimateChildren.includes(activeTool || "");
-  const managementGroupOpen = expandedGroups.includes("management") || managementChildren.includes(activeTool || "");
+  const estimateGroupOpen = expandedGroups.includes("estimate");
+  const managementGroupOpen = expandedGroups.includes("management");
+
+  useEffect(() => {
+    if (activeTool === "estimate" || estimateChildren.includes(activeTool || "")) {
+      if (!expandedGroups.includes("estimate")) {
+        setExpandedGroups(prev => prev.includes("estimate") ? prev : [...prev, "estimate"]);
+      }
+    }
+    if (managementChildren.includes(activeTool || "")) {
+      if (!expandedGroups.includes("management")) {
+        setExpandedGroups(prev => prev.includes("management") ? prev : [...prev, "management"]);
+      }
+    }
+  }, [activeTool]);
 
   const ActiveComponent = activeTool ? toolComponents[activeTool] : null;
   const activeToolInfo = tools.find((t) => t.id === activeTool);
@@ -983,8 +1110,10 @@ export default function DemoDashboard() {
             </button>
             <div className="pt-3 pb-2"><p className="px-3 text-[10px] font-bold text-white/40 uppercase tracking-wider">ツール</p></div>
             {renderSidebarTool("construction-ledger")}
+            {renderSidebarTool("land-search")}
+            {renderSidebarTool("subsidy")}
             <div>
-              <button onClick={() => { handleToolSelect("estimate"); toggleGroup("estimate"); }} className={`w-full flex items-center gap-3 px-3 py-2 rounded-lg text-sm transition-colors ${activeTool === "estimate" || estimateChildren.includes(activeTool || "") ? "bg-white/10 text-white" : "text-white/70 hover:bg-white/10 hover:text-white"}`}>
+              <button onClick={() => toggleGroup("estimate")} className={`w-full flex items-center gap-3 px-3 py-2 rounded-lg text-sm transition-colors ${activeTool === "estimate" || estimateChildren.includes(activeTool || "") ? "bg-white/10 text-white" : "text-white/70 hover:bg-white/10 hover:text-white"}`}>
                 <div className="w-7 h-7 rounded flex items-center justify-center shrink-0" style={{ backgroundColor: "#10b98130" }}>
                   <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#10b981" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d={tools.find(t => t.id === "estimate")!.icon} /></svg>
                 </div>
@@ -1031,7 +1160,7 @@ export default function DemoDashboard() {
           <Link href="/" className="text-xs text-text-sub hover:text-primary transition-colors">トップページ</Link>
         </header>
         <main className="flex-1 p-4 sm:p-6 lg:p-8">
-          {ActiveComponent ? <ActiveComponent onCreateNew={openCreateModal} /> : <DashboardHome onToolSelect={handleToolSelect} />}
+          {ActiveComponent ? <ActiveComponent onCreateNew={openCreateModal} onExport={handleExport} /> : <DashboardHome onToolSelect={handleToolSelect} />}
         </main>
       </div>
 
