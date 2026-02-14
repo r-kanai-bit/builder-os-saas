@@ -1,0 +1,1055 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Builder OS - 建設業向け業務効率化システム</title>
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Serif+JP:wght@400;500;600;700;900&display=swap" rel="stylesheet">
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        'primary': '#18181b',
+                        'primary-light': '#3f3f46',
+                        'primary-dark': '#09090b',
+                        'accent': '#ffffff',
+                        'accent-light': '#e4e4e7',
+                        'bg-light': '#fafafa',
+                        'bg-section': '#f4f4f5',
+                        'text-main': '#18181b',
+                        'text-sub': '#71717a',
+                        'border': '#e4e4e7',
+                    },
+                    fontFamily: {
+                        'sans': ['"Noto Serif JP"', '"Yu Mincho"', '"Hiragino Mincho ProN"', 'serif'],
+                    }
+                }
+            }
+        }
+    </script>
+    <style>
+        html {
+            scroll-behavior: smooth;
+        }
+        body {
+            font-family: "Noto Serif JP", "Yu Mincho", "Hiragino Mincho ProN", serif;
+            color: #18181b;
+            background: #ffffff;
+        }
+        ::selection {
+            background-color: #18181b;
+            color: white;
+        }
+    </style>
+</head>
+<body>
+    <!-- HEADER -->
+    <header id="header" class="fixed top-0 left-0 right-0 bg-white/95 backdrop-blur-sm border-b border-border z-50">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="flex items-center justify-between h-16 sm:h-20">
+                <!-- Logo -->
+                <a href="#" class="flex items-center gap-2">
+                    <div class="w-9 h-9 sm:w-10 sm:h-10 bg-black rounded-lg flex items-center justify-center">
+                        <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                            <path d="M3 21h18" />
+                            <path d="M5 21V7l7-4 7 4v14" />
+                            <path d="M9 21v-6h6v6" />
+                        </svg>
+                    </div>
+                    <div>
+                        <span class="text-lg sm:text-xl font-bold text-black tracking-tight">Builder OS</span>
+                        <span class="hidden sm:block text-[10px] text-text-sub -mt-1 tracking-wider">住宅会社のための業務OS</span>
+                    </div>
+                </a>
+
+                <!-- Desktop Nav -->
+                <nav class="hidden md:flex items-center gap-8">
+                    <a href="#features" class="text-sm font-medium text-text-sub hover:text-primary transition-colors">機能</a>
+                    <a href="#pricing" class="text-sm font-medium text-text-sub hover:text-primary transition-colors">料金</a>
+                    <a href="#testimonials" class="text-sm font-medium text-text-sub hover:text-primary transition-colors">導入事例</a>
+                    <a href="#faq" class="text-sm font-medium text-text-sub hover:text-primary transition-colors">FAQ</a>
+                </nav>
+
+                <!-- CTA Buttons -->
+                <div class="hidden md:flex items-center gap-3">
+                    <a href="#" class="text-sm font-medium text-text-sub hover:text-black transition-colors">お問い合わせ</a>
+                    <a href="#cta" class="inline-flex items-center px-5 py-2.5 bg-black text-white text-sm font-bold rounded-lg hover:bg-zinc-800 transition-all duration-200">
+                        無料トライアル
+                    </a>
+                </div>
+
+                <!-- Mobile Menu Button -->
+                <button onclick="toggleMobileMenu()" class="md:hidden p-2 text-text-sub hover:text-primary" aria-label="メニュー">
+                    <svg id="hamburger-icon" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <path d="M3 6h18" />
+                        <path d="M3 12h18" />
+                        <path d="M3 18h18" />
+                    </svg>
+                </button>
+            </div>
+        </div>
+
+        <!-- Mobile Menu -->
+        <div id="mobile-menu" class="hidden md:hidden bg-white border-t border-border">
+            <div class="px-4 py-4 space-y-3">
+                <a href="#features" onclick="toggleMobileMenu()" class="block text-base font-medium text-text-sub hover:text-primary py-2">機能</a>
+                <a href="#pricing" onclick="toggleMobileMenu()" class="block text-base font-medium text-text-sub hover:text-primary py-2">料金</a>
+                <a href="#testimonials" onclick="toggleMobileMenu()" class="block text-base font-medium text-text-sub hover:text-primary py-2">導入事例</a>
+                <a href="#faq" onclick="toggleMobileMenu()" class="block text-base font-medium text-text-sub hover:text-primary py-2">FAQ</a>
+                <div class="pt-3 border-t border-border space-y-3">
+                    <a href="#" class="block text-base font-medium text-black py-2">お問い合わせ</a>
+                    <a href="#cta" onclick="toggleMobileMenu()" class="block w-full text-center px-5 py-3 bg-black text-white font-bold rounded-lg">
+                        無料トライアル
+                    </a>
+                </div>
+            </div>
+        </div>
+    </header>
+
+    <!-- HERO SECTION -->
+    <section class="relative overflow-hidden bg-white pt-32 sm:pt-40 pb-20 sm:pb-32">
+        <!-- Subtle grid background -->
+        <div class="absolute inset-0" style="background-image: linear-gradient(rgba(0,0,0,.03) 1px, transparent 1px), linear-gradient(90deg, rgba(0,0,0,.03) 1px, transparent 1px); background-size: 48px 48px;"></div>
+
+        <div class="relative max-w-5xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="text-center">
+                <!-- Badge -->
+                <div class="inline-flex items-center gap-2.5 border border-zinc-200 text-zinc-500 text-xs sm:text-sm font-medium px-5 py-2 rounded-full mb-10 tracking-wider">
+                    <span class="w-1.5 h-1.5 bg-zinc-900 rounded-full"></span>
+                    住宅会社のための業務OS
+                </div>
+
+                <!-- Headline -->
+                <h1 class="text-2xl sm:text-3xl lg:text-4xl xl:text-[2.75rem] font-black text-zinc-900 leading-[1.2] mb-8 tracking-tight whitespace-nowrap">
+                    住宅会社の<span class="text-zinc-400">&ldquo;</span>利益構造<span class="text-zinc-400">&rdquo;</span>を、再設計する。
+                </h1>
+
+                <!-- Subtext -->
+                <p class="text-base sm:text-lg text-zinc-500 leading-relaxed mb-12 max-w-2xl mx-auto">
+                    見積・工程管理・日報・原価管理など、<br class="hidden sm:block">
+                    住宅会社に必要な<strong class="text-zinc-900 font-bold">14のツール</strong>をワンストップで。<br class="hidden sm:block">
+                    紙とExcelの時代は、ここで終わりにする。
+                </p>
+
+                <!-- CTA -->
+                <div class="flex flex-col sm:flex-row items-center gap-4 justify-center mb-16">
+                    <a href="#cta" class="w-full sm:w-auto inline-flex items-center justify-center gap-2.5 px-10 py-4 bg-zinc-900 hover:bg-black text-white text-base font-bold rounded-lg transition-all duration-200 hover:shadow-xl">
+                        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+                            <path d="M5 12h14M12 5l7 7-7 7" />
+                        </svg>
+                        30日間 無料で始める
+                    </a>
+                    <a href="#features" class="w-full sm:w-auto inline-flex items-center justify-center gap-2 px-10 py-4 border border-zinc-300 text-zinc-700 text-base font-bold rounded-lg hover:border-zinc-500 hover:text-zinc-900 transition-all duration-200">
+                        機能を見る
+                    </a>
+                </div>
+
+                <!-- Trust Badges -->
+                <div class="flex items-center gap-8 justify-center text-zinc-400 text-xs sm:text-sm flex-wrap">
+                    <div class="flex items-center gap-2">
+                        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+                            <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z" />
+                        </svg>
+                        SSL暗号化
+                    </div>
+                    <div class="flex items-center gap-2">
+                        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+                            <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14" />
+                            <polyline points="22 4 12 14.01 9 11.01" />
+                        </svg>
+                        クレジットカード不要
+                    </div>
+                    <div class="flex items-center gap-2">
+                        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+                            <circle cx="12" cy="12" r="10" />
+                            <polyline points="12 6 12 12 16 14" />
+                        </svg>
+                        即日利用可能
+                    </div>
+                </div>
+            </div>
+
+            <!-- Dashboard Preview -->
+            <div class="mt-16 sm:mt-20 relative">
+                <div class="rounded-2xl shadow-2xl overflow-hidden border border-zinc-200">
+                    <!-- Window Chrome -->
+                    <div class="bg-zinc-100 px-4 py-3 flex items-center gap-2">
+                        <div class="w-3 h-3 rounded-full bg-zinc-300"></div>
+                        <div class="w-3 h-3 rounded-full bg-zinc-300"></div>
+                        <div class="w-3 h-3 rounded-full bg-zinc-300"></div>
+                        <div class="flex-1 ml-3 bg-white rounded-md px-3 py-1 text-xs text-zinc-400">
+                            app.builder-os.jp/dashboard
+                        </div>
+                    </div>
+                    <!-- Dashboard Image -->
+                    <img src="public/dashboard-preview.png" alt="Builder OS ダッシュボード画面" class="w-full block" />
+                </div>
+                <!-- Floating Badge -->
+                <div class="absolute -bottom-5 left-6 sm:left-10 bg-white rounded-xl shadow-lg border border-zinc-100 px-5 py-3 flex items-center gap-3">
+                    <div class="w-10 h-10 bg-zinc-100 rounded-full flex items-center justify-center">
+                        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#18181b" stroke-width="2.5">
+                            <polyline points="20 6 9 17 4 12" />
+                        </svg>
+                    </div>
+                    <div>
+                        <p class="text-[10px] text-zinc-400 tracking-wider">導入企業数</p>
+                        <p class="text-lg font-black text-zinc-900">500社以上</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- PROBLEMS SECTION -->
+    <section class="py-16 sm:py-24 bg-bg-section">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <!-- Section Header -->
+            <div class="text-center mb-12 sm:mb-16">
+                <span class="inline-block text-primary font-bold text-sm tracking-wider uppercase mb-3">
+                    PROBLEMS
+                </span>
+                <h2 class="text-2xl sm:text-3xl lg:text-4xl font-black text-text-main mb-4">
+                    建設業が抱える
+                    <span class="text-primary">3つの課題</span>
+                </h2>
+                <p class="text-text-sub text-base sm:text-lg max-w-2xl mx-auto">
+                    多くの建設会社が直面するこれらの課題を、Builder
+                    OSはワンストップで解決します。
+                </p>
+            </div>
+
+            <!-- Problem Cards -->
+            <div class="grid md:grid-cols-3 gap-6 sm:gap-8">
+                <!-- Problem 1 -->
+                <div class="bg-white rounded-2xl p-6 sm:p-8 shadow-sm hover:shadow-md transition-shadow border border-border">
+                    <div class="w-14 h-14 bg-red-50 text-red-500 rounded-xl flex items-center justify-center mb-5">
+                        <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                            <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z" />
+                            <polyline points="14 2 14 8 20 8" />
+                            <line x1="16" y1="13" x2="8" y2="13" />
+                            <line x1="16" y1="17" x2="8" y2="17" />
+                        </svg>
+                    </div>
+                    <h3 class="text-lg font-bold text-text-main mb-3">
+                        書類が多すぎて管理しきれない
+                    </h3>
+                    <p class="text-sm text-text-sub leading-relaxed mb-5">
+                        見積書・請求書・工程表・日報...紙とExcelが混在し、どこに何があるかわからない状態に。
+                    </p>
+                    <div class="bg-red-50 rounded-lg px-4 py-3">
+                        <p class="text-xl font-black text-red-600">年間 約2,000時間</p>
+                        <p class="text-xs text-red-400">書類探しに費やす時間</p>
+                    </div>
+                </div>
+
+                <!-- Problem 2 -->
+                <div class="bg-white rounded-2xl p-6 sm:p-8 shadow-sm hover:shadow-md transition-shadow border border-border">
+                    <div class="w-14 h-14 bg-red-50 text-red-500 rounded-xl flex items-center justify-center mb-5">
+                        <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                            <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2" />
+                            <circle cx="9" cy="7" r="4" />
+                            <path d="M23 21v-2a4 4 0 0 0-3-3.87" />
+                            <path d="M16 3.13a4 4 0 0 1 0 7.75" />
+                        </svg>
+                    </div>
+                    <h3 class="text-lg font-bold text-text-main mb-3">
+                        現場と事務所の情報共有が困難
+                    </h3>
+                    <p class="text-sm text-text-sub leading-relaxed mb-5">
+                        電話やFAXでのやりとりでは、伝達ミスや対応の遅れが頻発。リアルタイムの情報共有ができない。
+                    </p>
+                    <div class="bg-red-50 rounded-lg px-4 py-3">
+                        <p class="text-xl font-black text-red-600">月平均 15件</p>
+                        <p class="text-xs text-red-400">伝達ミスによるトラブル</p>
+                    </div>
+                </div>
+
+                <!-- Problem 3 -->
+                <div class="bg-white rounded-2xl p-6 sm:p-8 shadow-sm hover:shadow-md transition-shadow border border-border">
+                    <div class="w-14 h-14 bg-red-50 text-red-500 rounded-xl flex items-center justify-center mb-5">
+                        <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                            <circle cx="12" cy="12" r="10" />
+                            <line x1="12" y1="8" x2="12" y2="12" />
+                            <line x1="12" y1="16" x2="12.01" y2="16" />
+                        </svg>
+                    </div>
+                    <h3 class="text-lg font-bold text-text-main mb-3">
+                        原価管理が曖昧で利益が見えない
+                    </h3>
+                    <p class="text-sm text-text-sub leading-relaxed mb-5">
+                        工事ごとの収支が不明確。赤字工事に気づくのが完工後では手遅れに。
+                    </p>
+                    <div class="bg-red-50 rounded-lg px-4 py-3">
+                        <p class="text-xl font-black text-red-600">約30%</p>
+                        <p class="text-xs text-red-400">原価超過に気づかない工事の割合</p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Transition Arrow -->
+            <div class="text-center mt-12 sm:mt-16">
+                <div class="inline-flex items-center gap-3 bg-primary/10 text-primary font-bold text-sm sm:text-base px-6 py-3 rounded-full">
+                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+                        <path d="M12 5v14M19 12l-7 7-7-7" />
+                    </svg>
+                    これらの課題をBuilder OSがすべて解決
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- FEATURES SECTION -->
+    <section id="features" class="py-16 sm:py-24 bg-white">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <!-- Section Header -->
+            <div class="text-center mb-12 sm:mb-16">
+                <span class="inline-block text-primary font-bold text-sm tracking-wider uppercase mb-3">
+                    FEATURES
+                </span>
+                <h2 class="text-2xl sm:text-3xl lg:text-4xl font-black text-text-main mb-4">
+                    建設業に必要な
+                    <span class="text-primary">14のツール</span>を
+                    <br class="sm:hidden" />
+                    ワンストップで
+                </h2>
+                <p class="text-text-sub text-base sm:text-lg max-w-2xl mx-auto">
+                    すべてのツールが連携し、データの二重入力を排除。
+                    業務全体の効率を最大化します。
+                </p>
+            </div>
+
+            <!-- Feature Grid -->
+            <div class="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-4 sm:gap-5">
+                <!-- Feature 1: 工事台帳 -->
+                <div class="group relative bg-white border border-border rounded-xl p-4 sm:p-5 hover:shadow-lg hover:border-transparent hover:-translate-y-1 transition-all duration-300">
+                    <div class="w-11 h-11 rounded-lg flex items-center justify-center mb-3" style="background-color: #18181b10;">
+                        <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#18181b" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                            <path d="M19 3H5a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V5a2 2 0 0 0-2-2zM9 17H7v-7h2v7zm4 0h-2V7h2v10zm4 0h-2v-4h2v4z" />
+                        </svg>
+                    </div>
+                    <h3 class="font-bold text-sm sm:text-base text-text-main mb-1.5">工事台帳</h3>
+                    <p class="text-xs sm:text-sm text-text-sub leading-relaxed">全工事の情報を一元管理。進捗・契約・担当者を一目で把握。</p>
+                    <div class="absolute inset-x-0 bottom-0 h-0.5 rounded-b-xl opacity-0 group-hover:opacity-100 transition-opacity" style="background-color: #18181b;"></div>
+                </div>
+
+                <!-- Feature 2: 見積作成 -->
+                <div class="group relative bg-white border border-border rounded-xl p-4 sm:p-5 hover:shadow-lg hover:border-transparent hover:-translate-y-1 transition-all duration-300">
+                    <div class="w-11 h-11 rounded-lg flex items-center justify-center mb-3" style="background-color: #18181b10;">
+                        <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#18181b" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                            <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z M14 2v6h6 M16 13H8 M16 17H8 M10 9H8" />
+                        </svg>
+                    </div>
+                    <h3 class="font-bold text-sm sm:text-base text-text-main mb-1.5">見積作成</h3>
+                    <p class="text-xs sm:text-sm text-text-sub leading-relaxed">テンプレートで素早く見積書を作成。PDF出力にも対応。</p>
+                    <div class="absolute inset-x-0 bottom-0 h-0.5 rounded-b-xl opacity-0 group-hover:opacity-100 transition-opacity" style="background-color: #18181b;"></div>
+                </div>
+
+                <!-- Feature 3: 実行予算 -->
+                <div class="group relative bg-white border border-border rounded-xl p-4 sm:p-5 hover:shadow-lg hover:border-transparent hover:-translate-y-1 transition-all duration-300">
+                    <div class="w-11 h-11 rounded-lg flex items-center justify-center mb-3" style="background-color: #18181b10;">
+                        <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#18181b" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                            <path d="M12 1v22 M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6" />
+                        </svg>
+                    </div>
+                    <h3 class="font-bold text-sm sm:text-base text-text-main mb-1.5">実行予算</h3>
+                    <p class="text-xs sm:text-sm text-text-sub leading-relaxed">工事別の予算を科目ごとに管理。予実差異をリアルタイムで把握。</p>
+                    <div class="absolute inset-x-0 bottom-0 h-0.5 rounded-b-xl opacity-0 group-hover:opacity-100 transition-opacity" style="background-color: #18181b;"></div>
+                </div>
+
+                <!-- Feature 4: 発注管理 -->
+                <div class="group relative bg-white border border-border rounded-xl p-4 sm:p-5 hover:shadow-lg hover:border-transparent hover:-translate-y-1 transition-all duration-300">
+                    <div class="w-11 h-11 rounded-lg flex items-center justify-center mb-3" style="background-color: #18181b10;">
+                        <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#18181b" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                            <path d="M20.59 13.41l-7.17 7.17a2 2 0 0 1-2.83 0L2 12V2h10l8.59 8.59a2 2 0 0 1 0 2.82z M7 7h.01" />
+                        </svg>
+                    </div>
+                    <h3 class="font-bold text-sm sm:text-base text-text-main mb-1.5">発注管理</h3>
+                    <p class="text-xs sm:text-sm text-text-sub leading-relaxed">協力業者への発注を一括管理。発注書の作成から承認まで。</p>
+                    <div class="absolute inset-x-0 bottom-0 h-0.5 rounded-b-xl opacity-0 group-hover:opacity-100 transition-opacity" style="background-color: #18181b;"></div>
+                </div>
+
+                <!-- Feature 5: 工程管理 -->
+                <div class="group relative bg-white border border-border rounded-xl p-4 sm:p-5 hover:shadow-lg hover:border-transparent hover:-translate-y-1 transition-all duration-300">
+                    <div class="w-11 h-11 rounded-lg flex items-center justify-center mb-3" style="background-color: #18181b10;">
+                        <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#18181b" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                            <path d="M8 6h13 M8 12h13 M8 18h13 M3 6h.01 M3 12h.01 M3 18h.01" />
+                        </svg>
+                    </div>
+                    <h3 class="font-bold text-sm sm:text-base text-text-main mb-1.5">工程管理</h3>
+                    <p class="text-xs sm:text-sm text-text-sub leading-relaxed">ガントチャートで工程を可視化。遅延を即座に検知。</p>
+                    <div class="absolute inset-x-0 bottom-0 h-0.5 rounded-b-xl opacity-0 group-hover:opacity-100 transition-opacity" style="background-color: #18181b;"></div>
+                </div>
+
+                <!-- Feature 6: 入金管理 -->
+                <div class="group relative bg-white border border-border rounded-xl p-4 sm:p-5 hover:shadow-lg hover:border-transparent hover:-translate-y-1 transition-all duration-300">
+                    <div class="w-11 h-11 rounded-lg flex items-center justify-center mb-3" style="background-color: #18181b10;">
+                        <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#18181b" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                            <path d="M21 4H3a2 2 0 0 0-2 2v12a2 2 0 0 0 2 2h18a2 2 0 0 0 2-2V6a2 2 0 0 0-2-2z M1 10h22" />
+                        </svg>
+                    </div>
+                    <h3 class="font-bold text-sm sm:text-base text-text-main mb-1.5">入金管理</h3>
+                    <p class="text-xs sm:text-sm text-text-sub leading-relaxed">請求・入金状況を一覧管理。未回収を自動アラート。</p>
+                    <div class="absolute inset-x-0 bottom-0 h-0.5 rounded-b-xl opacity-0 group-hover:opacity-100 transition-opacity" style="background-color: #18181b;"></div>
+                </div>
+
+                <!-- Feature 7: 原価管理 -->
+                <div class="group relative bg-white border border-border rounded-xl p-4 sm:p-5 hover:shadow-lg hover:border-transparent hover:-translate-y-1 transition-all duration-300">
+                    <div class="w-11 h-11 rounded-lg flex items-center justify-center mb-3" style="background-color: #18181b10;">
+                        <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#18181b" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                            <path d="M22 12h-4l-3 9L9 3l-3 9H2" />
+                        </svg>
+                    </div>
+                    <h3 class="font-bold text-sm sm:text-base text-text-main mb-1.5">原価管理</h3>
+                    <p class="text-xs sm:text-sm text-text-sub leading-relaxed">工事別の原価をリアルタイムで集計。粗利率を自動計算。</p>
+                    <div class="absolute inset-x-0 bottom-0 h-0.5 rounded-b-xl opacity-0 group-hover:opacity-100 transition-opacity" style="background-color: #18181b;"></div>
+                </div>
+
+                <!-- Feature 8: 日報管理 -->
+                <div class="group relative bg-white border border-border rounded-xl p-4 sm:p-5 hover:shadow-lg hover:border-transparent hover:-translate-y-1 transition-all duration-300">
+                    <div class="w-11 h-11 rounded-lg flex items-center justify-center mb-3" style="background-color: #18181b10;">
+                        <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#18181b" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                            <path d="M12 20h9 M16.5 3.5a2.121 2.121 0 0 1 3 3L7 19l-4 1 1-4L16.5 3.5z" />
+                        </svg>
+                    </div>
+                    <h3 class="font-bold text-sm sm:text-base text-text-main mb-1.5">日報管理</h3>
+                    <p class="text-xs sm:text-sm text-text-sub leading-relaxed">現場からスマホで日報提出。写真添付・天候記録に対応。</p>
+                    <div class="absolute inset-x-0 bottom-0 h-0.5 rounded-b-xl opacity-0 group-hover:opacity-100 transition-opacity" style="background-color: #18181b;"></div>
+                </div>
+
+                <!-- Feature 9: 写真管理 -->
+                <div class="group relative bg-white border border-border rounded-xl p-4 sm:p-5 hover:shadow-lg hover:border-transparent hover:-translate-y-1 transition-all duration-300">
+                    <div class="w-11 h-11 rounded-lg flex items-center justify-center mb-3" style="background-color: #18181b10;">
+                        <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#18181b" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                            <path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z M12 13a3 3 0 1 0 0-6 3 3 0 0 0 0 6z" />
+                        </svg>
+                    </div>
+                    <h3 class="font-bold text-sm sm:text-base text-text-main mb-1.5">写真管理</h3>
+                    <p class="text-xs sm:text-sm text-text-sub leading-relaxed">工事写真をクラウドで一元管理。台帳自動生成にも対応。</p>
+                    <div class="absolute inset-x-0 bottom-0 h-0.5 rounded-b-xl opacity-0 group-hover:opacity-100 transition-opacity" style="background-color: #18181b;"></div>
+                </div>
+
+                <!-- Feature 10: 顧客管理 -->
+                <div class="group relative bg-white border border-border rounded-xl p-4 sm:p-5 hover:shadow-lg hover:border-transparent hover:-translate-y-1 transition-all duration-300">
+                    <div class="w-11 h-11 rounded-lg flex items-center justify-center mb-3" style="background-color: #18181b10;">
+                        <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#18181b" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                            <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2 M12 3a4 4 0 1 0 0 8 4 4 0 0 0 0-8z" />
+                        </svg>
+                    </div>
+                    <h3 class="font-bold text-sm sm:text-base text-text-main mb-1.5">顧客管理</h3>
+                    <p class="text-xs sm:text-sm text-text-sub leading-relaxed">顧客情報と過去の工事履歴を紐付けて管理。リピート受注を促進。</p>
+                    <div class="absolute inset-x-0 bottom-0 h-0.5 rounded-b-xl opacity-0 group-hover:opacity-100 transition-opacity" style="background-color: #18181b;"></div>
+                </div>
+
+                <!-- Feature 11: アフター管理 -->
+                <div class="group relative bg-white border border-border rounded-xl p-4 sm:p-5 hover:shadow-lg hover:border-transparent hover:-translate-y-1 transition-all duration-300">
+                    <div class="w-11 h-11 rounded-lg flex items-center justify-center mb-3" style="background-color: #18181b10;">
+                        <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#18181b" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                            <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14 M22 4L12 14.01l-3-3" />
+                        </svg>
+                    </div>
+                    <h3 class="font-bold text-sm sm:text-base text-text-main mb-1.5">アフター管理</h3>
+                    <p class="text-xs sm:text-sm text-text-sub leading-relaxed">引渡し後の定期点検・クレーム対応を漏れなく管理。</p>
+                    <div class="absolute inset-x-0 bottom-0 h-0.5 rounded-b-xl opacity-0 group-hover:opacity-100 transition-opacity" style="background-color: #18181b;"></div>
+                </div>
+
+                <!-- Feature 12: 書類管理 -->
+                <div class="group relative bg-white border border-border rounded-xl p-4 sm:p-5 hover:shadow-lg hover:border-transparent hover:-translate-y-1 transition-all duration-300">
+                    <div class="w-11 h-11 rounded-lg flex items-center justify-center mb-3" style="background-color: #18181b10;">
+                        <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#18181b" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                            <path d="M22 19a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h5l2 3h9a2 2 0 0 1 2 2z" />
+                        </svg>
+                    </div>
+                    <h3 class="font-bold text-sm sm:text-base text-text-main mb-1.5">書類管理</h3>
+                    <p class="text-xs sm:text-sm text-text-sub leading-relaxed">契約書・図面・許可書等をクラウドで安全に保管・共有。</p>
+                    <div class="absolute inset-x-0 bottom-0 h-0.5 rounded-b-xl opacity-0 group-hover:opacity-100 transition-opacity" style="background-color: #18181b;"></div>
+                </div>
+
+                <!-- Feature 13: 業者管理 -->
+                <div class="group relative bg-white border border-border rounded-xl p-4 sm:p-5 hover:shadow-lg hover:border-transparent hover:-translate-y-1 transition-all duration-300">
+                    <div class="w-11 h-11 rounded-lg flex items-center justify-center mb-3" style="background-color: #18181b10;">
+                        <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#18181b" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                            <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2 M9 3a4 4 0 1 0 0 8 4 4 0 0 0 0-8z M23 21v-2a4 4 0 0 0-3-3.87 M16 3.13a4 4 0 0 1 0 7.75" />
+                        </svg>
+                    </div>
+                    <h3 class="font-bold text-sm sm:text-base text-text-main mb-1.5">業者管理</h3>
+                    <p class="text-xs sm:text-sm text-text-sub leading-relaxed">協力業者の情報・評価・取引履歴を一元管理。</p>
+                    <div class="absolute inset-x-0 bottom-0 h-0.5 rounded-b-xl opacity-0 group-hover:opacity-100 transition-opacity" style="background-color: #18181b;"></div>
+                </div>
+
+                <!-- Feature 14: 経営分析 -->
+                <div class="group relative bg-white border border-border rounded-xl p-4 sm:p-5 hover:shadow-lg hover:border-transparent hover:-translate-y-1 transition-all duration-300">
+                    <div class="w-11 h-11 rounded-lg flex items-center justify-center mb-3" style="background-color: #18181b10;">
+                        <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#18181b" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                            <path d="M18 20V10 M12 20V4 M6 20v-6" />
+                        </svg>
+                    </div>
+                    <h3 class="font-bold text-sm sm:text-base text-text-main mb-1.5">経営分析</h3>
+                    <p class="text-xs sm:text-sm text-text-sub leading-relaxed">売上・利益・受注状況をダッシュボードで可視化。経営判断を支援。</p>
+                    <div class="absolute inset-x-0 bottom-0 h-0.5 rounded-b-xl opacity-0 group-hover:opacity-100 transition-opacity" style="background-color: #18181b;"></div>
+                </div>
+            </div>
+
+            <!-- Integration Note -->
+            <div class="mt-10 sm:mt-14 bg-gradient-to-r from-primary/5 to-primary-light/5 rounded-2xl p-6 sm:p-8 text-center">
+                <div class="flex items-center justify-center gap-2 text-primary font-bold text-sm sm:text-base mb-2">
+                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71" />
+                        <path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71" />
+                    </svg>
+                    すべてのツールがシームレスに連携
+                </div>
+                <p class="text-sm text-text-sub max-w-xl mx-auto">
+                    工事台帳に登録した情報は、見積・発注・原価・日報すべてのツールに自動反映。
+                    データの二重入力をゼロにします。
+                </p>
+            </div>
+        </div>
+    </section>
+
+    <!-- PRICING SECTION -->
+    <section id="pricing" class="py-16 sm:py-24 bg-bg-section">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <!-- Section Header -->
+            <div class="text-center mb-12 sm:mb-16">
+                <span class="inline-block text-primary font-bold text-sm tracking-wider uppercase mb-3">
+                    PRICING
+                </span>
+                <h2 class="text-2xl sm:text-3xl lg:text-4xl font-black text-text-main mb-4">
+                    シンプルで
+                    <span class="text-primary">わかりやすい</span>
+                    料金体系
+                </h2>
+                <p class="text-text-sub text-base sm:text-lg max-w-2xl mx-auto">
+                    すべてのプランに30日間の無料トライアル付き。初期費用・解約違約金は一切不要です。
+                </p>
+            </div>
+
+            <!-- Single Plan -->
+            <div class="max-w-lg mx-auto">
+                <div class="relative rounded-2xl p-8 sm:p-10 bg-white shadow-xl border-2 border-zinc-900">
+                    <div class="absolute -top-3 left-1/2 -translate-x-1/2">
+                        <span class="bg-zinc-900 text-white text-xs font-bold px-4 py-1.5 rounded-full">全機能利用可能</span>
+                    </div>
+
+                    <div class="text-center mb-8">
+                        <h3 class="text-xl font-bold mb-1 text-primary">Builder OS</h3>
+                        <p class="text-sm text-text-sub mb-6">すべての住宅会社のために</p>
+                        <div class="flex items-baseline justify-center gap-1">
+                            <span class="text-sm text-text-sub">¥</span>
+                            <span class="text-5xl sm:text-6xl font-black text-text-main">5,000</span>
+                            <span class="text-sm text-text-sub">/月（税別）</span>
+                        </div>
+                        <p class="text-xs text-text-sub mt-2">ユーザー数無制限</p>
+                    </div>
+
+                    <!-- CTA -->
+                    <a href="#cta" class="block w-full text-center py-4 rounded-lg font-bold text-base transition-all duration-200 mb-8 bg-zinc-900 text-white hover:bg-black hover:shadow-lg">
+                        30日間 無料で試す
+                    </a>
+
+                    <!-- Features - 2 columns -->
+                    <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                        <div class="flex items-start gap-2.5">
+                            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#18181b" stroke-width="2.5" class="flex-shrink-0 mt-0.5"><polyline points="20 6 9 17 4 12" /></svg>
+                            <span class="text-sm text-text-main">14ツールすべて利用可能</span>
+                        </div>
+                        <div class="flex items-start gap-2.5">
+                            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#18181b" stroke-width="2.5" class="flex-shrink-0 mt-0.5"><polyline points="20 6 9 17 4 12" /></svg>
+                            <span class="text-sm text-text-main">クラウドストレージ無制限</span>
+                        </div>
+                        <div class="flex items-start gap-2.5">
+                            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#18181b" stroke-width="2.5" class="flex-shrink-0 mt-0.5"><polyline points="20 6 9 17 4 12" /></svg>
+                            <span class="text-sm text-text-main">電話・チャットサポート</span>
+                        </div>
+                        <div class="flex items-start gap-2.5">
+                            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#18181b" stroke-width="2.5" class="flex-shrink-0 mt-0.5"><polyline points="20 6 9 17 4 12" /></svg>
+                            <span class="text-sm text-text-main">API連携（会計ソフト等）</span>
+                        </div>
+                        <div class="flex items-start gap-2.5">
+                            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#18181b" stroke-width="2.5" class="flex-shrink-0 mt-0.5"><polyline points="20 6 9 17 4 12" /></svg>
+                            <span class="text-sm text-text-main">リアルタイムバックアップ</span>
+                        </div>
+                        <div class="flex items-start gap-2.5">
+                            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#18181b" stroke-width="2.5" class="flex-shrink-0 mt-0.5"><polyline points="20 6 9 17 4 12" /></svg>
+                            <span class="text-sm text-text-main">モバイル完全対応</span>
+                        </div>
+                        <div class="flex items-start gap-2.5">
+                            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#18181b" stroke-width="2.5" class="flex-shrink-0 mt-0.5"><polyline points="20 6 9 17 4 12" /></svg>
+                            <span class="text-sm text-text-main">カスタムレポート</span>
+                        </div>
+                        <div class="flex items-start gap-2.5">
+                            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#18181b" stroke-width="2.5" class="flex-shrink-0 mt-0.5"><polyline points="20 6 9 17 4 12" /></svg>
+                            <span class="text-sm text-text-main">権限管理（部門別）</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Note -->
+            <p class="text-center text-xs text-text-sub mt-8">
+                ※ 表示価格は税別です。初期費用・解約違約金は一切不要です。
+            </p>
+        </div>
+    </section>
+
+    <!-- TESTIMONIALS SECTION -->
+    <section id="testimonials" class="py-16 sm:py-24 bg-white">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <!-- Section Header -->
+            <div class="text-center mb-12 sm:mb-16">
+                <span class="inline-block text-primary font-bold text-sm tracking-wider uppercase mb-3">
+                    TESTIMONIALS
+                </span>
+                <h2 class="text-2xl sm:text-3xl lg:text-4xl font-black text-text-main mb-4">
+                    導入企業の
+                    <span class="text-primary">声</span>
+                </h2>
+                <p class="text-text-sub text-base sm:text-lg max-w-2xl mx-auto">
+                    全国の建設会社様にご利用いただき、業務改善を実感いただいています。
+                </p>
+            </div>
+
+            <!-- Testimonial Cards -->
+            <div class="grid md:grid-cols-3 gap-6 sm:gap-8">
+                <!-- Testimonial 1 -->
+                <div class="bg-bg-light rounded-2xl p-6 sm:p-8 border border-border">
+                    <!-- Rating -->
+                    <div class="flex items-center gap-1 mb-4">
+                        <svg width="16" height="16" viewBox="0 0 24 24" fill="#18181b" stroke="#18181b" stroke-width="1">
+                            <polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2" />
+                        </svg>
+                        <svg width="16" height="16" viewBox="0 0 24 24" fill="#18181b" stroke="#18181b" stroke-width="1">
+                            <polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2" />
+                        </svg>
+                        <svg width="16" height="16" viewBox="0 0 24 24" fill="#18181b" stroke="#18181b" stroke-width="1">
+                            <polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2" />
+                        </svg>
+                        <svg width="16" height="16" viewBox="0 0 24 24" fill="#18181b" stroke="#18181b" stroke-width="1">
+                            <polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2" />
+                        </svg>
+                        <svg width="16" height="16" viewBox="0 0 24 24" fill="#18181b" stroke="#18181b" stroke-width="1">
+                            <polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2" />
+                        </svg>
+                    </div>
+
+                    <!-- Quote -->
+                    <p class="text-sm text-text-main leading-relaxed mb-6">
+                        &ldquo;導入前はExcelで見積書を作るのに半日かかっていましたが、今は30分で完成します。月末の請求処理も劇的に楽になりました。&rdquo;
+                    </p>
+
+                    <!-- Metric -->
+                    <div class="rounded-lg px-4 py-3 mb-6" style="background-color: #18181b10;">
+                        <p class="text-lg font-black" style="color: #18181b;">業務時間 60%削減</p>
+                    </div>
+
+                    <!-- Author -->
+                    <div class="flex items-center gap-3">
+                        <div class="w-10 h-10 rounded-full flex items-center justify-center text-white font-bold text-sm" style="background-color: #18181b;">M</div>
+                        <div>
+                            <p class="font-bold text-sm text-text-main">株式会社 丸和建設</p>
+                            <p class="text-xs text-text-sub">代表取締役 松本 宏樹 / 東京都世田谷区 / 従業員 42名</p>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Testimonial 2 -->
+                <div class="bg-bg-light rounded-2xl p-6 sm:p-8 border border-border">
+                    <!-- Rating -->
+                    <div class="flex items-center gap-1 mb-4">
+                        <svg width="16" height="16" viewBox="0 0 24 24" fill="#18181b" stroke="#18181b" stroke-width="1">
+                            <polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2" />
+                        </svg>
+                        <svg width="16" height="16" viewBox="0 0 24 24" fill="#18181b" stroke="#18181b" stroke-width="1">
+                            <polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2" />
+                        </svg>
+                        <svg width="16" height="16" viewBox="0 0 24 24" fill="#18181b" stroke="#18181b" stroke-width="1">
+                            <polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2" />
+                        </svg>
+                        <svg width="16" height="16" viewBox="0 0 24 24" fill="#18181b" stroke="#18181b" stroke-width="1">
+                            <polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2" />
+                        </svg>
+                        <svg width="16" height="16" viewBox="0 0 24 24" fill="#18181b" stroke="#18181b" stroke-width="1">
+                            <polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2" />
+                        </svg>
+                    </div>
+
+                    <!-- Quote -->
+                    <p class="text-sm text-text-main leading-relaxed mb-6">
+                        &ldquo;現場の日報が紙からスマホに変わり、事務所との情報共有がリアルタイムに。伝達ミスがほぼゼロになりました。&rdquo;
+                    </p>
+
+                    <!-- Metric -->
+                    <div class="rounded-lg px-4 py-3 mb-6" style="background-color: #18181b10;">
+                        <p class="text-lg font-black" style="color: #18181b;">伝達ミス 95%減少</p>
+                    </div>
+
+                    <!-- Author -->
+                    <div class="flex items-center gap-3">
+                        <div class="w-10 h-10 rounded-full flex items-center justify-center text-white font-bold text-sm" style="background-color: #18181b;">N</div>
+                        <div>
+                            <p class="font-bold text-sm text-text-main">中村住建株式会社</p>
+                            <p class="text-xs text-text-sub">工事部長 中村 誠一 / 大阪府堺市 / 従業員 18名</p>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Testimonial 3 -->
+                <div class="bg-bg-light rounded-2xl p-6 sm:p-8 border border-border">
+                    <!-- Rating -->
+                    <div class="flex items-center gap-1 mb-4">
+                        <svg width="16" height="16" viewBox="0 0 24 24" fill="#18181b" stroke="#18181b" stroke-width="1">
+                            <polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2" />
+                        </svg>
+                        <svg width="16" height="16" viewBox="0 0 24 24" fill="#18181b" stroke="#18181b" stroke-width="1">
+                            <polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2" />
+                        </svg>
+                        <svg width="16" height="16" viewBox="0 0 24 24" fill="#18181b" stroke="#18181b" stroke-width="1">
+                            <polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2" />
+                        </svg>
+                        <svg width="16" height="16" viewBox="0 0 24 24" fill="#18181b" stroke="#18181b" stroke-width="1">
+                            <polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2" />
+                        </svg>
+                        <svg width="16" height="16" viewBox="0 0 24 24" fill="#18181b" stroke="#18181b" stroke-width="1">
+                            <polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2" />
+                        </svg>
+                    </div>
+
+                    <!-- Quote -->
+                    <p class="text-sm text-text-main leading-relaxed mb-6">
+                        &ldquo;工事ごとの原価がリアルタイムで見えるようになり、赤字工事を未然に防げるようになりました。経営判断のスピードが格段に上がっています。&rdquo;
+                    </p>
+
+                    <!-- Metric -->
+                    <div class="rounded-lg px-4 py-3 mb-6" style="background-color: #18181b10;">
+                        <p class="text-lg font-black" style="color: #18181b;">粗利率 8%改善</p>
+                    </div>
+
+                    <!-- Author -->
+                    <div class="flex items-center gap-3">
+                        <div class="w-10 h-10 rounded-full flex items-center justify-center text-white font-bold text-sm" style="background-color: #18181b;">W</div>
+                        <div>
+                            <p class="font-bold text-sm text-text-main">渡辺ホーム株式会社</p>
+                            <p class="text-xs text-text-sub">経営管理部 渡辺 裕子 / 愛知県名古屋市 / 従業員 75名</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Stats Bar -->
+            <div class="mt-12 sm:mt-16 bg-zinc-900 rounded-2xl p-8 sm:p-10">
+                <div class="grid grid-cols-2 md:grid-cols-4 gap-6 sm:gap-8 text-center text-white">
+                    <div>
+                        <p class="text-2xl sm:text-3xl lg:text-4xl font-black">500+</p>
+                        <p class="text-xs sm:text-sm text-white/70 mt-1">導入企業数</p>
+                    </div>
+                    <div>
+                        <p class="text-2xl sm:text-3xl lg:text-4xl font-black">98%</p>
+                        <p class="text-xs sm:text-sm text-white/70 mt-1">継続利用率</p>
+                    </div>
+                    <div>
+                        <p class="text-2xl sm:text-3xl lg:text-4xl font-black">60%</p>
+                        <p class="text-xs sm:text-sm text-white/70 mt-1">平均業務時間削減</p>
+                    </div>
+                    <div>
+                        <p class="text-2xl sm:text-3xl lg:text-4xl font-black">4.8</p>
+                        <p class="text-xs sm:text-sm text-white/70 mt-1">顧客満足度（5点満点）</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- FAQ SECTION -->
+    <section id="faq" class="py-16 sm:py-24 bg-bg-section">
+        <div class="max-w-3xl mx-auto px-4 sm:px-6 lg:px-8">
+            <!-- Section Header -->
+            <div class="text-center mb-12 sm:mb-16">
+                <span class="inline-block text-primary font-bold text-sm tracking-wider uppercase mb-3">
+                    FAQ
+                </span>
+                <h2 class="text-2xl sm:text-3xl lg:text-4xl font-black text-text-main mb-4">
+                    よくある
+                    <span class="text-primary">ご質問</span>
+                </h2>
+            </div>
+
+            <!-- FAQ Accordion -->
+            <div class="space-y-3" id="faq-container">
+                <!-- FAQ Item 1 -->
+                <div class="bg-white rounded-xl border border-border overflow-hidden">
+                    <button onclick="toggleFAQ(0)" class="w-full flex items-center justify-between gap-4 px-5 sm:px-6 py-4 sm:py-5 text-left hover:bg-bg-light transition-colors">
+                        <span class="font-bold text-sm sm:text-base text-text-main">無料トライアル中に機能制限はありますか？</span>
+                        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" class="faq-icon flex-shrink-0 text-text-sub transition-transform duration-200" style="transform: rotate(0deg);">
+                            <polyline points="6 9 12 15 18 9" />
+                        </svg>
+                    </button>
+                    <div class="faq-content hidden px-5 sm:px-6 pb-4 sm:pb-5">
+                        <p class="text-sm text-text-sub leading-relaxed">いいえ、30日間の無料トライアル期間中はプロプランの全機能をご利用いただけます。トライアル終了後は自動的にご請求が開始されますが、いつでもキャンセル可能です。</p>
+                    </div>
+                </div>
+
+                <!-- FAQ Item 2 -->
+                <div class="bg-white rounded-xl border border-border overflow-hidden">
+                    <button onclick="toggleFAQ(1)" class="w-full flex items-center justify-between gap-4 px-5 sm:px-6 py-4 sm:py-5 text-left hover:bg-bg-light transition-colors">
+                        <span class="font-bold text-sm sm:text-base text-text-main">建設業以外でも利用できますか？</span>
+                        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" class="faq-icon flex-shrink-0 text-text-sub transition-transform duration-200">
+                            <polyline points="6 9 12 15 18 9" />
+                        </svg>
+                    </button>
+                    <div class="faq-content hidden px-5 sm:px-6 pb-4 sm:pb-5">
+                        <p class="text-sm text-text-sub leading-relaxed">Builder OSは建設業に特化して設計されています。工事管理・見積・原価管理などの機能は建設業界の業務フローに最適化されています。設備工事・電気工事・リフォームなど建設関連の幅広い業種でご利用いただけます。</p>
+                    </div>
+                </div>
+
+                <!-- FAQ Item 3 -->
+                <div class="bg-white rounded-xl border border-border overflow-hidden">
+                    <button onclick="toggleFAQ(2)" class="w-full flex items-center justify-between gap-4 px-5 sm:px-6 py-4 sm:py-5 text-left hover:bg-bg-light transition-colors">
+                        <span class="font-bold text-sm sm:text-base text-text-main">導入にどのくらい時間がかかりますか？</span>
+                        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" class="faq-icon flex-shrink-0 text-text-sub transition-transform duration-200">
+                            <polyline points="6 9 12 15 18 9" />
+                        </svg>
+                    </button>
+                    <div class="faq-content hidden px-5 sm:px-6 pb-4 sm:pb-5">
+                        <p class="text-sm text-text-sub leading-relaxed">アカウント作成から利用開始まで最短即日です。クラウドサービスのため、ソフトのインストールは不要。初期設定（会社情報の登録等）は約10分で完了します。データ移行が必要な場合は、サポートチームがお手伝いいたします。</p>
+                    </div>
+                </div>
+
+                <!-- FAQ Item 4 -->
+                <div class="bg-white rounded-xl border border-border overflow-hidden">
+                    <button onclick="toggleFAQ(3)" class="w-full flex items-center justify-between gap-4 px-5 sm:px-6 py-4 sm:py-5 text-left hover:bg-bg-light transition-colors">
+                        <span class="font-bold text-sm sm:text-base text-text-main">スマートフォンから利用できますか？</span>
+                        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" class="faq-icon flex-shrink-0 text-text-sub transition-transform duration-200">
+                            <polyline points="6 9 12 15 18 9" />
+                        </svg>
+                    </button>
+                    <div class="faq-content hidden px-5 sm:px-6 pb-4 sm:pb-5">
+                        <p class="text-sm text-text-sub leading-relaxed">はい、すべての機能がスマートフォン・タブレットに対応しています。現場からの日報提出・写真アップロード・工程確認など、外出先でもすべての操作が可能です。</p>
+                    </div>
+                </div>
+
+                <!-- FAQ Item 5 -->
+                <div class="bg-white rounded-xl border border-border overflow-hidden">
+                    <button onclick="toggleFAQ(4)" class="w-full flex items-center justify-between gap-4 px-5 sm:px-6 py-4 sm:py-5 text-left hover:bg-bg-light transition-colors">
+                        <span class="font-bold text-sm sm:text-base text-text-main">データのセキュリティは大丈夫ですか？</span>
+                        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" class="faq-icon flex-shrink-0 text-text-sub transition-transform duration-200">
+                            <polyline points="6 9 12 15 18 9" />
+                        </svg>
+                    </button>
+                    <div class="faq-content hidden px-5 sm:px-6 pb-4 sm:pb-5">
+                        <p class="text-sm text-text-sub leading-relaxed">SSL/TLS暗号化通信、データの日次自動バックアップ、AWS上での冗長化構成など、エンタープライズレベルのセキュリティを標準装備しています。ISMS認証の取得も予定しています。</p>
+                    </div>
+                </div>
+
+                <!-- FAQ Item 6 -->
+                <div class="bg-white rounded-xl border border-border overflow-hidden">
+                    <button onclick="toggleFAQ(5)" class="w-full flex items-center justify-between gap-4 px-5 sm:px-6 py-4 sm:py-5 text-left hover:bg-bg-light transition-colors">
+                        <span class="font-bold text-sm sm:text-base text-text-main">既存のExcelデータを移行できますか？</span>
+                        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" class="faq-icon flex-shrink-0 text-text-sub transition-transform duration-200">
+                            <polyline points="6 9 12 15 18 9" />
+                        </svg>
+                    </button>
+                    <div class="faq-content hidden px-5 sm:px-6 pb-4 sm:pb-5">
+                        <p class="text-sm text-text-sub leading-relaxed">はい、CSVインポート機能により、既存のExcelデータ（顧客情報・業者情報・工事データ等）をスムーズに移行できます。プロプラン以上では、サポートチームによる移行支援も無料で提供しています。</p>
+                    </div>
+                </div>
+
+                <!-- FAQ Item 7 -->
+                <div class="bg-white rounded-xl border border-border overflow-hidden">
+                    <button onclick="toggleFAQ(6)" class="w-full flex items-center justify-between gap-4 px-5 sm:px-6 py-4 sm:py-5 text-left hover:bg-bg-light transition-colors">
+                        <span class="font-bold text-sm sm:text-base text-text-main">契約の縛りや解約違約金はありますか？</span>
+                        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" class="faq-icon flex-shrink-0 text-text-sub transition-transform duration-200">
+                            <polyline points="6 9 12 15 18 9" />
+                        </svg>
+                    </button>
+                    <div class="faq-content hidden px-5 sm:px-6 pb-4 sm:pb-5">
+                        <p class="text-sm text-text-sub leading-relaxed">月額プランには契約の縛りや解約違約金は一切ありません。いつでもお好きなタイミングで解約可能です。年間契約をお選びいただくと20%の割引が適用されます。</p>
+                    </div>
+                </div>
+
+                <!-- FAQ Item 8 -->
+                <div class="bg-white rounded-xl border border-border overflow-hidden">
+                    <button onclick="toggleFAQ(7)" class="w-full flex items-center justify-between gap-4 px-5 sm:px-6 py-4 sm:py-5 text-left hover:bg-bg-light transition-colors">
+                        <span class="font-bold text-sm sm:text-base text-text-main">他の会計ソフトとの連携は可能ですか？</span>
+                        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" class="faq-icon flex-shrink-0 text-text-sub transition-transform duration-200">
+                            <polyline points="6 9 12 15 18 9" />
+                        </svg>
+                    </button>
+                    <div class="faq-content hidden px-5 sm:px-6 pb-4 sm:pb-5">
+                        <p class="text-sm text-text-sub leading-relaxed">プロプラン以上でAPI連携機能をご利用いただけます。弥生会計・freee・マネーフォワードなど主要な会計ソフトとの連携に対応しています。</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- CTA SECTION -->
+    <section id="cta" class="py-16 sm:py-24 bg-zinc-950 relative overflow-hidden">
+        <div class="absolute inset-0" style="background-image: linear-gradient(rgba(255,255,255,.02) 1px, transparent 1px), linear-gradient(90deg, rgba(255,255,255,.02) 1px, transparent 1px); background-size: 48px 48px;"></div>
+
+        <div class="relative max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
+            <h2 class="text-2xl sm:text-3xl lg:text-4xl font-black text-white mb-4 sm:mb-6 tracking-tight">
+                まずは30日間、無料で体験してみませんか？
+            </h2>
+            <p class="text-base sm:text-lg text-zinc-400 mb-8 sm:mb-10 max-w-2xl mx-auto">
+                初期費用ゼロ・クレジットカード登録不要。<br class="hidden sm:block">
+                今すぐアカウントを作成して、Builder OSの全機能をお試しください。
+            </p>
+
+            <div class="flex flex-col sm:flex-row items-center justify-center gap-4 mb-10">
+                <a href="#" class="w-full sm:w-auto inline-flex items-center justify-center gap-2 px-10 py-4 bg-white hover:bg-zinc-100 text-zinc-900 text-lg font-black rounded-lg transition-all duration-200">
+                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+                        <path d="M5 12h14M12 5l7 7-7 7" />
+                    </svg>
+                    無料トライアルを始める
+                </a>
+                <a href="#" class="w-full sm:w-auto inline-flex items-center justify-center gap-2 px-10 py-4 border border-zinc-700 text-zinc-300 text-lg font-bold rounded-lg hover:border-zinc-500 hover:text-white transition-all duration-200">
+                    資料請求・お問い合わせ
+                </a>
+            </div>
+
+            <!-- Trust elements -->
+            <div class="flex flex-wrap items-center justify-center gap-6 text-zinc-500 text-sm">
+                <div class="flex items-center gap-2">
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+                        <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14" />
+                        <polyline points="22 4 12 14.01 9 11.01" />
+                    </svg>
+                    30日間完全無料
+                </div>
+                <div class="flex items-center gap-2">
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+                        <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14" />
+                        <polyline points="22 4 12 14.01 9 11.01" />
+                    </svg>
+                    クレジットカード不要
+                </div>
+                <div class="flex items-center gap-2">
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+                        <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14" />
+                        <polyline points="22 4 12 14.01 9 11.01" />
+                    </svg>
+                    いつでも解約OK
+                </div>
+                <div class="flex items-center gap-2">
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+                        <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14" />
+                        <polyline points="22 4 12 14.01 9 11.01" />
+                    </svg>
+                    導入サポート付き
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- FOOTER -->
+    <footer class="bg-zinc-900 text-white">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12 sm:py-16">
+            <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-8 sm:gap-12">
+                <!-- Brand -->
+                <div class="sm:col-span-2 lg:col-span-1">
+                    <div class="flex items-center gap-2 mb-4">
+                        <div class="w-9 h-9 bg-white/20 rounded-lg flex items-center justify-center">
+                            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                <path d="M3 21h18" />
+                                <path d="M5 21V7l7-4 7 4v14" />
+                                <path d="M9 21v-6h6v6" />
+                            </svg>
+                        </div>
+                        <span class="text-lg font-bold">Builder OS</span>
+                    </div>
+                    <p class="text-white/70 text-sm leading-relaxed">
+                        住宅会社に必要な14のツールをワンストップで提供する
+                        <br>
+                        業務効率化クラウドシステム
+                    </p>
+                </div>
+
+                <!-- Product -->
+                <div>
+                    <h4 class="font-bold text-sm mb-4 text-white/90">プロダクト</h4>
+                    <ul class="space-y-2.5">
+                        <li><a href="#features" class="text-sm text-white/60 hover:text-white transition-colors">機能一覧</a></li>
+                        <li><a href="#pricing" class="text-sm text-white/60 hover:text-white transition-colors">料金プラン</a></li>
+                        <li><a href="#testimonials" class="text-sm text-white/60 hover:text-white transition-colors">導入事例</a></li>
+                        <li><a href="#faq" class="text-sm text-white/60 hover:text-white transition-colors">よくある質問</a></li>
+                    </ul>
+                </div>
+
+                <!-- Support -->
+                <div>
+                    <h4 class="font-bold text-sm mb-4 text-white/90">サポート</h4>
+                    <ul class="space-y-2.5">
+                        <li><a href="#" class="text-sm text-white/60 hover:text-white transition-colors">お問い合わせ</a></li>
+                        <li><a href="#" class="text-sm text-white/60 hover:text-white transition-colors">操作マニュアル</a></li>
+                        <li><a href="#" class="text-sm text-white/60 hover:text-white transition-colors">導入サポート</a></li>
+                    </ul>
+                </div>
+
+                <!-- Legal -->
+                <div>
+                    <h4 class="font-bold text-sm mb-4 text-white/90">法的情報</h4>
+                    <ul class="space-y-2.5">
+                        <li><a href="#" class="text-sm text-white/60 hover:text-white transition-colors">利用規約</a></li>
+                        <li><a href="#" class="text-sm text-white/60 hover:text-white transition-colors">プライバシーポリシー</a></li>
+                        <li><a href="#" class="text-sm text-white/60 hover:text-white transition-colors">特定商取引法に基づく表記</a></li>
+                    </ul>
+                </div>
+            </div>
+
+            <!-- Bottom -->
+            <div class="mt-10 pt-8 border-t border-white/10 flex flex-col sm:flex-row items-center justify-between gap-4">
+                <p class="text-sm text-white/50">
+                    &copy; 2024 Harmony Inc. All rights reserved.
+                </p>
+                <p class="text-xs text-white/40">Builder OS v1.0</p>
+            </div>
+        </div>
+    </footer>
+
+    <script>
+        // Mobile menu toggle
+        function toggleMobileMenu() {
+            const menu = document.getElementById('mobile-menu');
+            const icon = document.getElementById('hamburger-icon');
+            menu.classList.toggle('hidden');
+
+            if (menu.classList.contains('hidden')) {
+                icon.innerHTML = '<path d="M3 6h18" /><path d="M3 12h18" /><path d="M3 18h18" />';
+            } else {
+                icon.innerHTML = '<path d="M18 6L6 18M6 6l12 12" />';
+            }
+        }
+
+        // FAQ toggle
+        function toggleFAQ(index) {
+            const container = document.getElementById('faq-container');
+            const items = container.querySelectorAll('.bg-white');
+            const item = items[index];
+            const content = item.querySelector('.faq-content');
+            const icon = item.querySelector('.faq-icon');
+
+            // Close all other FAQs
+            items.forEach((el, i) => {
+                if (i !== index) {
+                    el.querySelector('.faq-content').classList.add('hidden');
+                    el.querySelector('.faq-icon').style.transform = 'rotate(0deg)';
+                }
+            });
+
+            // Toggle current FAQ
+            content.classList.toggle('hidden');
+            icon.style.transform = content.classList.contains('hidden') ? 'rotate(0deg)' : 'rotate(180deg)';
+        }
+
+        // Set first FAQ as open by default
+        window.addEventListener('load', function() {
+            const firstContent = document.querySelector('.faq-content');
+            const firstIcon = document.querySelector('.faq-icon');
+            firstContent.classList.remove('hidden');
+            firstIcon.style.transform = 'rotate(180deg)';
+        });
+    </script>
+</body>
+</html>
