@@ -15,8 +15,8 @@ const tools: ToolDef[] = [
   { id: "construction-ledger", name: "工事台帳", icon: "M19 3H5a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V5a2 2 0 0 0-2-2zM9 17H7v-7h2v7zm4 0h-2V7h2v10zm4 0h-2v-4h2v4z", color: "#3b82f6" },
   { id: "estimate", name: "見積作成", icon: "M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z M14 2v6h6 M16 13H8 M16 17H8 M10 9H8", color: "#10b981" },
   { id: "budget", name: "実行予算", icon: "M12 1v22 M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6", color: "#f59e0b" },
-  { id: "order", name: "発注管理", icon: "M20.59 13.41l-7.17 7.17a2 2 0 0 1-2.83 0L2 12V2h10l8.59 8.59a2 2 0 0 1 0 2.82z M7 7h.01", color: "#ef4444" },
-  { id: "schedule", name: "工程管理", icon: "M8 6h13 M8 12h13 M8 18h13 M3 6h.01 M3 12h.01 M3 18h.01", color: "#8b5cf6" },
+  { id: "order", name: "資材発注", icon: "M20.59 13.41l-7.17 7.17a2 2 0 0 1-2.83 0L2 12V2h10l8.59 8.59a2 2 0 0 1 0 2.82z M7 7h.01", color: "#ef4444" },
+  { id: "schedule", name: "工程スケジュール", icon: "M8 6h13 M8 12h13 M8 18h13 M3 6h.01 M3 12h.01 M3 18h.01", color: "#8b5cf6" },
   { id: "payment", name: "入金管理", icon: "M21 4H3a2 2 0 0 0-2 2v12a2 2 0 0 0 2 2h18a2 2 0 0 0 2-2V6a2 2 0 0 0-2-2z M1 10h22", color: "#06b6d4" },
   { id: "cost", name: "原価管理", icon: "M22 12h-4l-3 9L9 3l-3 9H2", color: "#ec4899" },
   { id: "ad", name: "広告素材作成・広告効果測定", icon: "M2 16.1A5 5 0 0 1 5.9 20M2 12.05A9 9 0 0 1 9.95 20M2 8V6a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v12a2 2 0 0 1-2 2h-6", color: "#f97316" },
@@ -37,7 +37,6 @@ const formDefs: Record<string, { title: string; fields: FormFieldDef[] }> = {
   "construction-ledger": {
     title: "工事台帳 新規登録",
     fields: [
-      { name: "id", label: "工事番号", type: "text", placeholder: "K-2026-005", required: true },
       { name: "name", label: "工事名", type: "text", placeholder: "例: ○○邸新築工事", required: true },
       { name: "client", label: "発注者", type: "text", placeholder: "例: ○○不動産株式会社", required: true },
       { name: "amount", label: "請負金額（税抜）", type: "number", placeholder: "例: 50000000" },
@@ -51,7 +50,6 @@ const formDefs: Record<string, { title: string; fields: FormFieldDef[] }> = {
   estimate: {
     title: "見積書 新規作成",
     fields: [
-      { name: "id", label: "見積番号", type: "text", placeholder: "E-2026-046", required: true },
       { name: "subject", label: "件名", type: "text", placeholder: "例: ○○ビル空調更新工事", required: true },
       { name: "client", label: "提出先", type: "text", placeholder: "例: ○○商事株式会社", required: true },
       { name: "amount", label: "見積金額（税抜）", type: "number", placeholder: "例: 12000000" },
@@ -330,7 +328,7 @@ function Budget({ onCreateNew }: ToolProps) {
 
 function OrderManagement({ onCreateNew }: ToolProps) {
   return (<>
-    <ToolHeader title="発注管理" color="#ef4444" onCreateNew={onCreateNew} />
+    <ToolHeader title="資材発注" color="#ef4444" onCreateNew={onCreateNew} />
     <DataTable headers={["発注番号", "発注先", "工事名", "金額", "発注日", "納期", "状態"]} rows={[
       ["PO-2026-089", "ABC建材", "○○マンション", "¥3,200,000", "02/12", "02/28", <StatusBadge key="1" status="進行中" />],
       ["PO-2026-088", "○○電気工業", "△△ビル", "¥8,500,000", "02/10", "03/15", <StatusBadge key="2" status="進行中" />],
@@ -342,7 +340,7 @@ function OrderManagement({ onCreateNew }: ToolProps) {
 
 function Schedule({ onCreateNew }: ToolProps) {
   return (<>
-    <ToolHeader title="工程管理" color="#8b5cf6" onCreateNew={onCreateNew} />
+    <ToolHeader title="工程スケジュール" color="#8b5cf6" onCreateNew={onCreateNew} />
     <div className="bg-white rounded-xl border border-border p-5">
       <div className="flex items-center justify-between mb-4">
         <h3 className="font-bold text-sm">2026年2月 工程表</h3>
@@ -604,10 +602,43 @@ export default function DemoDashboard() {
     setTimeout(() => setShowToast(false), 3000);
   };
 
+  const [expandedGroups, setExpandedGroups] = useState<string[]>([]);
+  const toggleGroup = (group: string) => setExpandedGroups(prev => prev.includes(group) ? prev.filter(g => g !== group) : [...prev, group]);
+
+  const estimateChildren = ["budget", "schedule", "order", "cost"];
+  const managementChildren = ["document", "customer", "after-service", "vendor"];
+  const estimateGroupOpen = expandedGroups.includes("estimate") || activeTool === "estimate" || estimateChildren.includes(activeTool || "");
+  const managementGroupOpen = expandedGroups.includes("management") || managementChildren.includes(activeTool || "");
+
   const ActiveComponent = activeTool ? toolComponents[activeTool] : null;
   const activeToolInfo = tools.find((t) => t.id === activeTool);
   const activeFormDef = activeTool ? formDefs[activeTool] : null;
   const activeColor = activeToolInfo?.color || "#3b82f6";
+
+  const renderSidebarTool = (id: string) => {
+    const tool = tools.find(t => t.id === id)!;
+    return (
+      <button key={tool.id} onClick={() => handleToolSelect(tool.id)} className={`w-full flex items-center gap-3 px-3 py-2 rounded-lg text-sm transition-colors ${activeTool === tool.id ? "bg-white/10 text-white" : "text-white/70 hover:bg-white/10 hover:text-white"}`}>
+        <div className="w-7 h-7 rounded flex items-center justify-center shrink-0" style={{ backgroundColor: tool.color + "30" }}>
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke={tool.color} strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d={tool.icon} /></svg>
+        </div>
+        <span className="truncate">{tool.name}</span>
+      </button>
+    );
+  };
+
+  const renderGroupChildren = (childIds: string[]) => (
+    <div className="ml-7 mt-1 space-y-0.5 border-l border-white/10 pl-2">
+      {childIds.map(id => { const t = tools.find(x => x.id === id)!; return (
+        <button key={id} onClick={() => handleToolSelect(id)} className={`w-full flex items-center gap-2 px-3 py-1.5 rounded-lg text-xs transition-colors ${activeTool === id ? "bg-white/10 text-white" : "text-white/60 hover:bg-white/10 hover:text-white"}`}>
+          <div className="w-5 h-5 rounded flex items-center justify-center shrink-0" style={{ backgroundColor: t.color + "30" }}>
+            <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke={t.color} strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d={t.icon} /></svg>
+          </div>
+          <span className="truncate">{t.name}</span>
+        </button>
+      ); })}
+    </div>
+  );
 
   return (
     <div className="min-h-screen bg-bg-light flex">
@@ -628,14 +659,30 @@ export default function DemoDashboard() {
               ダッシュボード
             </button>
             <div className="pt-3 pb-2"><p className="px-3 text-[10px] font-bold text-white/40 uppercase tracking-wider">ツール</p></div>
-            {tools.map((tool) => (
-              <button key={tool.id} onClick={() => handleToolSelect(tool.id)} className={`w-full flex items-center gap-3 px-3 py-2 rounded-lg text-sm transition-colors ${activeTool === tool.id ? "bg-white/10 text-white" : "text-white/70 hover:bg-white/10 hover:text-white"}`}>
-                <div className="w-7 h-7 rounded flex items-center justify-center shrink-0" style={{ backgroundColor: tool.color + "30" }}>
-                  <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke={tool.color} strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d={tool.icon} /></svg>
+            {renderSidebarTool("construction-ledger")}
+            <div>
+              <button onClick={() => { handleToolSelect("estimate"); toggleGroup("estimate"); }} className={`w-full flex items-center gap-3 px-3 py-2 rounded-lg text-sm transition-colors ${activeTool === "estimate" || estimateChildren.includes(activeTool || "") ? "bg-white/10 text-white" : "text-white/70 hover:bg-white/10 hover:text-white"}`}>
+                <div className="w-7 h-7 rounded flex items-center justify-center shrink-0" style={{ backgroundColor: "#10b98130" }}>
+                  <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#10b981" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d={tools.find(t => t.id === "estimate")!.icon} /></svg>
                 </div>
-                <span className="truncate">{tool.name}</span>
+                <span className="flex-1 truncate text-left">見積作成</span>
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" className={`shrink-0 transition-transform ${estimateGroupOpen ? "rotate-180" : ""}`}><polyline points="6 9 12 15 18 9" /></svg>
               </button>
-            ))}
+              {estimateGroupOpen && renderGroupChildren(estimateChildren)}
+            </div>
+            {renderSidebarTool("payment")}
+            {renderSidebarTool("ad")}
+            <div>
+              <button onClick={() => toggleGroup("management")} className={`w-full flex items-center gap-3 px-3 py-2 rounded-lg text-sm transition-colors ${managementChildren.includes(activeTool || "") ? "bg-white/10 text-white" : "text-white/70 hover:bg-white/10 hover:text-white"}`}>
+                <div className="w-7 h-7 rounded flex items-center justify-center shrink-0" style={{ backgroundColor: "#6366f130" }}>
+                  <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#6366f1" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M12 2L2 7l10 5 10-5-10-5z M2 17l10 5 10-5 M2 12l10 5 10-5" /></svg>
+                </div>
+                <span className="flex-1 truncate text-left">管理</span>
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" className={`shrink-0 transition-transform ${managementGroupOpen ? "rotate-180" : ""}`}><polyline points="6 9 12 15 18 9" /></svg>
+              </button>
+              {managementGroupOpen && renderGroupChildren(managementChildren)}
+            </div>
+            {renderSidebarTool("analytics")}
           </nav>
           <div className="px-4 py-4 border-t border-white/10">
             <div className="flex items-center gap-3 mb-3">
