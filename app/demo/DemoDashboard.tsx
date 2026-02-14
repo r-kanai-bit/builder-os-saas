@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import React, { useState, useEffect, useRef } from "react";
 import Link from "next/link";
 
 // ============ 型定義 ============
@@ -366,6 +366,8 @@ function Schedule({ onCreateNew, onExport }: ToolProps) {
   const [floorArea, setFloorArea] = useState("");
   const [duration, setDuration] = useState("");
   const [generated, setGenerated] = useState<{ name: string; area: string; phases: { name: string; start: number; end: number; color: string }[] } | null>(null);
+  const [blueprintFile, setBlueprintFile] = useState<string>("");
+  const blueprintRef = useRef<HTMLInputElement>(null);
 
   const handleGenerate = () => {
     const months = parseInt(duration) || 6;
@@ -416,10 +418,21 @@ function Schedule({ onCreateNew, onExport }: ToolProps) {
           </div>
           <div className="mb-6">
             <label className="block text-sm font-bold text-text-main mb-1.5">図面アップロード</label>
-            <div className="border-2 border-dashed border-border rounded-xl p-8 text-center hover:border-purple-300 hover:bg-purple-50/30 transition-colors cursor-pointer">
-              <svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="#9ca3af" strokeWidth="1.5" className="mx-auto mb-3"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4" /><polyline points="17 8 12 3 7 8" /><line x1="12" y1="3" x2="12" y2="15" /></svg>
-              <p className="text-sm font-medium text-text-main mb-1">クリックまたはドラッグ&ドロップ</p>
-              <p className="text-xs text-text-sub">対応形式: PDF / JWW / DXF / archiトレンド (.atr) / その他CADデータ</p>
+            <input type="file" ref={blueprintRef} className="hidden" accept=".pdf,.jww,.dxf,.atr,.dwg" onChange={e => { if (e.target.files?.[0]) setBlueprintFile(e.target.files[0].name); }} />
+            <div onClick={() => blueprintRef.current?.click()} onDragOver={e => { e.preventDefault(); e.currentTarget.classList.add("border-purple-400","bg-purple-50"); }} onDragLeave={e => { e.currentTarget.classList.remove("border-purple-400","bg-purple-50"); }} onDrop={e => { e.preventDefault(); e.currentTarget.classList.remove("border-purple-400","bg-purple-50"); if (e.dataTransfer.files?.[0]) setBlueprintFile(e.dataTransfer.files[0].name); }} className="border-2 border-dashed border-border rounded-xl p-8 text-center hover:border-purple-300 hover:bg-purple-50/30 transition-colors cursor-pointer">
+              {blueprintFile ? (
+                <div className="flex items-center justify-center gap-3">
+                  <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#8b5cf6" strokeWidth="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>
+                  <span className="text-sm font-medium text-purple-700">{blueprintFile}</span>
+                  <button onClick={ev => { ev.stopPropagation(); setBlueprintFile(""); }} className="text-xs text-red-500 hover:text-red-700 ml-2">✕ 削除</button>
+                </div>
+              ) : (
+                <>
+                  <svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="#9ca3af" strokeWidth="1.5" className="mx-auto mb-3"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4" /><polyline points="17 8 12 3 7 8" /><line x1="12" y1="3" x2="12" y2="15" /></svg>
+                  <p className="text-sm font-medium text-text-main mb-1">クリックまたはドラッグ&ドロップ</p>
+                  <p className="text-xs text-text-sub">対応形式: PDF / JWW / DXF / archiトレンド (.atr) / その他CADデータ</p>
+                </>
+              )}
             </div>
           </div>
           <div className="flex gap-3">
@@ -517,9 +530,11 @@ function AdManagement({ onCreateNew, onExport }: ToolProps) {
   const [metaConnected, setMetaConnected] = useState(false);
   const [googleConnected, setGoogleConnected] = useState(false);
   const [measurementActive, setMeasurementActive] = useState(false);
+  const [adFile, setAdFile] = useState<string>("");
+  const adFileRef = useRef<HTMLInputElement>(null);
 
   const togglePlatform = (p: string) => setSelectedPlatforms(prev => prev.includes(p) ? prev.filter(x => x !== p) : [...prev, p]);
-  const backToMain = () => { setView("main"); setCreativeStep(0); };
+  const backToMain = () => { setView("main"); setCreativeStep(0); setAdFile(""); };
 
   if (view === "main") {
     return (
@@ -595,16 +610,30 @@ function AdManagement({ onCreateNew, onExport }: ToolProps) {
         {creativeStep === 1 && (
           <div>
             <h3 className="text-sm font-bold text-text-main mb-4">広告に使用する素材をアップロード</h3>
-            <div className="border-2 border-dashed border-border rounded-xl p-12 text-center mb-6 hover:border-orange-300 hover:bg-orange-50/30 transition-colors cursor-pointer">
-              <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="#9ca3af" strokeWidth="1.5" className="mx-auto mb-3"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4" /><polyline points="17 8 12 3 7 8" /><line x1="12" y1="3" x2="12" y2="15" /></svg>
-              <p className="text-sm font-medium text-text-main mb-1">クリックまたはドラッグ&ドロップ</p>
-              <p className="text-xs text-text-sub">JPG, PNG, MP4, MOV（最大100MB）</p>
+            <input type="file" ref={adFileRef} className="hidden" accept="image/*,video/mp4,video/quicktime" onChange={e => { if (e.target.files?.[0]) setAdFile(e.target.files[0].name); }} />
+            <div onClick={() => adFileRef.current?.click()} onDragOver={e => { e.preventDefault(); e.currentTarget.classList.add("border-orange-400","bg-orange-50"); }} onDragLeave={e => { e.currentTarget.classList.remove("border-orange-400","bg-orange-50"); }} onDrop={e => { e.preventDefault(); e.currentTarget.classList.remove("border-orange-400","bg-orange-50"); if (e.dataTransfer.files?.[0]) setAdFile(e.dataTransfer.files[0].name); }} className="border-2 border-dashed border-border rounded-xl p-12 text-center mb-6 hover:border-orange-300 hover:bg-orange-50/30 transition-colors cursor-pointer">
+              {adFile ? (
+                <div className="flex items-center justify-center gap-3">
+                  <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="#f97316" strokeWidth="1.5"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5"/><path d="m21 15-5-5L5 21"/></svg>
+                  <div className="text-left">
+                    <p className="text-sm font-bold text-orange-700">{adFile}</p>
+                    <p className="text-xs text-text-sub">アップロード完了</p>
+                  </div>
+                  <button onClick={ev => { ev.stopPropagation(); setAdFile(""); }} className="text-xs text-red-500 hover:text-red-700 ml-2 px-2 py-1 border border-red-200 rounded">✕ 削除</button>
+                </div>
+              ) : (
+                <>
+                  <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="#9ca3af" strokeWidth="1.5" className="mx-auto mb-3"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4" /><polyline points="17 8 12 3 7 8" /><line x1="12" y1="3" x2="12" y2="15" /></svg>
+                  <p className="text-sm font-medium text-text-main mb-1">クリックまたはドラッグ&ドロップ</p>
+                  <p className="text-xs text-text-sub">JPG, PNG, MP4, MOV（最大100MB）</p>
+                </>
+              )}
             </div>
             <div className="bg-gray-50 rounded-xl p-4 mb-6">
               <p className="text-xs font-bold text-text-sub mb-2">選択された媒体:</p>
               <div className="flex gap-2">{selectedPlatforms.map(p => <span key={p} className="px-3 py-1 bg-white rounded-full text-xs font-medium border border-border">{p === "meta" ? "Meta (Facebook/Instagram)" : "Google広告"}</span>)}</div>
             </div>
-            <button onClick={() => setCreativeStep(2)} className="w-full py-3 bg-orange-500 text-white rounded-lg font-bold hover:bg-orange-600 transition-colors">素材を生成する</button>
+            <button onClick={() => { if (adFile) setCreativeStep(2); }} disabled={!adFile} className={`w-full py-3 rounded-lg font-bold transition-colors ${adFile ? "bg-orange-500 text-white hover:bg-orange-600" : "bg-gray-300 text-gray-500 cursor-not-allowed"}`}>素材を生成する</button>
           </div>
         )}
         {creativeStep === 2 && (
