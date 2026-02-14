@@ -46,10 +46,10 @@ export default function Hero() {
             30日間 無料トライアル
           </a>
           <a
-            href="#features"
+            href="/demo"
             className="w-full sm:w-auto inline-flex items-center justify-center gap-2 px-10 py-4 border-2 border-zinc-200 text-zinc-700 text-base font-bold rounded-xl hover:bg-zinc-50 transition-all duration-200"
           >
-            機能を見る
+            デモを試す
           </a>
         </div>
 
