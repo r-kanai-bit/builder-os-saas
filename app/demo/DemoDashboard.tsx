@@ -577,14 +577,14 @@ function AdManagement({ onCreateNew, onExport }: ToolProps) {
           <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50">
             <div className="bg-white rounded-2xl p-8 text-center">
               <div className="animate-spin w-12 h-12 border-4 border-orange-500 border-t-transparent rounded-full mx-auto mb-4" />
-              <p className="font-bold text-text-main mb-1">AI画像最適化エンジン処理中...</p>
-              <p className="text-xs text-text-sub">住宅/不動産画像の解析・補正・広告素材生成を実行しています</p>
+              <p className="font-bold text-text-main mb-1">AI建築ビジュアル最適化エンジン処理中...</p>
+              <p className="text-xs text-text-sub">① 色補正 → ② 背景削除 → ③ 建物保持処理 → ④ ハイセンス化</p>
             </div>
           </div>
         )}
         <div className="flex items-center gap-3 mb-6">
           <button onClick={backToMain} className="text-sm text-text-sub hover:text-primary">← 戻る</button>
-          <h2 className="text-lg font-bold text-text-main">素材生成 - Canvaレベルエディタ</h2>
+          <h2 className="text-lg font-bold text-text-main">建築ビジュアル最適化エンジン</h2>
         </div>
         <div className="flex items-center gap-2 mb-8">
           {["媒体選択", "素材アップロード", "生成結果"].map((s, i) => (
@@ -677,100 +677,260 @@ function AdManagement({ onCreateNew, onExport }: ToolProps) {
         )}
         {creativeStep === 2 && (
           <div className="space-y-6">
-            <div className="bg-green-50 border border-green-200 rounded-xl p-4 flex items-center gap-3">
-              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#16a34a" strokeWidth="2"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14" /><polyline points="22 4 12 14.01 9 11.01" /></svg>
-              <span className="text-sm font-bold text-green-700">素材の生成が完了しました</span>
-            </div>
-
-            {/* A) AI画像解析結果 */}
-            <div className="bg-white rounded-xl border border-border p-5">
-              <h4 className="text-sm font-bold text-text-main mb-4">AI画像解析結果</h4>
-              <div className="bg-gray-50 rounded-lg p-4 text-xs space-y-2 font-mono text-text-sub">
-                {optimizeMode === "housing" ? (
-                  <>
-                    <div><span className="font-bold">建物タイプ:</span> 2階建て注文住宅</div>
-                    <div><span className="font-bold">撮影:</span> 外観（南東ファサード）</div>
-                    <div><span className="font-bold">ファサード強み:</span> ガルバリウム＋木調アクセント、大開口窓</div>
-                    <div><span className="font-bold">光源方向:</span> 午前の自然光（南東方向）</div>
-                    <div><span className="font-bold">素材感:</span> ○ 外壁良好 / ○ 木部温かみあり / △ 床反射やや弱い</div>
-                  </>
-                ) : (
-                  <>
-                    <div><span className="font-bold">物件種別:</span> 新築戸建て</div>
-                    <div><span className="font-bold">撮影:</span> 外観（正面）</div>
-                    <div><span className="font-bold">ターゲット:</span> 30-40代ファミリー層</div>
-                    <div><span className="font-bold">価格帯:</span> 3,500-5,000万円台</div>
-                    <div><span className="font-bold">強み:</span> 南向き・角地・駐車場2台分</div>
-                  </>
-                )}
+            {/* Completion banner */}
+            <div className="bg-gradient-to-r from-emerald-50 to-teal-50 border border-emerald-200 rounded-xl p-4 flex items-center gap-3">
+              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#059669" strokeWidth="2"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14" /><polyline points="22 4 12 14.01 9 11.01" /></svg>
+              <div>
+                <span className="text-sm font-bold text-emerald-800">建築ビジュアル最適化完了</span>
+                <span className="text-xs text-emerald-600 ml-3">処理時間: 3.2秒 ｜ 品質スコア: 96/100</span>
               </div>
             </div>
 
-            {/* B) Canva-level visual preview */}
+            {/* 4-stage processing pipeline visualization */}
             <div className="bg-white rounded-xl border border-border p-5">
-              <div className="flex items-center justify-between mb-4">
-                <h4 className="text-sm font-bold text-text-main">Canvaレベル広告プレビュー</h4>
-                <div className="flex gap-1 bg-gray-100 rounded-lg p-1">
-                  {["1:1", "9:16", "4:5", "16:9"].map(fmt => (
-                    <button key={fmt} onClick={() => setPreviewFormat(fmt as any)} className={`px-3 py-1 text-xs rounded font-medium transition-colors ${previewFormat === fmt ? "bg-orange-500 text-white" : "bg-white text-text-sub hover:text-text-main"}`}>{fmt}</button>
-                  ))}
-                </div>
-              </div>
-              <div className={`bg-gradient-to-br from-blue-200 via-green-100 to-yellow-50 rounded-lg flex items-center justify-center border border-border relative overflow-hidden ${previewFormat === "1:1" ? "aspect-square" : previewFormat === "9:16" ? "aspect-[9/16]" : previewFormat === "4:5" ? "aspect-[4/5]" : "aspect-video"}`}>
-                {/* Background with SVG house illustration */}
-                <svg viewBox="0 0 200 150" className="absolute inset-0 w-full h-full opacity-80">
-                  <defs>
-                    <linearGradient id="sky" x1="0" y1="0" x2="0" y2="1">
-                      <stop offset="0%" stopColor="#87CEEB"/>
-                      <stop offset="100%" stopColor="#E0F0FF"/>
-                    </linearGradient>
-                    <linearGradient id="wall" x1="0" y1="0" x2="0" y2="1">
-                      <stop offset="0%" stopColor="#f5f0e8"/>
-                      <stop offset="100%" stopColor="#e8e0d0"/>
-                    </linearGradient>
-                  </defs>
-                  <rect width="200" height="150" fill="url(#sky)"/>
-                  <rect y="110" width="200" height="40" fill="#5a8c3c"/>
-                  <rect x="40" y="50" width="120" height="60" fill="url(#wall)" rx="2"/>
-                  <polygon points="30,52 100,15 170,52" fill="#8B4513"/>
-                  <rect x="85" y="75" width="30" height="35" fill="#6B3410" rx="2"/>
-                  <rect x="50" y="60" width="25" height="20" fill="#87CEEB" stroke="#d4c5a9" strokeWidth="2" rx="1"/>
-                  <rect x="125" y="60" width="25" height="20" fill="#87CEEB" stroke="#d4c5a9" strokeWidth="2" rx="1"/>
-                  <circle cx="20" cy="85" r="15" fill="#4a7c2e"/>
-                  <rect x="18" y="95" width="4" height="15" fill="#6B3410"/>
-                  <circle cx="180" cy="80" r="18" fill="#4a7c2e"/>
-                  <rect x="178" y="93" width="4" height="17" fill="#6B3410"/>
-                </svg>
-
-                {/* Overlay content */}
-                <div className="absolute inset-0 flex flex-col justify-between p-6 text-center z-10">
-                  <div className="flex justify-center">
-                    <span className="text-xs font-bold text-white bg-black/30 px-3 py-1 rounded-full backdrop-blur">AI補正済み</span>
-                  </div>
-                  <div>
-                    <p className="text-2xl font-bold text-white mb-2 leading-tight drop-shadow-lg">理想の住まいを</p>
-                    <p className="text-xl font-bold text-white drop-shadow-lg">確かな技術で</p>
-                  </div>
-                  <button className="bg-orange-500 hover:bg-orange-600 text-white font-bold py-2 px-4 rounded-lg text-sm transition-colors drop-shadow-lg mx-auto">無料相談はこちら</button>
-                </div>
-              </div>
-            </div>
-
-            {/* C) AI補正レポート */}
-            <div className="bg-white rounded-xl border border-border p-5">
-              <h4 className="text-sm font-bold text-text-main mb-4">AI補正レポート</h4>
-              <div className="space-y-2">
-                {["外壁の素材感を強調", "窓の自然反射を追加", "軒・陰影の描写強化", "空のトーン最適化", "4K相当アップスケール", "ノイズ除去", "タイトル余白確保"].map((item, i) => (
-                  <div key={i} className="flex items-center gap-3 text-xs">
-                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" className="flex-shrink-0"><circle cx="12" cy="12" r="10" fill="#16a34a"/><polyline points="8 12 11 15 16 9" fill="none" stroke="white" strokeWidth="2"/></svg>
-                    <span className="text-text-main">{item}</span>
-                    <span className="text-green-600 font-bold">→ 完了</span>
+              <h4 className="text-sm font-bold text-text-main mb-4">処理パイプライン（4段階）</h4>
+              <div className="grid grid-cols-4 gap-3">
+                {[
+                  { step: "①", title: "色補正", subtitle: "プロレベル", items: ["WB最適化", "ハイライト復元", "シャドウ調整", "素材感強調"], color: "#3b82f6", bg: "#eff6ff" },
+                  { step: "②", title: "背景削除", subtitle: "ミニマル再構築", items: ["電柱・電線除去", "周辺住宅除去", "駐車車両除去", "接地影再生成"], color: "#8b5cf6", bg: "#f5f3ff" },
+                  { step: "③", title: "建物保持", subtitle: "構造保証", items: ["外壁目地維持", "サッシ直線保持", "屋根ライン保持", "パース垂直補正"], color: "#059669", bg: "#ecfdf5" },
+                  { step: "④", title: "ハイセンス化", subtitle: "広告品質", items: ["AIノイズ除去", "局所シャープネス", "構図再設計", "4K出力対応"], color: "#ea580c", bg: "#fff7ed" },
+                ].map((stage, i) => (
+                  <div key={i} className="rounded-xl p-4 border" style={{ backgroundColor: stage.bg, borderColor: stage.color + "30" }}>
+                    <div className="flex items-center gap-2 mb-2">
+                      <span className="text-lg font-black" style={{ color: stage.color }}>{stage.step}</span>
+                      <div>
+                        <p className="text-xs font-bold" style={{ color: stage.color }}>{stage.title}</p>
+                        <p className="text-[10px] text-gray-500">{stage.subtitle}</p>
+                      </div>
+                      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" className="ml-auto"><circle cx="12" cy="12" r="10" fill={stage.color}/><polyline points="8 12 11 15 16 9" fill="none" stroke="white" strokeWidth="2.5"/></svg>
+                    </div>
+                    <div className="space-y-1">
+                      {stage.items.map((item, j) => (
+                        <div key={j} className="flex items-center gap-1.5 text-[10px]">
+                          <span style={{ color: stage.color }}>✓</span>
+                          <span className="text-gray-600">{item}</span>
+                        </div>
+                      ))}
+                    </div>
                   </div>
                 ))}
               </div>
             </div>
 
-            {/* D) 3 Ad Copy Patterns */}
+            {/* Before/After visual comparison - photorealistic using CSS */}
+            <div className="bg-white rounded-xl border border-border p-5">
+              <div className="flex items-center justify-between mb-4">
+                <h4 className="text-sm font-bold text-text-main">Before / After プレビュー</h4>
+                <div className="flex gap-1 bg-gray-100 rounded-lg p-1">
+                  {["1:1", "9:16", "4:5", "16:9"].map(fmt => (
+                    <button key={fmt} onClick={() => setPreviewFormat(fmt as any)} className={`px-3 py-1 text-xs rounded font-medium transition-colors ${previewFormat === fmt ? "bg-gray-900 text-white" : "bg-white text-text-sub hover:text-text-main"}`}>{fmt}</button>
+                  ))}
+                </div>
+              </div>
+              <div className="grid grid-cols-2 gap-4">
+                {/* BEFORE */}
+                <div>
+                  <p className="text-xs font-bold text-red-500 mb-2 text-center">BEFORE（元画像）</p>
+                  <div className={`rounded-lg overflow-hidden border-2 border-red-200 relative ${previewFormat === "1:1" ? "aspect-square" : previewFormat === "9:16" ? "aspect-[9/16] max-h-[400px]" : previewFormat === "4:5" ? "aspect-[4/5]" : "aspect-video"}`} style={{ background: "linear-gradient(180deg, #b8c6d4 0%, #8a9fb5 30%, #d4cfc7 30%, #c8c0b5 60%, #a8a090 60%, #8a8070 100%)" }}>
+                    {/* Simulated "before" photo with problems */}
+                    <div className="absolute inset-0">
+                      {/* Overexposed sky */}
+                      <div className="absolute top-0 left-0 right-0 h-[30%]" style={{ background: "linear-gradient(180deg, #e8edf2 0%, #c5d0dc 100%)" }} />
+                      {/* House body - dull */}
+                      <div className="absolute top-[28%] left-[15%] right-[15%] h-[35%]" style={{ background: "linear-gradient(180deg, #c8c0b0 0%, #b5ad9d 100%)", boxShadow: "inset 0 0 20px rgba(0,0,0,0.15)" }}>
+                        {/* Windows */}
+                        <div className="absolute top-[20%] left-[10%] w-[22%] h-[45%] bg-gray-400/50 border border-gray-500/30" />
+                        <div className="absolute top-[20%] right-[10%] w-[22%] h-[45%] bg-gray-400/50 border border-gray-500/30" />
+                        {/* Door */}
+                        <div className="absolute bottom-0 left-1/2 -translate-x-1/2 w-[18%] h-[55%] bg-gray-500/40 border border-gray-600/20" />
+                      </div>
+                      {/* Roof - flat looking */}
+                      <div className="absolute top-[18%] left-[10%] right-[10%] h-[12%]" style={{ background: "linear-gradient(180deg, #706050 0%, #807060 100%)", clipPath: "polygon(0% 100%, 50% 0%, 100% 100%)" }} />
+                      {/* Ground - messy */}
+                      <div className="absolute bottom-0 left-0 right-0 h-[25%]" style={{ background: "linear-gradient(180deg, #9a9585 0%, #8a8575 100%)" }} />
+                      {/* Problem indicators */}
+                      <div className="absolute top-2 right-2 space-y-1">
+                        <span className="block text-[8px] bg-red-500/80 text-white px-1.5 py-0.5 rounded">電線あり</span>
+                        <span className="block text-[8px] bg-red-500/80 text-white px-1.5 py-0.5 rounded">色褪せ</span>
+                        <span className="block text-[8px] bg-red-500/80 text-white px-1.5 py-0.5 rounded">雑草</span>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+                {/* AFTER */}
+                <div>
+                  <p className="text-xs font-bold text-emerald-600 mb-2 text-center">AFTER（AI最適化済み）</p>
+                  <div className={`rounded-lg overflow-hidden border-2 border-emerald-300 relative ${previewFormat === "1:1" ? "aspect-square" : previewFormat === "9:16" ? "aspect-[9/16] max-h-[400px]" : previewFormat === "4:5" ? "aspect-[4/5]" : "aspect-video"}`} style={{ background: "linear-gradient(180deg, #4a90d9 0%, #7eb8e0 25%, #f0ece4 25%, #e8e2d8 55%, #4a7c3c 55%, #3d6830 100%)" }}>
+                    <div className="absolute inset-0">
+                      {/* Beautiful sky */}
+                      <div className="absolute top-0 left-0 right-0 h-[25%]" style={{ background: "linear-gradient(180deg, #2d6cb5 0%, #5a9fd4 60%, #8ec5e8 100%)" }}>
+                        {/* Subtle clouds */}
+                        <div className="absolute top-[30%] left-[15%] w-[25%] h-[25%] rounded-full" style={{ background: "radial-gradient(ellipse, rgba(255,255,255,0.4) 0%, transparent 70%)" }} />
+                        <div className="absolute top-[20%] right-[20%] w-[20%] h-[20%] rounded-full" style={{ background: "radial-gradient(ellipse, rgba(255,255,255,0.3) 0%, transparent 70%)" }} />
+                      </div>
+                      {/* House body - vibrant, clean */}
+                      <div className="absolute top-[23%] left-[15%] right-[15%] h-[35%]" style={{ background: "linear-gradient(180deg, #f5f0e8 0%, #ebe5db 50%, #e0d8cc 100%)", boxShadow: "0 4px 20px rgba(0,0,0,0.1), inset 0 1px 0 rgba(255,255,255,0.5)" }}>
+                        {/* Windows - reflective */}
+                        <div className="absolute top-[20%] left-[10%] w-[22%] h-[45%] border border-gray-300" style={{ background: "linear-gradient(135deg, #87CEEB 0%, #5ba3d4 40%, #c8dff0 60%, #a8cce5 100%)" }} />
+                        <div className="absolute top-[20%] right-[10%] w-[22%] h-[45%] border border-gray-300" style={{ background: "linear-gradient(135deg, #87CEEB 0%, #5ba3d4 40%, #c8dff0 60%, #a8cce5 100%)" }} />
+                        {/* Door - wooden texture */}
+                        <div className="absolute bottom-0 left-1/2 -translate-x-1/2 w-[18%] h-[55%] border border-amber-800/20" style={{ background: "linear-gradient(180deg, #8B6B4A 0%, #7A5C3E 50%, #6B4D32 100%)" }}>
+                          <div className="absolute top-1/2 right-[15%] w-[12%] aspect-square rounded-full bg-amber-600" />
+                        </div>
+                      </div>
+                      {/* Roof - rich texture */}
+                      <div className="absolute top-[13%] left-[10%] right-[10%] h-[12%]" style={{ background: "linear-gradient(180deg, #3d3028 0%, #4a3a30 40%, #574538 100%)", clipPath: "polygon(0% 100%, 50% 0%, 100% 100%)" }} />
+                      {/* Clean landscaped ground */}
+                      <div className="absolute bottom-0 left-0 right-0 h-[30%]" style={{ background: "linear-gradient(180deg, #5a8c3c 0%, #4a7830 40%, #3d6628 100%)" }}>
+                        {/* Concrete path */}
+                        <div className="absolute top-0 left-1/2 -translate-x-1/2 w-[18%] h-full" style={{ background: "linear-gradient(180deg, #d4cfc5 0%, #c8c0b5 100%)" }} />
+                        {/* Accent plants */}
+                        <div className="absolute top-[10%] left-[8%] w-[8%] h-[60%] rounded-full" style={{ background: "radial-gradient(ellipse, #3d7028 0%, #2d5818 100%)" }} />
+                        <div className="absolute top-[15%] right-[8%] w-[6%] h-[50%] rounded-full" style={{ background: "radial-gradient(ellipse, #3d7028 0%, #2d5818 100%)" }} />
+                      </div>
+                      {/* Quality badges */}
+                      <div className="absolute top-2 right-2 space-y-1">
+                        <span className="block text-[8px] bg-emerald-600/90 text-white px-1.5 py-0.5 rounded font-bold">4K出力</span>
+                        <span className="block text-[8px] bg-emerald-600/90 text-white px-1.5 py-0.5 rounded font-bold">実写ベース</span>
+                        <span className="block text-[8px] bg-emerald-600/90 text-white px-1.5 py-0.5 rounded font-bold">印刷対応</span>
+                      </div>
+                      {/* Natural shadow at base */}
+                      <div className="absolute bottom-[28%] left-[14%] right-[14%] h-[3%]" style={{ background: "linear-gradient(180deg, rgba(0,0,0,0.15) 0%, transparent 100%)" }} />
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            {/* Detailed processing report - 4 stages */}
+            <div className="bg-white rounded-xl border border-border p-5">
+              <h4 className="text-sm font-bold text-text-main mb-4">AI補正レポート（詳細）</h4>
+              <div className="grid grid-cols-2 gap-4">
+                {/* ① Color Correction */}
+                <div className="rounded-lg border border-blue-200 bg-blue-50/50 p-4">
+                  <div className="flex items-center gap-2 mb-3">
+                    <span className="text-sm font-black text-blue-600">①</span>
+                    <p className="text-xs font-bold text-blue-800">色補正（プロレベル）</p>
+                  </div>
+                  <div className="space-y-1.5 text-[10px]">
+                    {[
+                      "ホワイトバランス最適化",
+                      "ハイライト復元（白飛び補正）",
+                      "シャドウ持ち上げ＋ノイズ除去",
+                      "外壁・金属・木部の素材感強調",
+                      "コントラスト調整（ハイエンド基準）",
+                      "空の色を自然に深く補正",
+                      "ガラス反射をリアルに再現",
+                    ].map((item, j) => (
+                      <div key={j} className="flex items-center gap-1.5">
+                        <span className="text-blue-500 font-bold">✓</span>
+                        <span className="text-gray-700">{item}</span>
+                      </div>
+                    ))}
+                    <p className="text-[9px] text-blue-600 mt-2 font-medium">※ HDR風加工は禁止 → 自然光ベース処理</p>
+                  </div>
+                </div>
+                {/* ② Background Removal */}
+                <div className="rounded-lg border border-purple-200 bg-purple-50/50 p-4">
+                  <div className="flex items-center gap-2 mb-3">
+                    <span className="text-sm font-black text-purple-600">②</span>
+                    <p className="text-xs font-bold text-purple-800">背景削除・再構築</p>
+                  </div>
+                  <div className="space-y-1.5 text-[10px]">
+                    <p className="text-[10px] font-bold text-gray-600 mb-1">除去対象:</p>
+                    {["周囲の住宅", "電柱・電線", "駐車車両", "雑草・不要な木", "看板・標識", "不要な影"].map((item, j) => (
+                      <div key={j} className="flex items-center gap-1.5">
+                        <span className="text-purple-500 font-bold">✓</span>
+                        <span className="text-gray-700">{item}</span>
+                      </div>
+                    ))}
+                    <p className="text-[10px] font-bold text-gray-600 mt-2 mb-1">再構築:</p>
+                    <div className="flex items-center gap-1.5"><span className="text-purple-500 font-bold">✓</span><span className="text-gray-700">高級住宅広告レベルの背景</span></div>
+                    <div className="flex items-center gap-1.5"><span className="text-purple-500 font-bold">✓</span><span className="text-gray-700">上質な植栽1〜2本配置</span></div>
+                    <div className="flex items-center gap-1.5"><span className="text-purple-500 font-bold">✓</span><span className="text-gray-700">地面接地影を自然に再生成</span></div>
+                  </div>
+                </div>
+                {/* ③ Building Preservation */}
+                <div className="rounded-lg border border-emerald-200 bg-emerald-50/50 p-4">
+                  <div className="flex items-center gap-2 mb-3">
+                    <span className="text-sm font-black text-emerald-600">③</span>
+                    <p className="text-xs font-bold text-emerald-800">建物保持処理（構造保証）</p>
+                  </div>
+                  <div className="space-y-1.5 text-[10px]">
+                    {[
+                      "外壁目地の精度維持",
+                      "窓サッシの直線保持",
+                      "屋根ラインの歪みゼロ",
+                      "パース垂直補正のみ許可",
+                      "建物形状・プロポーション維持",
+                      "開口部位置の完全保持",
+                      "外壁割り・素材の維持",
+                    ].map((item, j) => (
+                      <div key={j} className="flex items-center gap-1.5">
+                        <span className="text-emerald-500 font-bold">✓</span>
+                        <span className="text-gray-700">{item}</span>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+                {/* ④ High-sense finishing */}
+                <div className="rounded-lg border border-orange-200 bg-orange-50/50 p-4">
+                  <div className="flex items-center gap-2 mb-3">
+                    <span className="text-sm font-black text-orange-600">④</span>
+                    <p className="text-xs font-bold text-orange-800">ハイセンス化（Illustratorスキル）</p>
+                  </div>
+                  <div className="space-y-1.5 text-[10px]">
+                    {[
+                      "AIノイズ除去（エッジクリーンアップ）",
+                      "建物のみ局所シャープネス適用",
+                      "余白設計を意識した構図再設計",
+                      "広告バナー使用可能レイアウト",
+                      "トリミング後の解像度維持",
+                      "CM・カタログ使用前提の高精細出力",
+                      "印刷物対応クオリティ保証",
+                    ].map((item, j) => (
+                      <div key={j} className="flex items-center gap-1.5">
+                        <span className="text-orange-500 font-bold">✓</span>
+                        <span className="text-gray-700">{item}</span>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            {/* Output specifications */}
+            <div className="bg-gray-900 rounded-xl p-5 text-white">
+              <h4 className="text-sm font-bold mb-4">出力仕様</h4>
+              <div className="grid grid-cols-3 gap-4">
+                <div className="text-center">
+                  <p className="text-2xl font-black text-emerald-400">4K</p>
+                  <p className="text-[10px] text-gray-400 mt-1">超高解像度出力</p>
+                </div>
+                <div className="text-center">
+                  <p className="text-2xl font-black text-blue-400">96<span className="text-sm">/100</span></p>
+                  <p className="text-[10px] text-gray-400 mt-1">品質スコア</p>
+                </div>
+                <div className="text-center">
+                  <p className="text-2xl font-black text-orange-400">A+</p>
+                  <p className="text-[10px] text-gray-400 mt-1">広告適合ランク</p>
+                </div>
+              </div>
+              <div className="grid grid-cols-2 gap-2 mt-4">
+                {["実写ベース（CG化なし）", "自然光前提の影・光処理", "高級建築ブランド基準", "Web広告・印刷物の両方対応"].map((spec, i) => (
+                  <div key={i} className="flex items-center gap-1.5 text-[10px] text-gray-300">
+                    <span className="text-emerald-400">◎</span>
+                    <span>{spec}</span>
+                  </div>
+                ))}
+              </div>
+              <div className="mt-4 pt-3 border-t border-gray-700">
+                <p className="text-[9px] text-gray-500">禁止事項: イラスト化 / アニメ化 / 3Dレンダリング風 / 建物形状改変 / 外壁素材変更 / 窓サイズ変更 / 屋根形状変更</p>
+              </div>
+            </div>
+
+            {/* Ad copy patterns */}
             <div className="bg-white rounded-xl border border-border p-5">
               <h4 className="text-sm font-bold text-text-main mb-4">推奨テキスト（3パターン）</h4>
               <div className="space-y-3">
@@ -795,7 +955,7 @@ function AdManagement({ onCreateNew, onExport }: ToolProps) {
               </div>
             </div>
 
-            {/* E) SNSトリミング案 */}
+            {/* SNS trimming recommendations */}
             <div className="bg-white rounded-xl border border-border p-5">
               <h4 className="text-sm font-bold text-text-main mb-4">SNSトリミング推奨寸法</h4>
               <div className="grid grid-cols-2 gap-3">
@@ -813,6 +973,7 @@ function AdManagement({ onCreateNew, onExport }: ToolProps) {
               </div>
             </div>
 
+            {/* Action buttons */}
             <div className="flex gap-3">
               <button onClick={() => { setCreativeStep(0); setSelectedPlatforms([]); setAdFile(""); }} className="flex-1 py-3 border border-border rounded-lg font-medium hover:bg-gray-50 transition-colors">もう一度作成</button>
               <button onClick={backToMain} className="flex-1 py-3 bg-orange-500 text-white rounded-lg font-bold hover:bg-orange-600 transition-colors">完了</button>
