@@ -527,6 +527,9 @@ function AdManagement({ onCreateNew, onExport }: ToolProps) {
   const [view, setView] = useState<"main"|"creative"|"measurement"|"research">("main");
   const [creativeStep, setCreativeStep] = useState(0);
   const [selectedPlatforms, setSelectedPlatforms] = useState<string[]>([]);
+  const [optimizeMode, setOptimizeMode] = useState<"housing"|"realestate">("housing");
+  const [previewFormat, setPreviewFormat] = useState<"1:1"|"9:16"|"4:5"|"16:9">("1:1");
+  const [isGenerating, setIsGenerating] = useState(false);
   const [metaConnected, setMetaConnected] = useState(false);
   const [googleConnected, setGoogleConnected] = useState(false);
   const [measurementActive, setMeasurementActive] = useState(false);
@@ -570,9 +573,18 @@ function AdManagement({ onCreateNew, onExport }: ToolProps) {
   if (view === "creative") {
     return (
       <>
+        {isGenerating && (
+          <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50">
+            <div className="bg-white rounded-2xl p-8 text-center">
+              <div className="animate-spin w-12 h-12 border-4 border-orange-500 border-t-transparent rounded-full mx-auto mb-4" />
+              <p className="font-bold text-text-main mb-1">AI画像最適化エンジン処理中...</p>
+              <p className="text-xs text-text-sub">住宅/不動産画像の解析・補正・広告素材生成を実行しています</p>
+            </div>
+          </div>
+        )}
         <div className="flex items-center gap-3 mb-6">
           <button onClick={backToMain} className="text-sm text-text-sub hover:text-primary">← 戻る</button>
-          <h2 className="text-lg font-bold text-text-main">素材生成</h2>
+          <h2 className="text-lg font-bold text-text-main">素材生成 - Canvaレベルエディタ</h2>
         </div>
         <div className="flex items-center gap-2 mb-8">
           {["媒体選択", "素材アップロード", "生成結果"].map((s, i) => (
@@ -585,24 +597,48 @@ function AdManagement({ onCreateNew, onExport }: ToolProps) {
         </div>
         {creativeStep === 0 && (
           <div>
-            <h3 className="text-sm font-bold text-text-main mb-4">配信する媒体を選択してください</h3>
-            <div className="grid grid-cols-2 gap-4 mb-6">
-              <button onClick={() => togglePlatform("meta")} className={`p-6 rounded-xl border-2 text-left transition-all ${selectedPlatforms.includes("meta") ? "border-blue-500 bg-blue-50" : "border-border hover:border-blue-300"}`}>
-                <div className="flex items-center gap-3 mb-2">
-                  <div className="w-10 h-10 bg-blue-600 rounded-lg flex items-center justify-center text-white font-bold text-lg">f</div>
-                  <span className="font-bold text-text-main">Meta</span>
-                  {selectedPlatforms.includes("meta") && <svg width="20" height="20" viewBox="0 0 24 24" fill="none" className="ml-auto"><circle cx="12" cy="12" r="10" fill="#3b82f6"/><polyline points="8 12 11 15 16 9" fill="none" stroke="white" strokeWidth="2"/></svg>}
-                </div>
-                <p className="text-xs text-text-sub">Facebook・Instagram広告</p>
-              </button>
-              <button onClick={() => togglePlatform("google")} className={`p-6 rounded-xl border-2 text-left transition-all ${selectedPlatforms.includes("google") ? "border-red-500 bg-red-50" : "border-border hover:border-red-300"}`}>
-                <div className="flex items-center gap-3 mb-2">
-                  <div className="w-10 h-10 bg-white border border-border rounded-lg flex items-center justify-center text-lg font-bold" style={{ color: "#4285f4" }}>G</div>
-                  <span className="font-bold text-text-main">Google</span>
-                  {selectedPlatforms.includes("google") && <svg width="20" height="20" viewBox="0 0 24 24" fill="none" className="ml-auto"><circle cx="12" cy="12" r="10" fill="#ef4444"/><polyline points="8 12 11 15 16 9" fill="none" stroke="white" strokeWidth="2"/></svg>}
-                </div>
-                <p className="text-xs text-text-sub">Google広告・ディスプレイ</p>
-              </button>
+            <h3 className="text-sm font-bold text-text-main mb-4">配信する媒体とモードを選択してください</h3>
+            <div className="mb-8">
+              <p className="text-xs font-bold text-text-sub mb-3">媒体選択:</p>
+              <div className="grid grid-cols-2 gap-4 mb-6">
+                <button onClick={() => togglePlatform("meta")} className={`p-6 rounded-xl border-2 text-left transition-all ${selectedPlatforms.includes("meta") ? "border-blue-500 bg-blue-50" : "border-border hover:border-blue-300"}`}>
+                  <div className="flex items-center gap-3 mb-2">
+                    <div className="w-10 h-10 bg-blue-600 rounded-lg flex items-center justify-center text-white font-bold text-lg">f</div>
+                    <span className="font-bold text-text-main">Meta</span>
+                    {selectedPlatforms.includes("meta") && <svg width="20" height="20" viewBox="0 0 24 24" fill="none" className="ml-auto"><circle cx="12" cy="12" r="10" fill="#3b82f6"/><polyline points="8 12 11 15 16 9" fill="none" stroke="white" strokeWidth="2"/></svg>}
+                  </div>
+                  <p className="text-xs text-text-sub">Facebook・Instagram広告</p>
+                </button>
+                <button onClick={() => togglePlatform("google")} className={`p-6 rounded-xl border-2 text-left transition-all ${selectedPlatforms.includes("google") ? "border-red-500 bg-red-50" : "border-border hover:border-red-300"}`}>
+                  <div className="flex items-center gap-3 mb-2">
+                    <div className="w-10 h-10 bg-white border border-border rounded-lg flex items-center justify-center text-lg font-bold" style={{ color: "#4285f4" }}>G</div>
+                    <span className="font-bold text-text-main">Google</span>
+                    {selectedPlatforms.includes("google") && <svg width="20" height="20" viewBox="0 0 24 24" fill="none" className="ml-auto"><circle cx="12" cy="12" r="10" fill="#ef4444"/><polyline points="8 12 11 15 16 9" fill="none" stroke="white" strokeWidth="2"/></svg>}
+                  </div>
+                  <p className="text-xs text-text-sub">Google広告・ディスプレイ</p>
+                </button>
+              </div>
+            </div>
+            <div className="mb-8">
+              <p className="text-xs font-bold text-text-sub mb-3">最適化モード:</p>
+              <div className="grid grid-cols-2 gap-4">
+                <button onClick={() => setOptimizeMode("housing")} className={`p-6 rounded-xl border-2 text-left transition-all ${optimizeMode === "housing" ? "border-green-500 bg-green-50" : "border-border hover:border-green-300"}`}>
+                  <div className="flex items-center gap-3 mb-2">
+                    <span className="text-2xl">🏠</span>
+                    <span className="font-bold text-text-main">住宅特化</span>
+                    {optimizeMode === "housing" && <svg width="20" height="20" viewBox="0 0 24 24" fill="none" className="ml-auto"><circle cx="12" cy="12" r="10" fill="#16a34a"/><polyline points="8 12 11 15 16 9" fill="none" stroke="white" strokeWidth="2"/></svg>}
+                  </div>
+                  <p className="text-xs text-text-sub">注文住宅・建売向け最適化</p>
+                </button>
+                <button onClick={() => setOptimizeMode("realestate")} className={`p-6 rounded-xl border-2 text-left transition-all ${optimizeMode === "realestate" ? "border-blue-500 bg-blue-50" : "border-border hover:border-blue-300"}`}>
+                  <div className="flex items-center gap-3 mb-2">
+                    <span className="text-2xl">🏢</span>
+                    <span className="font-bold text-text-main">不動産特化</span>
+                    {optimizeMode === "realestate" && <svg width="20" height="20" viewBox="0 0 24 24" fill="none" className="ml-auto"><circle cx="12" cy="12" r="10" fill="#3b82f6"/><polyline points="8 12 11 15 16 9" fill="none" stroke="white" strokeWidth="2"/></svg>}
+                  </div>
+                  <p className="text-xs text-text-sub">販売・仲介物件向け最適化</p>
+                </button>
+              </div>
             </div>
             <button onClick={() => selectedPlatforms.length > 0 && setCreativeStep(1)} disabled={selectedPlatforms.length === 0} className={`w-full py-3 rounded-lg font-bold text-white transition-colors ${selectedPlatforms.length > 0 ? "bg-orange-500 hover:bg-orange-600" : "bg-gray-300 cursor-not-allowed"}`}>次へ</button>
           </div>
@@ -630,42 +666,155 @@ function AdManagement({ onCreateNew, onExport }: ToolProps) {
               )}
             </div>
             <div className="bg-gray-50 rounded-xl p-4 mb-6">
-              <p className="text-xs font-bold text-text-sub mb-2">選択された媒体:</p>
-              <div className="flex gap-2">{selectedPlatforms.map(p => <span key={p} className="px-3 py-1 bg-white rounded-full text-xs font-medium border border-border">{p === "meta" ? "Meta (Facebook/Instagram)" : "Google広告"}</span>)}</div>
+              <p className="text-xs font-bold text-text-sub mb-3">選択内容:</p>
+              <div className="space-y-2">
+                <div className="flex gap-2">{selectedPlatforms.map(p => <span key={p} className="px-3 py-1 bg-white rounded-full text-xs font-medium border border-border">{p === "meta" ? "Meta (Facebook/Instagram)" : "Google広告"}</span>)}</div>
+                <span className="inline-block px-3 py-1 bg-white rounded-full text-xs font-medium border border-border">{optimizeMode === "housing" ? "🏠 住宅特化モード" : "🏢 不動産特化モード"}</span>
+              </div>
             </div>
-            <button onClick={() => { if (adFile) setCreativeStep(2); }} disabled={!adFile} className={`w-full py-3 rounded-lg font-bold transition-colors ${adFile ? "bg-orange-500 text-white hover:bg-orange-600" : "bg-gray-300 text-gray-500 cursor-not-allowed"}`}>素材を生成する</button>
+            <button onClick={() => { if (adFile) { setIsGenerating(true); setTimeout(() => { setIsGenerating(false); setCreativeStep(2); }, 2000); } }} disabled={!adFile} className={`w-full py-3 rounded-lg font-bold transition-colors ${adFile ? "bg-orange-500 text-white hover:bg-orange-600" : "bg-gray-300 text-gray-500 cursor-not-allowed"}`}>素材を生成する</button>
           </div>
         )}
         {creativeStep === 2 && (
-          <div>
-            <div className="bg-green-50 border border-green-200 rounded-xl p-4 mb-6 flex items-center gap-3">
+          <div className="space-y-6">
+            <div className="bg-green-50 border border-green-200 rounded-xl p-4 flex items-center gap-3">
               <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#16a34a" strokeWidth="2"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14" /><polyline points="22 4 12 14.01 9 11.01" /></svg>
               <span className="text-sm font-bold text-green-700">素材の生成が完了しました</span>
             </div>
-            <div className="grid lg:grid-cols-2 gap-6 mb-6">
-              <div className="bg-white rounded-xl border border-border p-5">
-                <h4 className="text-sm font-bold mb-3">生成された広告素材</h4>
-                <div className="aspect-video bg-gradient-to-br from-orange-100 to-amber-50 rounded-lg flex items-center justify-center border border-border">
-                  <div className="text-center"><svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="#f97316" strokeWidth="1.5" className="mx-auto mb-2"><rect x="3" y="3" width="18" height="18" rx="2" /><circle cx="8.5" cy="8.5" r="1.5" /><path d="m21 15-5-5L5 21" /></svg><p className="text-xs text-text-sub">プレビュー</p></div>
+
+            {/* A) AI画像解析結果 */}
+            <div className="bg-white rounded-xl border border-border p-5">
+              <h4 className="text-sm font-bold text-text-main mb-4">AI画像解析結果</h4>
+              <div className="bg-gray-50 rounded-lg p-4 text-xs space-y-2 font-mono text-text-sub">
+                {optimizeMode === "housing" ? (
+                  <>
+                    <div><span className="font-bold">建物タイプ:</span> 2階建て注文住宅</div>
+                    <div><span className="font-bold">撮影:</span> 外観（南東ファサード）</div>
+                    <div><span className="font-bold">ファサード強み:</span> ガルバリウム＋木調アクセント、大開口窓</div>
+                    <div><span className="font-bold">光源方向:</span> 午前の自然光（南東方向）</div>
+                    <div><span className="font-bold">素材感:</span> ○ 外壁良好 / ○ 木部温かみあり / △ 床反射やや弱い</div>
+                  </>
+                ) : (
+                  <>
+                    <div><span className="font-bold">物件種別:</span> 新築戸建て</div>
+                    <div><span className="font-bold">撮影:</span> 外観（正面）</div>
+                    <div><span className="font-bold">ターゲット:</span> 30-40代ファミリー層</div>
+                    <div><span className="font-bold">価格帯:</span> 3,500-5,000万円台</div>
+                    <div><span className="font-bold">強み:</span> 南向き・角地・駐車場2台分</div>
+                  </>
+                )}
+              </div>
+            </div>
+
+            {/* B) Canva-level visual preview */}
+            <div className="bg-white rounded-xl border border-border p-5">
+              <div className="flex items-center justify-between mb-4">
+                <h4 className="text-sm font-bold text-text-main">Canvaレベル広告プレビュー</h4>
+                <div className="flex gap-1 bg-gray-100 rounded-lg p-1">
+                  {["1:1", "9:16", "4:5", "16:9"].map(fmt => (
+                    <button key={fmt} onClick={() => setPreviewFormat(fmt as any)} className={`px-3 py-1 text-xs rounded font-medium transition-colors ${previewFormat === fmt ? "bg-orange-500 text-white" : "bg-white text-text-sub hover:text-text-main"}`}>{fmt}</button>
+                  ))}
                 </div>
               </div>
-              <div className="space-y-3">
-                <h4 className="text-sm font-bold">推奨テキスト（3パターン）</h4>
-                {[
-                  { label: "パターンA", title: "理想の住まいを、確かな技術で。", desc: "創業以来の実績と信頼。無料相談受付中。まずはお気軽にお問い合わせください。" },
-                  { label: "パターンB", title: "新築・リフォーム、まずは無料相談から。", desc: "地域No.1の施工実績。お客様満足度98%。今なら見積もり無料キャンペーン実施中。" },
-                  { label: "パターンC", title: "あなたの「こうしたい」を形にします。", desc: "経験豊富な職人が丁寧に施工。アフターサポートも万全。お気軽にご相談ください。" },
-                ].map((t, i) => (
-                  <div key={i} className="bg-white rounded-xl border border-border p-4">
-                    <span className="text-[10px] font-bold text-orange-500 bg-orange-50 px-2 py-0.5 rounded mb-2 inline-block">{t.label}</span>
-                    <p className="text-sm font-bold text-text-main mb-1">{t.title}</p>
-                    <p className="text-xs text-text-sub">{t.desc}</p>
+              <div className={`bg-gradient-to-br from-blue-200 via-green-100 to-yellow-50 rounded-lg flex items-center justify-center border border-border relative overflow-hidden ${previewFormat === "1:1" ? "aspect-square" : previewFormat === "9:16" ? "aspect-[9/16]" : previewFormat === "4:5" ? "aspect-[4/5]" : "aspect-video"}`}>
+                {/* Background with SVG house illustration */}
+                <svg viewBox="0 0 200 150" className="absolute inset-0 w-full h-full opacity-80">
+                  <defs>
+                    <linearGradient id="sky" x1="0" y1="0" x2="0" y2="1">
+                      <stop offset="0%" stopColor="#87CEEB"/>
+                      <stop offset="100%" stopColor="#E0F0FF"/>
+                    </linearGradient>
+                    <linearGradient id="wall" x1="0" y1="0" x2="0" y2="1">
+                      <stop offset="0%" stopColor="#f5f0e8"/>
+                      <stop offset="100%" stopColor="#e8e0d0"/>
+                    </linearGradient>
+                  </defs>
+                  <rect width="200" height="150" fill="url(#sky)"/>
+                  <rect y="110" width="200" height="40" fill="#5a8c3c"/>
+                  <rect x="40" y="50" width="120" height="60" fill="url(#wall)" rx="2"/>
+                  <polygon points="30,52 100,15 170,52" fill="#8B4513"/>
+                  <rect x="85" y="75" width="30" height="35" fill="#6B3410" rx="2"/>
+                  <rect x="50" y="60" width="25" height="20" fill="#87CEEB" stroke="#d4c5a9" strokeWidth="2" rx="1"/>
+                  <rect x="125" y="60" width="25" height="20" fill="#87CEEB" stroke="#d4c5a9" strokeWidth="2" rx="1"/>
+                  <circle cx="20" cy="85" r="15" fill="#4a7c2e"/>
+                  <rect x="18" y="95" width="4" height="15" fill="#6B3410"/>
+                  <circle cx="180" cy="80" r="18" fill="#4a7c2e"/>
+                  <rect x="178" y="93" width="4" height="17" fill="#6B3410"/>
+                </svg>
+
+                {/* Overlay content */}
+                <div className="absolute inset-0 flex flex-col justify-between p-6 text-center z-10">
+                  <div className="flex justify-center">
+                    <span className="text-xs font-bold text-white bg-black/30 px-3 py-1 rounded-full backdrop-blur">AI補正済み</span>
+                  </div>
+                  <div>
+                    <p className="text-2xl font-bold text-white mb-2 leading-tight drop-shadow-lg">理想の住まいを</p>
+                    <p className="text-xl font-bold text-white drop-shadow-lg">確かな技術で</p>
+                  </div>
+                  <button className="bg-orange-500 hover:bg-orange-600 text-white font-bold py-2 px-4 rounded-lg text-sm transition-colors drop-shadow-lg mx-auto">無料相談はこちら</button>
+                </div>
+              </div>
+            </div>
+
+            {/* C) AI補正レポート */}
+            <div className="bg-white rounded-xl border border-border p-5">
+              <h4 className="text-sm font-bold text-text-main mb-4">AI補正レポート</h4>
+              <div className="space-y-2">
+                {["外壁の素材感を強調", "窓の自然反射を追加", "軒・陰影の描写強化", "空のトーン最適化", "4K相当アップスケール", "ノイズ除去", "タイトル余白確保"].map((item, i) => (
+                  <div key={i} className="flex items-center gap-3 text-xs">
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" className="flex-shrink-0"><circle cx="12" cy="12" r="10" fill="#16a34a"/><polyline points="8 12 11 15 16 9" fill="none" stroke="white" strokeWidth="2"/></svg>
+                    <span className="text-text-main">{item}</span>
+                    <span className="text-green-600 font-bold">→ 完了</span>
                   </div>
                 ))}
               </div>
             </div>
+
+            {/* D) 3 Ad Copy Patterns */}
+            <div className="bg-white rounded-xl border border-border p-5">
+              <h4 className="text-sm font-bold text-text-main mb-4">推奨テキスト（3パターン）</h4>
+              <div className="space-y-3">
+                {[
+                  { label: "パターンA", headline: "理想の住まいを、確かな技術で。", sub: "信頼できる施工を実現", body: "創業以来の実績と信頼。無料相談受付中。まずはお気軽にお問い合わせください。", cta: "無料相談する" },
+                  { label: "パターンB", headline: "新築・リフォーム、まずは無料相談から。", sub: "地域No.1の実績", body: "お客様満足度98%。今なら見積もり無料キャンペーン実施中。", cta: "見積を依頼する" },
+                  { label: "パターンC", headline: "あなたの「こうしたい」を形にします。", sub: "丁寧な施工とサポート", body: "経験豊富な職人が丁寧に施工。アフターサポートも万全。お気軽にご相談ください。", cta: "相談する" },
+                ].map((t, i) => (
+                  <div key={i} className="bg-gray-50 rounded-lg p-4 space-y-2">
+                    <div className="flex items-center justify-between">
+                      <span className="text-[10px] font-bold text-orange-500 bg-orange-100 px-2 py-0.5 rounded">{t.label}</span>
+                      <button className="text-xs text-orange-500 hover:text-orange-600 font-medium">コピー</button>
+                    </div>
+                    <div>
+                      <p className="text-sm font-bold text-text-main">{t.headline}</p>
+                      <p className="text-xs text-text-sub">{t.sub} ({t.headline.length} 字)</p>
+                    </div>
+                    <p className="text-xs text-text-main leading-relaxed">{t.body}</p>
+                    <button className="text-xs bg-orange-500 text-white px-3 py-1 rounded font-medium hover:bg-orange-600 transition-colors">{t.cta}</button>
+                  </div>
+                ))}
+              </div>
+            </div>
+
+            {/* E) SNSトリミング案 */}
+            <div className="bg-white rounded-xl border border-border p-5">
+              <h4 className="text-sm font-bold text-text-main mb-4">SNSトリミング推奨寸法</h4>
+              <div className="grid grid-cols-2 gap-3">
+                {[
+                  { platform: "Instagram 1:1", size: "1080 x 1080px" },
+                  { platform: "Instagram Stories", size: "1080 x 1920px" },
+                  { platform: "Facebook Feed", size: "1200 x 1500px" },
+                  { platform: "Google バナー", size: "1200 x 628px" },
+                ].map((item, i) => (
+                  <div key={i} className="bg-gray-50 rounded-lg p-3">
+                    <p className="text-xs font-bold text-text-main">{item.platform}</p>
+                    <p className="text-xs text-text-sub mt-1">{item.size}</p>
+                  </div>
+                ))}
+              </div>
+            </div>
+
             <div className="flex gap-3">
-              <button onClick={() => { setCreativeStep(0); setSelectedPlatforms([]); }} className="flex-1 py-3 border border-border rounded-lg font-medium hover:bg-gray-50 transition-colors">もう一度作成</button>
+              <button onClick={() => { setCreativeStep(0); setSelectedPlatforms([]); setAdFile(""); }} className="flex-1 py-3 border border-border rounded-lg font-medium hover:bg-gray-50 transition-colors">もう一度作成</button>
               <button onClick={backToMain} className="flex-1 py-3 bg-orange-500 text-white rounded-lg font-bold hover:bg-orange-600 transition-colors">完了</button>
             </div>
           </div>
