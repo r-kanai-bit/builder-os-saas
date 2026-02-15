@@ -1411,7 +1411,9 @@ function SubsidyManagement({ onCreateNew, onExport }: ToolProps) {
   const [selectedPref, setSelectedPref] = useState("all");
   const [selectedCity, setSelectedCity] = useState("all");
   const [citySearchQuery, setCitySearchQuery] = useState("");
-  const [activeTab, setActiveTab] = useState<"search" | "alert">("search");
+  const [activeTab, setActiveTab] = useState<"search" | "pipeline" | "alert">("search");
+  const [expandedKeywords, setExpandedKeywords] = useState<string[]>([]);
+  const [isSearching, setIsSearching] = useState(false);
 
   const prefectures = ["all", "国（全国共通）", "北海道", "青森県", "岩手県", "宮城県", "秋田県", "山形県", "福島県", "茨城県", "栃木県", "群馬県", "埼玉県", "千葉県", "東京都", "神奈川県", "新潟県", "富山県", "石川県", "福井県", "山梨県", "長野県", "岐阜県", "静岡県", "愛知県", "三重県", "滋賀県", "京都府", "大阪府", "兵庫県", "奈良県", "和歌山県", "鳥取県", "島根県", "岡山県", "広島県", "山口県", "徳島県", "香川県", "愛媛県", "高知県", "福岡県", "佐賀県", "長崎県", "熊本県", "大分県", "宮崎県", "鹿児島県", "沖縄県"];
 
@@ -1466,6 +1468,54 @@ function SubsidyManagement({ onCreateNew, onExport }: ToolProps) {
     "沖縄県": ["那覇市", "宜野湾市", "石垣市", "浦添市", "名護市", "糸満市", "沖縄市", "豊見城市", "うるま市", "宮古島市", "南城市", "北中城村", "中城村", "西原町", "与那原町", "南風原町", "八重瀬町", "多良間村", "竹富町", "与那国町"],
   };
 
+  // Keyword expansion dictionary
+  const keywordDictionary: Record<string, string[]> = {
+    "給湯器": ["エコキュート", "ヒートポンプ", "給湯省エネ", "高効率給湯器", "CO2冷媒ヒートポンプ"],
+    "断熱": ["断熱改修", "断熱リフォーム", "外皮性能向上", "UA値改善", "高性能断熱材", "グラスウール", "セルロースファイバー"],
+    "窓": ["窓リノベ", "内窓", "二重窓", "複層ガラス", "Low-Eガラス", "樹脂サッシ", "アルミ樹脂複合"],
+    "太陽光": ["太陽光発電", "ソーラーパネル", "PV", "自家消費", "FIT", "蓄電池", "V2H"],
+    "リフォーム": ["住宅改修", "リノベーション", "改修工事", "バリアフリー", "ユニバーサルデザイン"],
+    "耐震": ["耐震診断", "耐震補強", "制震", "免震", "Is値", "耐震基準適合"],
+    "DX": ["デジタルトランスフォーメーション", "IT導入", "クラウド化", "業務効率化", "RPA", "AI導入"],
+    "EC": ["電子商取引", "ネットショップ", "オンライン販売", "ECサイト構築"],
+    "設備投資": ["機械設備", "生産性向上", "省力化", "自動化", "ロボット導入"],
+    "人材": ["人材育成", "研修", "雇用", "採用", "スキルアップ", "リスキリング", "働き方改革"],
+  };
+
+  const expandKeywords = (query: string): string[] => {
+    if (!query.trim()) return [];
+    const q = query.toLowerCase();
+    const expanded = new Set<string>();
+    expanded.add(q);
+
+    for (const [key, values] of Object.entries(keywordDictionary)) {
+      if (key.toLowerCase().includes(q) || q.includes(key.toLowerCase())) {
+        values.forEach(v => expanded.add(v.toLowerCase()));
+      }
+      values.forEach(v => {
+        if (v.toLowerCase().includes(q)) {
+          expanded.add(key.toLowerCase());
+          values.forEach(vv => expanded.add(vv.toLowerCase()));
+        }
+      });
+    }
+
+    const synonyms: Record<string, string[]> = {
+      "省エネ": ["省エネルギー", "エネルギー削減", "エコ"],
+      "ZEH": ["ゼロエネルギーハウス", "ゼロエネ"],
+      "リフォーム": ["改修", "リノベーション"],
+      "耐震": ["耐震改修", "耐震補強"],
+    };
+    for (const [key, values] of Object.entries(synonyms)) {
+      if (q.includes(key.toLowerCase())) {
+        values.forEach(v => expanded.add(v.toLowerCase()));
+      }
+    }
+
+    return Array.from(expanded);
+  };
+
+  // 32+ subsidies covering all 10 categories
   const allSubsidies = [
     { id: 1, name: "子育てエコホーム支援事業", category: "新築", amount: "最大100万円", deadline: "2026/03/31", jurisdiction: "国土交通省", pref: "国（全国共通）", city: "all", status: "受付中", keywords: ["子育て","エコ","省エネ","新築","ZEH"], totalBudget: 210000000000, usedBudget: 136500000000 },
     { id: 2, name: "先進的窓リノベ事業", category: "リフォーム", amount: "最大200万円", deadline: "2026/03/31", jurisdiction: "環境省", pref: "国（全国共通）", city: "all", status: "受付中", keywords: ["窓","リノベ","断熱","リフォーム","省エネ"], totalBudget: 135000000000, usedBudget: 108000000000 },
@@ -1476,7 +1526,7 @@ function SubsidyManagement({ onCreateNew, onExport }: ToolProps) {
     { id: 7, name: "世田谷区住宅リフォーム助成", category: "リフォーム", amount: "最大20万円", deadline: "2026/09/30", jurisdiction: "世田谷区", pref: "東京都", city: "世田谷区", status: "受付中", keywords: ["リフォーム","助成","世田谷","バリアフリー"], totalBudget: 200000000, usedBudget: 120000000 },
     { id: 8, name: "東京都ZEH導入補助金", category: "新築", amount: "最大70万円", deadline: "2026/06/30", jurisdiction: "東京都", pref: "東京都", city: "all", status: "準備中", keywords: ["ZEH","ゼッチ","新築","省エネ","東京"], totalBudget: 3000000000, usedBudget: 0 },
     { id: 9, name: "東京都既存住宅省エネ改修助成", category: "省エネ改修", amount: "最大300万円", deadline: "2026/09/30", jurisdiction: "東京都", pref: "東京都", city: "all", status: "受付中", keywords: ["省エネ","改修","既存住宅","東京","断熱"], totalBudget: 3000000000, usedBudget: 1800000000 },
-    { id: 10, name: "大阪府住宅リフォームマイスター制度", category: "リフォーム", amount: "最大50万円", deadline: "2026/12/31", jurisdiction: "大阪府", pref: "大阪府", city: "all", status: "受付中", keywords: ["リフォーム","マイスター","大阪"], totalBudget: 1000000000, usedBudget: 350000000 },
+    { id: 10, name: "太陽光発電・蓄電池導入事業（国）", category: "省エネ設備", amount: "最大100万円", deadline: "2026/05/31", jurisdiction: "経済産業省", pref: "国（全国共通）", city: "all", status: "受付中", keywords: ["太陽光","蓄電池","自家消費","FIT"], totalBudget: 80000000000, usedBudget: 48000000000 },
     { id: 11, name: "愛知県住宅用地球温暖化対策設備導入促進費補助金", category: "省エネ設備", amount: "最大10万円", deadline: "2026/03/31", jurisdiction: "愛知県", pref: "愛知県", city: "all", status: "受付中", keywords: ["温暖化","太陽光","蓄電池","省エネ","愛知"], totalBudget: 500000000, usedBudget: 375000000 },
     { id: 12, name: "福岡県住宅用エネルギーシステム導入促進事業", category: "省エネ設備", amount: "最大15万円", deadline: "2026/11/30", jurisdiction: "福岡県", pref: "福岡県", city: "all", status: "受付中", keywords: ["エネルギー","太陽光","蓄電池","福岡"], totalBudget: 800000000, usedBudget: 240000000 },
     { id: 13, name: "北海道住宅省エネルギー改修補助", category: "省エネ改修", amount: "最大120万円", deadline: "2026/10/31", jurisdiction: "北海道", pref: "北海道", city: "all", status: "受付中", keywords: ["省エネ","断熱","改修","北海道","寒冷地"], totalBudget: 2000000000, usedBudget: 600000000 },
@@ -1485,6 +1535,20 @@ function SubsidyManagement({ onCreateNew, onExport }: ToolProps) {
     { id: 16, name: "練馬区住宅リフォーム補助金", category: "リフォーム", amount: "最大30万円", deadline: "2026/07/31", jurisdiction: "練馬区", pref: "東京都", city: "練馬区", status: "受付中", keywords: ["リフォーム","練馬","助成","バリアフリー"], totalBudget: 150000000, usedBudget: 75000000 },
     { id: 17, name: "品川区住宅耐震改修助成金", category: "耐震改修", amount: "最大150万円", deadline: "2026/12/28", jurisdiction: "品川区", pref: "東京都", city: "品川区", status: "受付中", keywords: ["耐震","品川","木造","補強"], totalBudget: 300000000, usedBudget: 90000000 },
     { id: 18, name: "埼玉県住宅における省エネ対策支援事業", category: "省エネ改修", amount: "最大50万円", deadline: "2026/11/30", jurisdiction: "埼玉県", pref: "埼玉県", city: "all", status: "受付中", keywords: ["省エネ","埼玉","断熱","改修"], totalBudget: 800000000, usedBudget: 320000000 },
+    { id: 19, name: "デジタルトランスフォーメーション推進補助金", category: "DX", amount: "最大500万円", deadline: "2026/04/30", jurisdiction: "経済産業省", pref: "国（全国共通）", city: "all", status: "受付中", keywords: ["DX","デジタル化","IT導入","クラウド"], totalBudget: 50000000000, usedBudget: 15000000000 },
+    { id: 20, name: "中小企業IT導入補助金", category: "DX", amount: "最大450万円", deadline: "2026/05/15", jurisdiction: "経済産業省", pref: "国（全国共通）", city: "all", status: "受付中", keywords: ["IT導入","業務効率化","RPA","AI"], totalBudget: 30000000000, usedBudget: 12000000000 },
+    { id: 21, name: "クラウド導入支援事業", category: "DX", amount: "最大200万円", deadline: "2026/06/30", jurisdiction: "経済産業省", pref: "国（全国共通）", city: "all", status: "受付中", keywords: ["クラウド化","データ活用","セキュリティ"], totalBudget: 15000000000, usedBudget: 7500000000 },
+    { id: 22, name: "ECサイト構築支援補助金", category: "EC", amount: "最大300万円", deadline: "2026/04/15", jurisdiction: "経済産業省", pref: "国（全国共通）", city: "all", status: "受付中", keywords: ["EC","電子商取引","ネットショップ","オンライン販売"], totalBudget: 20000000000, usedBudget: 8000000000 },
+    { id: 23, name: "オンライン販売促進事業", category: "EC", amount: "最大150万円", deadline: "2026/05/31", jurisdiction: "経済産業省", pref: "国（全国共通）", city: "all", status: "受付中", keywords: ["オンライン販売","デジタル活用","販売強化"], totalBudget: 10000000000, usedBudget: 3000000000 },
+    { id: 24, name: "設備投資補助金（生産性向上特別措置制度）", category: "設備投資", amount: "最大1000万円", deadline: "2026/03/31", jurisdiction: "経済産業省", pref: "国（全国共通）", city: "all", status: "受付中", keywords: ["設備投資","機械設備","生産性向上","自動化"], totalBudget: 60000000000, usedBudget: 24000000000 },
+    { id: 25, name: "省力化投資補助金", category: "設備投資", amount: "最大800万円", deadline: "2026/05/30", jurisdiction: "経済産業省", pref: "国（全国共通）", city: "all", status: "受付中", keywords: ["省力化","自動化","ロボット導入","業務効率化"], totalBudget: 40000000000, usedBudget: 12000000000 },
+    { id: 26, name: "人材育成支援事業（キャリアアップ助成金）", category: "人材", amount: "最大100万円/年", deadline: "2026/12/31", jurisdiction: "厚生労働省", pref: "国（全国共通）", city: "all", status: "受付中", keywords: ["人材育成","研修","スキルアップ","キャリア"], totalBudget: 25000000000, usedBudget: 10000000000 },
+    { id: 27, name: "リスキリング支援事業", category: "人材", amount: "最大150万円", deadline: "2026/06/30", jurisdiction: "厚生労働省", pref: "国（全国共通）", city: "all", status: "受付中", keywords: ["リスキリング","スキルアップ","人材育成"], totalBudget: 20000000000, usedBudget: 6000000000 },
+    { id: 28, name: "働き方改革推進支援事業", category: "人材", amount: "最大200万円", deadline: "2026/04/30", jurisdiction: "厚生労働省", pref: "国（全国共通）", city: "all", status: "受付中", keywords: ["働き方改革","雇用","採用","人事改革"], totalBudget: 15000000000, usedBudget: 4500000000 },
+    { id: 29, name: "大阪府住宅リフォームマイスター制度", category: "リフォーム", amount: "最大50万円", deadline: "2026/12/31", jurisdiction: "大阪府", pref: "大阪府", city: "all", status: "受付中", keywords: ["リフォーム","マイスター","大阪"], totalBudget: 1000000000, usedBudget: 350000000 },
+    { id: 30, name: "京都府断熱改修支援事業", category: "断熱", amount: "最大180万円", deadline: "2026/08/31", jurisdiction: "京都府", pref: "京都府", city: "all", status: "受付中", keywords: ["断熱","断熱改修","改修","省エネ"], totalBudget: 1200000000, usedBudget: 360000000 },
+    { id: 31, name: "兵庫県エコハウス支援事業", category: "省エネ改修", amount: "最大250万円", deadline: "2026/07/31", jurisdiction: "兵庫県", pref: "兵庫県", city: "all", status: "受付中", keywords: ["エコ","省エネ","リフォーム"], totalBudget: 2000000000, usedBudget: 800000000 },
+    { id: 32, name: "岡山県太陽光導入事業", category: "太陽光", amount: "最大120万円", deadline: "2026/09/30", jurisdiction: "岡山県", pref: "岡山県", city: "all", status: "受付中", keywords: ["太陽光","太陽光発電","自家消費"], totalBudget: 800000000, usedBudget: 240000000 },
   ];
 
   const ALERT_LEVELS = [
@@ -1501,12 +1565,10 @@ function SubsidyManagement({ onCreateNew, onExport }: ToolProps) {
     return null;
   };
 
-  // Filter subsidies
   const filtered = allSubsidies.filter(s => {
     const prefMatch = selectedPref === "all" || s.pref === selectedPref;
     if (!prefMatch) return false;
 
-    // City filter - if a city is selected and the subsidy is not national-wide (pref !== "国（全国共通）"), check city match
     if (selectedCity !== "all" && s.pref !== "国（全国共通）") {
       const cityMatch = s.city === "all" || s.city === selectedCity;
       if (!cityMatch) return false;
@@ -1526,24 +1588,22 @@ function SubsidyManagement({ onCreateNew, onExport }: ToolProps) {
     </div>
     <div className="bg-purple-50 border border-purple-200 rounded-xl p-4 mb-6 flex items-center gap-3">
       <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#7c3aed" strokeWidth="2"><path d="M12 1v22M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/></svg>
-      <div><p className="text-sm font-bold text-purple-800">全国対応 補助金・助成金検索</p><p className="text-xs text-purple-600">国・都道府県・市区町村の最新補助金情報を自動取得 ｜ 予算消化アラート付き</p></div>
+      <div><p className="text-sm font-bold text-purple-800">全国対応 補助金・助成金検索</p><p className="text-xs text-purple-600">国・都道府県・市区町村の最新補助金情報を自動取得 ｜ 予算消化アラート付き ｜ キーワード拡張検索対応</p></div>
     </div>
 
-    {/* Tab switcher */}
     <div className="flex gap-2 mb-6">
       <button onClick={() => setActiveTab("search")} className={`px-4 py-2 rounded-lg text-sm font-bold transition-colors ${activeTab === "search" ? "bg-purple-600 text-white" : "bg-gray-100 text-text-sub hover:bg-gray-200"}`}>🔍 補助金検索</button>
-      <button onClick={() => setActiveTab("alert")} className={`px-4 py-2 rounded-lg text-sm font-bold transition-colors ${activeTab === "alert" ? "bg-purple-600 text-white" : "bg-gray-100 text-text-sub hover:bg-gray-200"}`}>⚠️ 予算残アラート</button>
+      <button onClick={() => setActiveTab("pipeline")} className={`px-4 py-2 rounded-lg text-sm font-bold transition-colors ${activeTab === "pipeline" ? "bg-purple-600 text-white" : "bg-gray-100 text-text-sub hover:bg-gray-200"}`}>📊 検索パイプライン</button>
+      <button onClick={() => setActiveTab("alert")} className={`px-4 py-2 rounded-lg text-sm font-bold transition-colors ${activeTab === "alert" ? "bg-purple-600 text-white" : "bg-gray-100 text-text-sub hover:bg-gray-200"}`}>⚠️ アラート管理</button>
     </div>
 
     {activeTab === "search" ? (<>
-      {/* KPI cards */}
       <div className="grid grid-cols-4 gap-4 mb-6">
         {[{ label: "利用可能な制度", value: totalAvailable + "件", color: "#7c3aed" }, { label: "検索結果", value: filteredCount + "件", color: "#3b82f6" }, { label: "受給済み", value: "¥420万", color: "#10b981" }, { label: "申請期限間近", value: "5件", color: "#ef4444" }].map((s, i) => (
           <div key={i} className="bg-white rounded-xl border border-border p-4"><p className="text-xs text-text-sub">{s.label}</p><p className="text-xl font-black" style={{ color: s.color }}>{s.value}</p></div>
         ))}
       </div>
 
-      {/* Search area */}
       <div className="bg-white border border-border rounded-xl p-5 mb-6">
         <h3 className="text-sm font-bold text-text-main mb-3">補助金・助成金を検索</h3>
         <div className="grid grid-cols-1 lg:grid-cols-4 gap-4">
@@ -1551,9 +1611,17 @@ function SubsidyManagement({ onCreateNew, onExport }: ToolProps) {
             <label className="text-xs text-text-sub mb-1 block">キーワード検索</label>
             <div className="relative">
               <svg className="absolute left-3 top-1/2 -translate-y-1/2" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#9ca3af" strokeWidth="2"><circle cx="11" cy="11" r="8"/><path d="M21 21l-4.35-4.35"/></svg>
-              <input type="text" value={searchQuery} onChange={e => setSearchQuery(e.target.value)} placeholder="例: 省エネ, リフォーム, 耐震, ZEH, 太陽光..." className="w-full pl-10 pr-4 py-2.5 border border-border rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-purple-400 focus:border-transparent" />
+              <input type="text" value={searchQuery} onChange={e => { setSearchQuery(e.target.value); setExpandedKeywords(expandKeywords(e.target.value)); setIsSearching(!!e.target.value); }} placeholder="例: 省エネ, リフォーム, 耐震, ZEH, 太陽光, DX, EC..." className="w-full pl-10 pr-4 py-2.5 border border-border rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-purple-400 focus:border-transparent" />
             </div>
             <p className="text-[10px] text-text-sub mt-1">制度名・カテゴリ・管轄・キーワードから簡易検索できます</p>
+            {expandedKeywords.length > 0 && (
+              <div className="mt-2 flex flex-wrap gap-1">
+                {expandedKeywords.slice(0, 8).map((kw, i) => (
+                  <span key={i} className="text-[10px] bg-purple-100 text-purple-700 px-2 py-1 rounded-full">{kw}</span>
+                ))}
+                {expandedKeywords.length > 8 && <span className="text-[10px] text-text-sub px-2 py-1">+{expandedKeywords.length - 8}件</span>}
+              </div>
+            )}
           </div>
           <div>
             <label className="text-xs text-text-sub mb-1 block">都道府県</label>
@@ -1575,12 +1643,11 @@ function SubsidyManagement({ onCreateNew, onExport }: ToolProps) {
             {searchQuery && <span className="text-xs bg-purple-100 text-purple-700 px-2 py-1 rounded-full">キーワード: {searchQuery}</span>}
             {selectedPref !== "all" && <span className="text-xs bg-blue-100 text-blue-700 px-2 py-1 rounded-full">都道府県: {selectedPref}</span>}
             {selectedCity !== "all" && <span className="text-xs bg-green-100 text-green-700 px-2 py-1 rounded-full">市区町村: {selectedCity}</span>}
-            <button onClick={() => { setSearchQuery(""); setSelectedPref("all"); setSelectedCity("all"); }} className="text-xs text-red-500 hover:text-red-700 ml-2">✕ 条件クリア</button>
+            <button onClick={() => { setSearchQuery(""); setSelectedPref("all"); setSelectedCity("all"); setExpandedKeywords([]); setIsSearching(false); }} className="text-xs text-red-500 hover:text-red-700 ml-2">✕ 条件クリア</button>
           </div>
         )}
       </div>
 
-      {/* Results table */}
       {filtered.length > 0 ? (
         <DataTable headers={["制度名", "対象", "補助額", "申請期限", "管轄", "消化率", "状態"]} rows={filtered.map((s, i) => {
           const rate = s.totalBudget > 0 ? (s.usedBudget / s.totalBudget) * 100 : 0;
@@ -1606,8 +1673,36 @@ function SubsidyManagement({ onCreateNew, onExport }: ToolProps) {
           <p className="text-text-sub text-xs mt-1">キーワードや都道府県を変更してお試しください</p>
         </div>
       )}
+    </>) : activeTab === "pipeline" ? (<>
+      <div className="bg-white border border-border rounded-xl p-5">
+        <h3 className="text-sm font-bold text-text-main mb-4">検索パイプライン（7ステップ処理）</h3>
+        <div className="grid grid-cols-7 gap-2">
+          {[
+            { num: 1, label: "キーワード展開", desc: "業界辞書" },
+            { num: 2, label: "データ収集", desc: "フェッチ" },
+            { num: 3, label: "フィールド抽出", desc: "解析" },
+            { num: 4, label: "適格性スコアリング", desc: "評価" },
+            { num: 5, label: "締切状態判定", desc: "期限判定" },
+            { num: 6, label: "アラートロジック", desc: "通知生成" },
+            { num: 7, label: "出力フォーマット", desc: "表示" },
+          ].map((step, i) => (
+            <div key={i} className="bg-gradient-to-b from-purple-50 to-purple-100 border border-purple-300 rounded-lg p-3 text-center">
+              <div className="text-lg font-black text-purple-600 mb-1">{step.num}</div>
+              <p className="text-[10px] font-bold text-text-main">{step.label}</p>
+              <p className="text-[9px] text-text-sub mt-0.5">{step.desc}</p>
+            </div>
+          ))}
+        </div>
+        <div className="mt-4 p-3 bg-blue-50 border border-blue-200 rounded-lg">
+          <p className="text-[10px] text-blue-800 font-bold">監視状況</p>
+          <p className="text-[9px] text-blue-700 mt-1">国 (毎日チェック) / 都道府県 (週1回) / 市区町村 (月2回)</p>
+          <div className="mt-2 flex items-center gap-2">
+            <span className="w-2 h-2 rounded-full bg-green-500 animate-pulse" />
+            <span className="text-[9px] text-blue-800 font-medium">リアルタイム監視中</span>
+          </div>
+        </div>
+      </div>
     </>) : (<>
-      {/* Budget Alert Tab */}
       <div className="bg-white border border-border rounded-xl p-5 mb-6">
         <div className="flex items-center justify-between mb-4">
           <h3 className="text-sm font-bold text-text-main">予算消化モニタリング（自動監視）</h3>
@@ -1628,7 +1723,6 @@ function SubsidyManagement({ onCreateNew, onExport }: ToolProps) {
         <p className="text-[10px] text-text-sub">Slack通知連携対応 ｜ 閾値到達時に自動アラート送信 ｜ 重複通知防止機能付き</p>
       </div>
 
-      {/* Budget alert items */}
       <div className="space-y-3">
         {allSubsidies.filter(s => s.totalBudget > 0 && s.usedBudget > 0).sort((a, b) => (b.usedBudget / b.totalBudget) - (a.usedBudget / a.totalBudget)).map((s, i) => {
           const rate = (s.usedBudget / s.totalBudget) * 100;
@@ -1674,6 +1768,7 @@ function SubsidyManagement({ onCreateNew, onExport }: ToolProps) {
     </>)}
   </>);
 }
+
 
 function Analytics({ onCreateNew, onExport }: ToolProps) {
   return (<>
