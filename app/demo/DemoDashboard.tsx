@@ -796,6 +796,166 @@ function AdManagement({ onCreateNew, onExport }: ToolProps) {
               </div>
             </div>
 
+            {/* GENERATED AD CREATIVE PREVIEW */}
+            <div className="bg-white rounded-xl border-2 border-orange-300 p-5">
+              <div className="flex items-center gap-3 mb-5">
+                <div className="w-8 h-8 rounded-full bg-gradient-to-r from-orange-500 to-pink-500 flex items-center justify-center">
+                  <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="white" strokeWidth="2"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5"/><path d="m21 15-5-5L5 21"/></svg>
+                </div>
+                <div>
+                  <h4 className="text-sm font-bold text-text-main">生成された広告素材プレビュー</h4>
+                  <p className="text-[10px] text-text-sub">各プラットフォーム向けに最適化されたクリエイティブ</p>
+                </div>
+                <span className="ml-auto text-[10px] font-bold text-emerald-600 bg-emerald-50 px-2 py-1 rounded border border-emerald-200">✓ 生成完了</span>
+              </div>
+              <div className="grid grid-cols-3 gap-4">
+                {/* Instagram Feed 1:1 */}
+                <div>
+                  <p className="text-[10px] font-bold text-text-sub mb-2 text-center">Instagram Feed（1:1）</p>
+                  <div className="rounded-lg overflow-hidden border border-gray-200 shadow-lg">
+                    {/* IG Header */}
+                    <div className="bg-white px-3 py-2 flex items-center gap-2 border-b border-gray-100">
+                      <div className="w-6 h-6 rounded-full bg-gradient-to-tr from-orange-400 to-pink-500" />
+                      <span className="text-[9px] font-bold text-gray-900">builder_os_demo</span>
+                      <span className="text-[9px] text-blue-500 ml-1">フォロー中</span>
+                      <span className="text-[9px] text-gray-400 ml-auto">広告</span>
+                    </div>
+                    {/* Ad Image 1:1 */}
+                    <div className="aspect-square relative" style={{ background: "linear-gradient(180deg, #2d6cb5 0%, #5a9fd4 20%, #f5f0e8 20%, #ebe5db 55%, #5a8c3c 55%, #3d6628 100%)" }}>
+                      {/* Sky */}
+                      <div className="absolute top-0 left-0 right-0 h-[20%]" style={{ background: "linear-gradient(180deg, #1a5490 0%, #4a8cc8 80%, #88c4e8 100%)" }}>
+                        <div className="absolute top-[30%] left-[20%] w-[20%] h-[30%] rounded-full" style={{ background: "radial-gradient(ellipse, rgba(255,255,255,0.3) 0%, transparent 70%)" }} />
+                      </div>
+                      {/* Building */}
+                      <div className="absolute top-[18%] left-[12%] right-[12%] h-[38%]" style={{ background: "linear-gradient(180deg, #f8f4ee 0%, #ede7dc 50%, #e2dbd0 100%)", boxShadow: "0 4px 24px rgba(0,0,0,0.12), inset 0 1px 0 rgba(255,255,255,0.6)" }}>
+                        <div className="absolute top-[15%] left-[8%] w-[25%] h-[48%] border border-gray-300/50" style={{ background: "linear-gradient(135deg, #7ec8e3 0%, #4a9dc8 50%, #b8ddf0 100%)" }} />
+                        <div className="absolute top-[15%] right-[8%] w-[25%] h-[48%] border border-gray-300/50" style={{ background: "linear-gradient(135deg, #7ec8e3 0%, #4a9dc8 50%, #b8ddf0 100%)" }} />
+                        <div className="absolute bottom-0 left-1/2 -translate-x-1/2 w-[16%] h-[52%]" style={{ background: "linear-gradient(180deg, #7a5c3e 0%, #6b4d32 100%)" }} />
+                      </div>
+                      <div className="absolute top-[10%] left-[8%] right-[8%] h-[10%]" style={{ background: "linear-gradient(180deg, #3d3028 0%, #574538 100%)", clipPath: "polygon(0% 100%, 50% 0%, 100% 100%)" }} />
+                      {/* Ground */}
+                      <div className="absolute bottom-0 left-0 right-0 h-[32%]" style={{ background: "linear-gradient(180deg, #5a8c3c 0%, #3d6628 100%)" }}>
+                        <div className="absolute top-0 left-1/2 -translate-x-1/2 w-[16%] h-full" style={{ background: "linear-gradient(180deg, #d4cfc5 0%, #c0b8ac 100%)" }} />
+                      </div>
+                      {/* Text overlay */}
+                      <div className="absolute bottom-0 left-0 right-0 p-3" style={{ background: "linear-gradient(180deg, transparent 0%, rgba(0,0,0,0.7) 100%)" }}>
+                        <p className="text-white font-bold text-xs leading-tight">{optimizeMode === "housing" ? "暮らしを、設計する。" : "利回り、都心で確保。"}</p>
+                        <p className="text-white/80 text-[8px] mt-0.5">{optimizeMode === "housing" ? "あなたの理想を確かな技術で形に" : "資産価値が落ちない立地戦略"}</p>
+                      </div>
+                    </div>
+                    {/* IG Actions */}
+                    <div className="bg-white px-3 py-2 border-t border-gray-100">
+                      <div className="flex items-center gap-3 mb-1">
+                        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#262626" strokeWidth="2"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/></svg>
+                        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#262626" strokeWidth="2"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>
+                        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#262626" strokeWidth="2"><line x1="22" y1="2" x2="11" y2="13"/><polygon points="22 2 15 22 11 13 2 9 22 2"/></svg>
+                      </div>
+                      <p className="text-[8px] text-gray-600 leading-relaxed"><span className="font-bold text-gray-900">builder_os_demo</span> {optimizeMode === "housing" ? "建築家と創る、あなただけの住まい。無料相談受付中。" : "プロが厳選した都心投資物件。収支シミュレーション無料。"}</p>
+                      <button className="w-full mt-1.5 py-1 bg-blue-500 text-white text-[8px] font-bold rounded">{optimizeMode === "housing" ? "無料相談を予約する" : "収支シミュレーション"}</button>
+                    </div>
+                  </div>
+                  <p className="text-[9px] text-text-sub text-center mt-1.5">1080 × 1080px</p>
+                </div>
+
+                {/* Instagram Stories 9:16 */}
+                <div>
+                  <p className="text-[10px] font-bold text-text-sub mb-2 text-center">Instagram Stories（9:16）</p>
+                  <div className="rounded-lg overflow-hidden border border-gray-200 shadow-lg" style={{ aspectRatio: "9/16", maxHeight: "380px" }}>
+                    <div className="w-full h-full relative" style={{ background: "linear-gradient(180deg, #1a3a5c 0%, #2d6cb5 15%, #f0ece4 15%, #e8e2d8 50%, #4a7c3c 50%, #2d5818 100%)" }}>
+                      {/* Stories UI - top */}
+                      <div className="absolute top-0 left-0 right-0 z-10 p-2">
+                        <div className="w-full h-0.5 bg-white/30 rounded-full mb-2"><div className="w-1/3 h-full bg-white rounded-full" /></div>
+                        <div className="flex items-center gap-2">
+                          <div className="w-5 h-5 rounded-full bg-gradient-to-tr from-orange-400 to-pink-500 border border-white" />
+                          <span className="text-[8px] font-bold text-white">builder_os_demo</span>
+                          <span className="text-[8px] text-white/60">広告</span>
+                        </div>
+                      </div>
+                      {/* Building */}
+                      <div className="absolute top-[13%] left-[8%] right-[8%] h-[40%]" style={{ background: "linear-gradient(180deg, #f8f4ee 0%, #ede7dc 50%, #e2dbd0 100%)", boxShadow: "0 8px 30px rgba(0,0,0,0.15)" }}>
+                        <div className="absolute top-[12%] left-[6%] w-[28%] h-[50%]" style={{ background: "linear-gradient(135deg, #7ec8e3 0%, #4a9dc8 50%, #b8ddf0 100%)" }} />
+                        <div className="absolute top-[12%] left-[38%] w-[28%] h-[50%]" style={{ background: "linear-gradient(135deg, #7ec8e3 0%, #4a9dc8 50%, #b8ddf0 100%)" }} />
+                        <div className="absolute top-[12%] right-[6%] w-[22%] h-[70%]" style={{ background: "linear-gradient(180deg, #7a5c3e 0%, #6b4d32 100%)" }} />
+                      </div>
+                      <div className="absolute top-[6%] left-[4%] right-[4%] h-[9%]" style={{ background: "linear-gradient(180deg, #3d3028 0%, #574538 100%)", clipPath: "polygon(0% 100%, 50% 0%, 100% 100%)" }} />
+                      {/* Bottom gradient + text */}
+                      <div className="absolute bottom-0 left-0 right-0 h-[45%]" style={{ background: "linear-gradient(180deg, transparent 0%, rgba(0,0,0,0.85) 60%)" }}>
+                        <div className="absolute bottom-12 left-4 right-4">
+                          <p className="text-white font-black text-sm leading-tight mb-1">{optimizeMode === "housing" ? "暮らしを、\n設計する。" : "利回り、\n都心で確保。"}</p>
+                          <p className="text-white/70 text-[8px] mb-2">{optimizeMode === "housing" ? "建築家と創る、あなただけの住まい" : "資産価値が落ちない立地戦略"}</p>
+                          <div className="flex items-center gap-1">
+                            <span className="text-[7px] bg-white/20 text-white px-1.5 py-0.5 rounded">{optimizeMode === "housing" ? "注文住宅" : "投資物件"}</span>
+                            <span className="text-[7px] bg-white/20 text-white px-1.5 py-0.5 rounded">{optimizeMode === "housing" ? "無料相談" : "利回り保証"}</span>
+                          </div>
+                        </div>
+                      </div>
+                      {/* Swipe up CTA */}
+                      <div className="absolute bottom-2 left-0 right-0 text-center">
+                        <div className="inline-flex items-center gap-1 bg-white rounded-full px-3 py-1">
+                          <span className="text-[7px] font-bold text-gray-900">{optimizeMode === "housing" ? "無料相談を予約" : "シミュレーション"}</span>
+                          <svg width="8" height="8" viewBox="0 0 24 24" fill="none" stroke="#111" strokeWidth="3"><polyline points="6 9 12 15 18 9"/></svg>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                  <p className="text-[9px] text-text-sub text-center mt-1.5">1080 × 1920px</p>
+                </div>
+
+                {/* Google Display 16:9 */}
+                <div>
+                  <p className="text-[10px] font-bold text-text-sub mb-2 text-center">Google Display（16:9）</p>
+                  <div className="space-y-3">
+                    {/* Google Display Banner */}
+                    <div className="rounded-lg overflow-hidden border border-gray-200 shadow-lg aspect-video relative" style={{ background: "linear-gradient(135deg, #2d6cb5 0%, #5a9fd4 30%, #f5f0e8 30%, #ede7dc 65%, #5a8c3c 65%, #3d6628 100%)" }}>
+                      <div className="absolute inset-0">
+                        {/* Building simplified */}
+                        <div className="absolute top-[15%] left-[5%] w-[45%] h-[55%]" style={{ background: "linear-gradient(180deg, #f8f4ee 0%, #e2dbd0 100%)", boxShadow: "0 4px 20px rgba(0,0,0,0.1)" }}>
+                          <div className="absolute top-[15%] left-[8%] w-[35%] h-[40%]" style={{ background: "linear-gradient(135deg, #7ec8e3 0%, #4a9dc8 100%)" }} />
+                          <div className="absolute top-[15%] right-[8%] w-[35%] h-[40%]" style={{ background: "linear-gradient(135deg, #7ec8e3 0%, #4a9dc8 100%)" }} />
+                        </div>
+                        <div className="absolute top-[7%] left-[2%] w-[51%] h-[10%]" style={{ background: "#3d3028", clipPath: "polygon(0% 100%, 50% 0%, 100% 100%)" }} />
+                        {/* Right side - text panel */}
+                        <div className="absolute top-0 right-0 w-[48%] h-full" style={{ background: "linear-gradient(135deg, rgba(0,0,0,0.85) 0%, rgba(0,0,0,0.95) 100%)" }}>
+                          <div className="flex flex-col justify-center h-full p-3">
+                            <p className="text-white font-black text-[10px] leading-tight mb-1">{optimizeMode === "housing" ? "暮らしを、設計する。" : "利回り、都心で確保。"}</p>
+                            <p className="text-white/60 text-[7px] mb-2">{optimizeMode === "housing" ? "あなたの理想を確かな技術で形に" : "資産価値が落ちない立地戦略"}</p>
+                            <button className="self-start text-[7px] bg-orange-500 text-white px-2 py-0.5 rounded font-bold">{optimizeMode === "housing" ? "無料相談" : "詳しく見る"}</button>
+                          </div>
+                        </div>
+                        {/* Google Ad badge */}
+                        <div className="absolute top-1 left-1 bg-yellow-400 text-[6px] font-bold text-gray-800 px-1 rounded">Ad</div>
+                      </div>
+                    </div>
+                    {/* Google Search Ad */}
+                    <div className="bg-white rounded-lg border border-gray-200 p-3 shadow">
+                      <p className="text-[9px] text-gray-500 mb-1">Google 検索広告プレビュー</p>
+                      <div className="border border-gray-100 rounded p-2">
+                        <div className="flex items-center gap-1 mb-1">
+                          <span className="text-[7px] bg-gray-900 text-white px-1 rounded font-bold">Ad</span>
+                          <span className="text-[8px] text-emerald-700">www.builder-os-demo.jp</span>
+                        </div>
+                        <p className="text-[10px] font-bold text-blue-700 mb-0.5">{optimizeMode === "housing" ? "暮らしを、設計する。｜建築家と創る住まい" : "利回り、都心で確保。｜プロが厳選する投資物件"}</p>
+                        <p className="text-[8px] text-gray-600 leading-relaxed">{optimizeMode === "housing" ? "あなたの理想を確かな技術で形に。建築家との相談は無料。今なら無料相談キャンペーン開催中。" : "資産価値が落ちない立地戦略。長期安定収入を実現。収支シミュレーション付き。今すぐ相談。"}</p>
+                      </div>
+                    </div>
+                  </div>
+                  <p className="text-[9px] text-text-sub text-center mt-1.5">1200 × 628px / テキスト広告</p>
+                </div>
+              </div>
+              {/* Download/export bar */}
+              <div className="mt-4 pt-4 border-t border-gray-200 flex items-center justify-between">
+                <div className="flex items-center gap-4 text-[10px] text-text-sub">
+                  <span>📐 4フォーマット自動生成</span>
+                  <span>🎨 高解像度出力対応</span>
+                  <span>📱 レスポンシブ最適化済み</span>
+                </div>
+                <div className="flex gap-2">
+                  <button className="text-[10px] px-3 py-1.5 border border-border rounded font-medium hover:bg-gray-50 transition-colors">一括ダウンロード</button>
+                  <button className="text-[10px] px-3 py-1.5 bg-orange-500 text-white rounded font-bold hover:bg-orange-600 transition-colors">入稿データ書き出し</button>
+                </div>
+              </div>
+            </div>
+
             {/* STEP 4: PLATFORM OPTIMIZATION */}
             <div className="bg-white rounded-xl border border-border p-5">
               <div className="flex items-center gap-3 mb-4">
