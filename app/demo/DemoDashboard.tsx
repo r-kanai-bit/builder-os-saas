@@ -305,7 +305,7 @@ function ConstructionLedger({ onCreateNew, onExport }: ToolProps) {
   return (<>
     <ToolHeader title="工事台帳" color="#3b82f6" onCreateNew={onCreateNew} onExport={onExport} />
     <div className="grid grid-cols-3 gap-4 mb-6">
-      {[{ label: "進行中", value: "12件", color: "#3b82f6" }, { label: "今月完了", value: "3件", color: "#10b981" }, { label: "受注総額", value: "¥285M", color: "#f59e0b" }].map((s, i) => (
+      {[{ label: "進行中", value: "12件", color: "#3b82f6" }, { label: "今月完了", value: "3件", color: "#10b981" }, { label: "受注総額", value: "¥2億8,500万", color: "#f59e0b" }].map((s, i) => (
         <div key={i} className="bg-white rounded-xl border border-border p-4"><p className="text-xs text-text-sub">{s.label}</p><p className="text-xl font-black" style={{ color: s.color }}>{s.value}</p></div>
       ))}
     </div>
@@ -335,15 +335,15 @@ function Budget({ onCreateNew, onExport }: ToolProps) {
   return (<>
     <ToolHeader title="実行予算" color="#f59e0b" onCreateNew={onCreateNew} onExport={onExport} />
     <div className="grid grid-cols-4 gap-4 mb-6">
-      {[{ label: "予算総額", value: "¥285M" }, { label: "実行額", value: "¥198M" }, { label: "残予算", value: "¥87M" }, { label: "予算消化率", value: "69.5%" }].map((s, i) => (
+      {[{ label: "予算総額", value: "¥2億8,500万" }, { label: "実行額", value: "¥1億9,800万" }, { label: "残予算", value: "¥8,700万" }, { label: "予算消化率", value: "69.5%" }].map((s, i) => (
         <div key={i} className="bg-white rounded-xl border border-border p-4"><p className="text-xs text-text-sub">{s.label}</p><p className="text-xl font-black text-text-main">{s.value}</p></div>
       ))}
     </div>
     <DataTable headers={["工事名", "請負額", "予算額", "実績額", "差額", "消化率"]} rows={[
-      ["○○マンション新築", "¥128.5M", "¥98.5M", "¥72.3M", <span key="1" className="text-green-600 font-bold">+¥26.2M</span>, "73.4%"],
-      ["△△ビル改修", "¥45.0M", "¥36.0M", "¥12.8M", <span key="2" className="text-green-600 font-bold">+¥23.2M</span>, "35.6%"],
-      ["□□住宅リフォーム", "¥8.5M", "¥6.8M", "¥5.9M", <span key="3" className="text-green-600 font-bold">+¥0.9M</span>, "86.8%"],
-      ["●●商業施設外構", "¥32.0M", "¥25.6M", "¥24.1M", <span key="4" className="text-green-600 font-bold">+¥1.5M</span>, "94.1%"],
+      ["○○マンション新築", "¥1億2,850万", "¥9,850万", "¥7,230万", <span key="1" className="text-green-600 font-bold">+¥2,620万</span>, "73.4%"],
+      ["△△ビル改修", "¥4,500万", "¥3,600万", "¥1,280万", <span key="2" className="text-green-600 font-bold">+¥2,320万</span>, "35.6%"],
+      ["□□住宅リフォーム", "¥850万", "¥680万", "¥590万", <span key="3" className="text-green-600 font-bold">+¥90万</span>, "86.8%"],
+      ["●●商業施設外構", "¥3,200万", "¥2,560万", "¥2,410万", <span key="4" className="text-green-600 font-bold">+¥150万</span>, "94.1%"],
     ]} />
   </>);
 }
@@ -495,7 +495,7 @@ function PaymentManagement({ onCreateNew, onExport }: ToolProps) {
   return (<>
     <ToolHeader title="入金管理" color="#06b6d4" onCreateNew={onCreateNew} onExport={onExport} />
     <div className="grid grid-cols-3 gap-4 mb-6">
-      {[{ label: "入金済", value: "¥142.5M", color: "#10b981" }, { label: "未入金", value: "¥28.3M", color: "#ef4444" }, { label: "今月入金予定", value: "¥18.7M", color: "#3b82f6" }].map((s, i) => (
+      {[{ label: "入金済", value: "¥1億4,250万", color: "#10b981" }, { label: "未入金", value: "¥2,830万", color: "#ef4444" }, { label: "今月入金予定", value: "¥1,870万", color: "#3b82f6" }].map((s, i) => (
         <div key={i} className="bg-white rounded-xl border border-border p-4"><p className="text-xs text-text-sub">{s.label}</p><p className="text-xl font-black" style={{ color: s.color }}>{s.value}</p></div>
       ))}
     </div>
@@ -511,14 +511,14 @@ function CostManagement({ onCreateNew, onExport }: ToolProps) {
   return (<>
     <ToolHeader title="原価管理" color="#ec4899" onCreateNew={onCreateNew} onExport={onExport} />
     <div className="grid grid-cols-4 gap-4 mb-6">
-      {[{ label: "請負総額", value: "¥214M" }, { label: "原価合計", value: "¥163M" }, { label: "粗利", value: "¥51M" }, { label: "粗利率", value: "23.8%" }].map((s, i) => (
+      {[{ label: "請負総額", value: "¥2億1,400万" }, { label: "原価合計", value: "¥1億6,300万" }, { label: "粗利", value: "¥5,100万" }, { label: "粗利率", value: "23.8%" }].map((s, i) => (
         <div key={i} className="bg-white rounded-xl border border-border p-4"><p className="text-xs text-text-sub">{s.label}</p><p className="text-xl font-black text-text-main">{s.value}</p></div>
       ))}
     </div>
     <DataTable headers={["工事名", "請負額", "材料費", "労務費", "外注費", "経費", "原価計", "粗利率"]} rows={[
-      ["○○マンション", "¥128.5M", "¥32.1M", "¥28.4M", "¥25.6M", "¥12.2M", "¥98.3M", <span key="1" className="font-bold text-green-600">23.5%</span>],
-      ["△△ビル改修", "¥45.0M", "¥11.3M", "¥9.8M", "¥8.5M", "¥4.2M", "¥33.8M", <span key="2" className="font-bold text-green-600">24.9%</span>],
-      ["□□住宅", "¥8.5M", "¥2.1M", "¥1.9M", "¥1.5M", "¥0.8M", "¥6.3M", <span key="3" className="font-bold text-yellow-600">25.9%</span>],
+      ["○○マンション", "¥1億2,850万", "¥3,210万", "¥2,840万", "¥2,560万", "¥1,220万", "¥9,830万", <span key="1" className="font-bold text-green-600">23.5%</span>],
+      ["△△ビル改修", "¥4,500万", "¥1,130万", "¥980万", "¥850万", "¥420万", "¥3,380万", <span key="2" className="font-bold text-green-600">24.9%</span>],
+      ["□□住宅", "¥850万", "¥210万", "¥190万", "¥150万", "¥80万", "¥630万", <span key="3" className="font-bold text-yellow-600">25.9%</span>],
     ]} />
   </>);
 }
@@ -914,11 +914,11 @@ function AdManagement({ onCreateNew, onExport }: ToolProps) {
           ))}
         </div>
         <DataTable headers={["競合他社", "エリア", "検出広告数", "推定月額", "主要媒体", "直近の動き"]} rows={[
-          ["○○ホーム", "世田谷区・目黒区", "8件", "¥350K", "Meta/Google", <StatusBadge key="1" status="配信中" />],
-          ["△△建設", "杉並区・中野区", "5件", "¥200K", "Google", <StatusBadge key="2" status="配信中" />],
-          ["□□ハウス", "練馬区", "6件", "¥280K", "Meta", <StatusBadge key="3" status="配信中" />],
-          ["●●工務店", "板橋区・北区", "3件", "¥150K", "チラシ/DM", <StatusBadge key="4" status="配信中" />],
-          ["◎◎リフォーム", "品川区", "1件", "¥80K", "Google", <StatusBadge key="5" status="終了" />],
+          ["○○ホーム", "世田谷区・目黒区", "8件", "¥35万", "Meta/Google", <StatusBadge key="1" status="配信中" />],
+          ["△△建設", "杉並区・中野区", "5件", "¥20万", "Google", <StatusBadge key="2" status="配信中" />],
+          ["□□ハウス", "練馬区", "6件", "¥28万", "Meta", <StatusBadge key="3" status="配信中" />],
+          ["●●工務店", "板橋区・北区", "3件", "¥15万", "チラシ/DM", <StatusBadge key="4" status="配信中" />],
+          ["◎◎リフォーム", "品川区", "1件", "¥8万", "Google", <StatusBadge key="5" status="終了" />],
         ]} />
         <div className="grid lg:grid-cols-2 gap-6 mt-6">
           <div className="bg-white rounded-xl border border-border p-5">
@@ -1377,7 +1377,7 @@ function SubsidyManagement({ onCreateNew, onExport }: ToolProps) {
     {activeTab === "search" ? (<>
       {/* KPI cards */}
       <div className="grid grid-cols-4 gap-4 mb-6">
-        {[{ label: "利用可能な制度", value: totalAvailable + "件", color: "#7c3aed" }, { label: "検索結果", value: filteredCount + "件", color: "#3b82f6" }, { label: "受給済み", value: "¥4.2M", color: "#10b981" }, { label: "申請期限間近", value: "5件", color: "#ef4444" }].map((s, i) => (
+        {[{ label: "利用可能な制度", value: totalAvailable + "件", color: "#7c3aed" }, { label: "検索結果", value: filteredCount + "件", color: "#3b82f6" }, { label: "受給済み", value: "¥420万", color: "#10b981" }, { label: "申請期限間近", value: "5件", color: "#ef4444" }].map((s, i) => (
           <div key={i} className="bg-white rounded-xl border border-border p-4"><p className="text-xs text-text-sub">{s.label}</p><p className="text-xl font-black" style={{ color: s.color }}>{s.value}</p></div>
         ))}
       </div>
@@ -1518,7 +1518,7 @@ function Analytics({ onCreateNew, onExport }: ToolProps) {
   return (<>
     <ToolHeader title="経営分析" color="#e11d48" onCreateNew={onCreateNew} onExport={onExport} />
     <div className="grid grid-cols-4 gap-4 mb-6">
-      {[{ label: "年間売上", value: "¥680M", change: "+12.3%" }, { label: "年間粗利", value: "¥158M", change: "+8.7%" }, { label: "平均粗利率", value: "23.2%", change: "+1.5%" }, { label: "受注残", value: "¥420M", change: "+15.2%" }].map((s, i) => (
+      {[{ label: "年間売上", value: "¥6億8,000万", change: "+12.3%" }, { label: "年間粗利", value: "¥1億5,800万", change: "+8.7%" }, { label: "平均粗利率", value: "23.2%", change: "+1.5%" }, { label: "受注残", value: "¥4億2,000万", change: "+15.2%" }].map((s, i) => (
         <div key={i} className="bg-white rounded-xl border border-border p-4"><p className="text-xs text-text-sub">{s.label}</p><p className="text-xl font-black text-text-main">{s.value}</p><p className="text-xs text-green-600 font-bold mt-1">{s.change} 前年比</p></div>
       ))}
     </div>
@@ -1557,7 +1557,7 @@ function DashboardHome({ onToolSelect }: { onToolSelect: (id: string) => void })
       </div>
     </div>
     <div className="grid grid-cols-2 lg:grid-cols-4 gap-4 mb-6">
-      {[{ label: "進行中の工事", value: "12", change: "+2", color: "#3b82f6" }, { label: "今月の売上", value: "¥15.2M", change: "+8.3%", color: "#10b981" }, { label: "未回収金額", value: "¥2.1M", change: "-12%", color: "#f59e0b" }, { label: "今月の粗利率", value: "23.5%", change: "+1.2%", color: "#8b5cf6" }].map((card, i) => (
+      {[{ label: "進行中の工事", value: "12", change: "+2", color: "#3b82f6" }, { label: "今月の売上", value: "¥1,520万", change: "+8.3%", color: "#10b981" }, { label: "未回収金額", value: "¥210万", change: "-12%", color: "#f59e0b" }, { label: "今月の粗利率", value: "23.5%", change: "+1.2%", color: "#8b5cf6" }].map((card, i) => (
         <div key={i} className="bg-white rounded-xl border border-border p-4 sm:p-5"><p className="text-xs text-text-sub mb-1">{card.label}</p><p className="text-xl sm:text-2xl font-black text-text-main">{card.value}</p><p className="text-xs font-medium mt-1" style={{ color: card.color }}>{card.change} 前月比</p></div>
       ))}
     </div>
