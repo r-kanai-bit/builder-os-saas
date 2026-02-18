@@ -1398,6 +1398,8 @@ function LandSearch({ onCreateNew, onExport }: ToolProps) {
   const [searchAreaTsubo, setSearchAreaTsubo] = useState("");
   const [areaError, setAreaError] = useState("");
   const [showSearchForm, setShowSearchForm] = useState(true);
+  const [sf, setSf] = useState({ budget: "5,000", pref: "東京都", city: "", station: "", line: "", walk: "20", school: "", kenjo: "条件付き含む", tsuboMin: "30", tsuboMax: "70", nochi: "含む", chosei: "含む", buildTsubo: "30", buildType: "2階建て", buildBudget: "2,500", rate: "0.6", years: "35", down: "0" });
+  const uf = (key: string, val: string) => setSf(prev => ({ ...prev, [key]: val }));
 
   const m2ToTsubo = (m2: number) => Math.round(m2 / 3.30579 * 10) / 10;
   const tsuboToM2 = (tsubo: number) => Math.round(tsubo * 3.30579 * 10) / 10;
@@ -1527,16 +1529,16 @@ function LandSearch({ onCreateNew, onExport }: ToolProps) {
       {showSearchForm && (
         <div className="px-5 pb-5 border-t border-border pt-4">
           <div className="grid grid-cols-2 lg:grid-cols-4 gap-4 mb-4">
-            <div><label className="text-[10px] text-text-sub block mb-1">予算上限（万円）</label><input type="text" defaultValue="5,000" className="w-full px-3 py-2 border border-border rounded-lg text-sm" /></div>
-            <div><label className="text-[10px] text-text-sub block mb-1">都道府県</label><input type="text" defaultValue="東京都" className="w-full px-3 py-2 border border-border rounded-lg text-sm" /></div>
-            <div><label className="text-[10px] text-text-sub block mb-1">市区町村</label><input type="text" placeholder="例: 世田谷区" className="w-full px-3 py-2 border border-border rounded-lg text-sm" /></div>
-            <div><label className="text-[10px] text-text-sub block mb-1">最寄駅</label><input type="text" placeholder="例: 荻窪" className="w-full px-3 py-2 border border-border rounded-lg text-sm" /></div>
+            <div><label className="text-[10px] text-text-sub block mb-1">予算上限（万円）</label><input type="text" value={sf.budget} onChange={e => uf("budget", e.target.value)} className="w-full px-3 py-2 border border-border rounded-lg text-sm" /></div>
+            <div><label className="text-[10px] text-text-sub block mb-1">都道府県</label><input type="text" value={sf.pref} onChange={e => uf("pref", e.target.value)} className="w-full px-3 py-2 border border-border rounded-lg text-sm" /></div>
+            <div><label className="text-[10px] text-text-sub block mb-1">市区町村</label><input type="text" value={sf.city} onChange={e => uf("city", e.target.value)} placeholder="例: 世田谷区" className="w-full px-3 py-2 border border-border rounded-lg text-sm" /></div>
+            <div><label className="text-[10px] text-text-sub block mb-1">最寄駅</label><input type="text" value={sf.station} onChange={e => uf("station", e.target.value)} placeholder="例: 荻窪" className="w-full px-3 py-2 border border-border rounded-lg text-sm" /></div>
           </div>
           <div className="grid grid-cols-2 lg:grid-cols-4 gap-4 mb-4">
-            <div><label className="text-[10px] text-text-sub block mb-1">沿線</label><input type="text" placeholder="例: 中央線" className="w-full px-3 py-2 border border-border rounded-lg text-sm" /></div>
-            <div><label className="text-[10px] text-text-sub block mb-1">徒歩（分以内）</label><input type="text" defaultValue="20" className="w-full px-3 py-2 border border-border rounded-lg text-sm" /></div>
-            <div><label className="text-[10px] text-text-sub block mb-1">建築条件</label><select className="w-full px-3 py-2 border border-border rounded-lg text-sm bg-white"><option>条件付き含む</option><option>条件なしのみ</option></select></div>
-            <div><label className="text-[10px] text-text-sub block mb-1">学区指定</label><input type="text" placeholder="任意" className="w-full px-3 py-2 border border-border rounded-lg text-sm" /></div>
+            <div><label className="text-[10px] text-text-sub block mb-1">沿線</label><input type="text" value={sf.line} onChange={e => uf("line", e.target.value)} placeholder="例: 中央線" className="w-full px-3 py-2 border border-border rounded-lg text-sm" /></div>
+            <div><label className="text-[10px] text-text-sub block mb-1">徒歩（分以内）</label><input type="text" value={sf.walk} onChange={e => uf("walk", e.target.value)} className="w-full px-3 py-2 border border-border rounded-lg text-sm" /></div>
+            <div><label className="text-[10px] text-text-sub block mb-1">建築条件</label><select value={sf.kenjo} onChange={e => uf("kenjo", e.target.value)} className="w-full px-3 py-2 border border-border rounded-lg text-sm bg-white"><option>条件付き含む</option><option>条件なしのみ</option></select></div>
+            <div><label className="text-[10px] text-text-sub block mb-1">学区指定</label><input type="text" value={sf.school} onChange={e => uf("school", e.target.value)} placeholder="任意" className="w-full px-3 py-2 border border-border rounded-lg text-sm" /></div>
           </div>
 
           <div className="bg-green-50 border border-green-200 rounded-lg p-4 mb-4">
@@ -1559,22 +1561,22 @@ function LandSearch({ onCreateNew, onExport }: ToolProps) {
           </div>
 
           <div className="grid grid-cols-2 lg:grid-cols-4 gap-4 mb-4">
-            <div><label className="text-[10px] text-text-sub block mb-1">土地面積（坪）下限</label><input type="text" defaultValue="30" className="w-full px-3 py-2 border border-border rounded-lg text-sm" /></div>
-            <div><label className="text-[10px] text-text-sub block mb-1">土地面積（坪）上限</label><input type="text" defaultValue="70" className="w-full px-3 py-2 border border-border rounded-lg text-sm" /></div>
-            <div><label className="text-[10px] text-text-sub block mb-1">農地含む</label><select className="w-full px-3 py-2 border border-border rounded-lg text-sm bg-white"><option>含む</option><option>含まない</option></select></div>
-            <div><label className="text-[10px] text-text-sub block mb-1">調整区域含む</label><select className="w-full px-3 py-2 border border-border rounded-lg text-sm bg-white"><option>含む</option><option>含まない</option></select></div>
+            <div><label className="text-[10px] text-text-sub block mb-1">土地面積（坪）下限</label><input type="text" value={sf.tsuboMin} onChange={e => uf("tsuboMin", e.target.value)} className="w-full px-3 py-2 border border-border rounded-lg text-sm" /></div>
+            <div><label className="text-[10px] text-text-sub block mb-1">土地面積（坪）上限</label><input type="text" value={sf.tsuboMax} onChange={e => uf("tsuboMax", e.target.value)} className="w-full px-3 py-2 border border-border rounded-lg text-sm" /></div>
+            <div><label className="text-[10px] text-text-sub block mb-1">農地含む</label><select value={sf.nochi} onChange={e => uf("nochi", e.target.value)} className="w-full px-3 py-2 border border-border rounded-lg text-sm bg-white"><option>含む</option><option>含まない</option></select></div>
+            <div><label className="text-[10px] text-text-sub block mb-1">調整区域含む</label><select value={sf.chosei} onChange={e => uf("chosei", e.target.value)} className="w-full px-3 py-2 border border-border rounded-lg text-sm bg-white"><option>含む</option><option>含まない</option></select></div>
           </div>
 
           <h4 className="text-xs font-bold text-text-main mt-5 mb-3 border-t border-border pt-4">建物プラン・資金計画</h4>
           <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
-            <div><label className="text-[10px] text-text-sub block mb-1">希望建物坪数</label><input type="text" defaultValue="30" className="w-full px-3 py-2 border border-border rounded-lg text-sm" /></div>
-            <div><label className="text-[10px] text-text-sub block mb-1">建物タイプ</label><select className="w-full px-3 py-2 border border-border rounded-lg text-sm bg-white"><option>2階建て</option><option>3階建て</option><option>平屋</option></select></div>
-            <div><label className="text-[10px] text-text-sub block mb-1">建物予算（万円）</label><input type="text" defaultValue="2,500" className="w-full px-3 py-2 border border-border rounded-lg text-sm" /></div>
-            <div><label className="text-[10px] text-text-sub block mb-1">ローン金利（%）</label><input type="text" defaultValue="0.6" className="w-full px-3 py-2 border border-border rounded-lg text-sm" /></div>
+            <div><label className="text-[10px] text-text-sub block mb-1">希望建物坪数</label><input type="text" value={sf.buildTsubo} onChange={e => uf("buildTsubo", e.target.value)} className="w-full px-3 py-2 border border-border rounded-lg text-sm" /></div>
+            <div><label className="text-[10px] text-text-sub block mb-1">建物タイプ</label><select value={sf.buildType} onChange={e => uf("buildType", e.target.value)} className="w-full px-3 py-2 border border-border rounded-lg text-sm bg-white"><option>2階建て</option><option>3階建て</option><option>平屋</option></select></div>
+            <div><label className="text-[10px] text-text-sub block mb-1">建物予算（万円）</label><input type="text" value={sf.buildBudget} onChange={e => uf("buildBudget", e.target.value)} className="w-full px-3 py-2 border border-border rounded-lg text-sm" /></div>
+            <div><label className="text-[10px] text-text-sub block mb-1">ローン金利（%）</label><input type="text" value={sf.rate} onChange={e => uf("rate", e.target.value)} className="w-full px-3 py-2 border border-border rounded-lg text-sm" /></div>
           </div>
           <div className="grid grid-cols-2 lg:grid-cols-4 gap-4 mt-4">
-            <div><label className="text-[10px] text-text-sub block mb-1">借入年数</label><input type="text" defaultValue="35" className="w-full px-3 py-2 border border-border rounded-lg text-sm" /></div>
-            <div><label className="text-[10px] text-text-sub block mb-1">頭金（万円）</label><input type="text" defaultValue="0" className="w-full px-3 py-2 border border-border rounded-lg text-sm" /></div>
+            <div><label className="text-[10px] text-text-sub block mb-1">借入年数</label><input type="text" value={sf.years} onChange={e => uf("years", e.target.value)} className="w-full px-3 py-2 border border-border rounded-lg text-sm" /></div>
+            <div><label className="text-[10px] text-text-sub block mb-1">頭金（万円）</label><input type="text" value={sf.down} onChange={e => uf("down", e.target.value)} className="w-full px-3 py-2 border border-border rounded-lg text-sm" /></div>
           </div>
 
           <button onClick={handleSearch} className="w-full mt-6 py-4 bg-green-600 text-white rounded-xl font-bold hover:bg-green-700 transition-colors text-lg shadow-lg">🔍 SUUMO × レインズ 一括検索</button>
