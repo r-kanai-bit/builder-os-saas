@@ -1393,10 +1393,13 @@ function LandSearch({ onCreateNew, onExport }: ToolProps) {
   const [landTab, setLandTab] = useState<"search" | "results">("search");
   const [selectedProperty, setSelectedProperty] = useState<number | null>(null);
   const [isSearching, setIsSearching] = useState(false);
+  const [searchStep, setSearchStep] = useState(0);
   const [hasSearched, setHasSearched] = useState(false);
   const [searchAreaM2, setSearchAreaM2] = useState("");
   const [searchAreaTsubo, setSearchAreaTsubo] = useState("");
   const [areaError, setAreaError] = useState("");
+  const [suumoSelected, setSuumoSelected] = useState(true);
+  const [reinsSelected, setReinsSelected] = useState(true);
 
   const m2ToTsubo = (m2: number) => Math.round(m2 / 3.30579 * 10) / 10;
   const tsuboToM2 = (tsubo: number) => Math.round(tsubo * 3.30579 * 10) / 10;
@@ -1428,40 +1431,109 @@ function LandSearch({ onCreateNew, onExport }: ToolProps) {
     }
     setAreaError("");
     setIsSearching(true);
+    setSearchStep(0);
+
+    const steps = [
+      { duration: 500, step: 1 },
+      { duration: 1000, step: 2 },
+      { duration: 1500, step: 3 },
+      { duration: 2000, step: 4 },
+      { duration: 2400, step: 5 },
+      { duration: 2700, step: 6 },
+    ];
+
+    steps.forEach(({ duration, step }) => {
+      setTimeout(() => setSearchStep(step), duration);
+    });
+
     setTimeout(() => {
       setIsSearching(false);
+      setSearchStep(0);
       setHasSearched(true);
       setLandTab("results");
-    }, 1800);
+    }, 2700);
   };
 
-  const properties = [
-    { rank: 1, score: 92, name: "杉並区 成田東 土地", address: "東京都杉並区成田東3丁目", size: 150.0, sizeTsubo: 45.4, price: 48500000, tsuboPrice: 106.8, avgTsubo: 118.0, discount: "+10.5%", discountLabel: "割安", zoning: "第一種住居", coverage: 60, far: 200, maxFloor: 90.8, fitLabel: "◎ 余裕あり", landCategory: "宅地", farmConversion: false, hazardFlood: "低", hazardSlide: "なし", hazardTsunami: "なし", hazardLiquefaction: "低", hazardScore: "A", demolition: 0, grading: 0, totalCost: 59695000, loanAmount: 59695000, monthlyPayment: 153000, yearIncome: 0, status: "受付中", station: "南阿佐ケ谷駅 徒歩12分", scoreDetail: { cheap: 14, fit: 14, loan: 13, demolition: 10, grading: 14, hazard: 14, asset: 13 } },
-    { rank: 2, score: 85, name: "練馬区 豊玉北 分譲地", address: "東京都練馬区豊玉北4丁目", size: 135.3, sizeTsubo: 40.9, price: 38000000, tsuboPrice: 92.8, avgTsubo: 98.0, discount: "+5.3%", discountLabel: "相場", zoning: "第二種住居", coverage: 60, far: 200, maxFloor: 81.8, fitLabel: "◎ 余裕あり", landCategory: "宅地", farmConversion: false, hazardFlood: "中", hazardSlide: "なし", hazardTsunami: "なし", hazardLiquefaction: "低", hazardScore: "B", demolition: 0, grading: 500000, totalCost: 49735000, loanAmount: 49735000, monthlyPayment: 127000, yearIncome: 0, status: "受付中", station: "練馬駅 徒歩15分", scoreDetail: { cheap: 11, fit: 14, loan: 14, demolition: 10, grading: 12, hazard: 11, asset: 13 } },
-    { rank: 3, score: 78, name: "世田谷区 桜丘 土地", address: "東京都世田谷区桜丘2丁目", size: 128.5, sizeTsubo: 38.9, price: 58000000, tsuboPrice: 149.0, avgTsubo: 155.0, discount: "+3.9%", discountLabel: "相場", zoning: "第一種住居", coverage: 50, far: 100, maxFloor: 38.9, fitLabel: "△ やや不足", landCategory: "宅地", farmConversion: false, hazardFlood: "低", hazardSlide: "なし", hazardTsunami: "なし", hazardLiquefaction: "低", hazardScore: "A", demolition: 0, grading: 0, totalCost: 70610000, loanAmount: 70610000, monthlyPayment: 181000, yearIncome: 0, status: "受付中", station: "千歳船橋駅 徒歩10分", scoreDetail: { cheap: 10, fit: 8, loan: 10, demolition: 10, grading: 15, hazard: 14, asset: 11 } },
-    { rank: 4, score: 71, name: "目黒区 中根 住宅用地", address: "東京都目黒区中根1丁目", size: 105.2, sizeTsubo: 31.8, price: 72000000, tsuboPrice: 226.0, avgTsubo: 235.0, discount: "+3.8%", discountLabel: "相場", zoning: "第一種低層", coverage: 40, far: 80, maxFloor: 25.5, fitLabel: "✕ 不可", landCategory: "宅地", farmConversion: false, hazardFlood: "低", hazardSlide: "なし", hazardTsunami: "なし", hazardLiquefaction: "中", hazardScore: "B", demolition: 0, grading: 0, totalCost: 85640000, loanAmount: 85640000, monthlyPayment: 219000, yearIncome: 0, status: "受付中", station: "都立大学駅 徒歩8分", scoreDetail: { cheap: 10, fit: 4, loan: 8, demolition: 10, grading: 15, hazard: 12, asset: 12 } },
-    { rank: 5, score: 65, name: "品川区 大井 住宅用地", address: "東京都品川区大井2丁目", size: 98.0, sizeTsubo: 29.6, price: 85000000, tsuboPrice: 286.0, avgTsubo: 278.0, discount: "-2.9%", discountLabel: "割高", zoning: "第一種低層", coverage: 50, far: 100, maxFloor: 29.6, fitLabel: "✕ 不可", landCategory: "宅地", farmConversion: false, hazardFlood: "中", hazardSlide: "なし", hazardTsunami: "低", hazardLiquefaction: "中", hazardScore: "C", demolition: 0, grading: 800000, totalCost: 101980000, loanAmount: 101980000, monthlyPayment: 261000, yearIncome: 0, status: "受付中", station: "大井町駅 徒歩14分", scoreDetail: { cheap: 6, fit: 4, loan: 6, demolition: 10, grading: 12, hazard: 10, asset: 12 } },
+  const properties: Array<{
+    rank: number;
+    score: number;
+    name: string;
+    address: string;
+    size: number;
+    sizeTsubo: number;
+    price: number;
+    tsuboPrice: number;
+    avgTsubo: number;
+    discount: string;
+    discountLabel: string;
+    zoning: string;
+    coverage: number;
+    far: number;
+    maxFloor: number;
+    fitLabel: string;
+    landCategory: string;
+    farmConversion: boolean;
+    hazardFlood: string;
+    hazardSlide: string;
+    hazardTsunami: string;
+    hazardLiquefaction: string;
+    hazardScore: string;
+    demolition: number;
+    grading: number;
+    totalCost: number;
+    loanAmount: number;
+    monthlyPayment: number;
+    yearIncome: number;
+    status: string;
+    station: string;
+    scoreDetail: { cheap: number; fit: number; loan: number; demolition: number; grading: number; hazard: number; asset: number };
+    source: "SUUMO" | "REINS";
+    propertyNo: string;
+    torihikiTaiyo: string;
+  }> = [
+    { rank: 1, score: 92, name: "杉並区 成田東 土地", address: "東京都杉並区成田東3丁目", size: 150.0, sizeTsubo: 45.4, price: 48500000, tsuboPrice: 106.8, avgTsubo: 118.0, discount: "+10.5%", discountLabel: "割安", zoning: "第一種住居", coverage: 60, far: 200, maxFloor: 90.8, fitLabel: "◎ 余裕あり", landCategory: "宅地", farmConversion: false, hazardFlood: "低", hazardSlide: "なし", hazardTsunami: "なし", hazardLiquefaction: "低", hazardScore: "A", demolition: 0, grading: 0, totalCost: 59695000, loanAmount: 59695000, monthlyPayment: 153000, yearIncome: 0, status: "受付中", station: "南阿佐ケ谷駅 徒歩12分", scoreDetail: { cheap: 14, fit: 14, loan: 13, demolition: 10, grading: 14, hazard: 14, asset: 13 }, source: "SUUMO", propertyNo: "S20250218-001", torihikiTaiyo: "-" },
+    { rank: 2, score: 88, name: "練馬区 豊玉北 分譲地", address: "東京都練馬区豊玉北4丁目", size: 135.3, sizeTsubo: 40.9, price: 38000000, tsuboPrice: 92.8, avgTsubo: 98.0, discount: "+5.3%", discountLabel: "相場", zoning: "第二種住居", coverage: 60, far: 200, maxFloor: 81.8, fitLabel: "◎ 余裕あり", landCategory: "宅地", farmConversion: false, hazardFlood: "中", hazardSlide: "なし", hazardTsunami: "なし", hazardLiquefaction: "低", hazardScore: "B", demolition: 0, grading: 500000, totalCost: 49735000, loanAmount: 49735000, monthlyPayment: 127000, yearIncome: 0, status: "受付中", station: "練馬駅 徒歩15分", scoreDetail: { cheap: 11, fit: 14, loan: 14, demolition: 10, grading: 12, hazard: 11, asset: 13 }, source: "REINS", propertyNo: "R20250218-024", torihikiTaiyo: "一般" },
+    { rank: 3, score: 82, name: "世田谷区 桜丘 土地", address: "東京都世田谷区桜丘2丁目", size: 128.5, sizeTsubo: 38.9, price: 58000000, tsuboPrice: 149.0, avgTsubo: 155.0, discount: "+3.9%", discountLabel: "相場", zoning: "第一種住居", coverage: 50, far: 100, maxFloor: 38.9, fitLabel: "△ やや不足", landCategory: "宅地", farmConversion: false, hazardFlood: "低", hazardSlide: "なし", hazardTsunami: "なし", hazardLiquefaction: "低", hazardScore: "A", demolition: 0, grading: 0, totalCost: 70610000, loanAmount: 70610000, monthlyPayment: 181000, yearIncome: 0, status: "受付中", station: "千歳船橋駅 徒歩10分", scoreDetail: { cheap: 10, fit: 8, loan: 10, demolition: 10, grading: 15, hazard: 14, asset: 11 }, source: "SUUMO", propertyNo: "S20250218-002", torihikiTaiyo: "-" },
+    { rank: 4, score: 79, name: "板橋区 成増 住宅用地", address: "東京都板橋区成増3丁目", size: 112.6, sizeTsubo: 34.1, price: 42000000, tsuboPrice: 123.2, avgTsubo: 128.0, discount: "+3.8%", discountLabel: "相場", zoning: "第二種住居", coverage: 60, far: 200, maxFloor: 68.2, fitLabel: "◎ 余裕あり", landCategory: "宅地", farmConversion: false, hazardFlood: "低", hazardSlide: "なし", hazardTsunami: "なし", hazardLiquefaction: "中", hazardScore: "B", demolition: 0, grading: 300000, totalCost: 54820000, loanAmount: 54820000, monthlyPayment: 140000, yearIncome: 0, status: "受付中", station: "地下鉄成増駅 徒歩18分", scoreDetail: { cheap: 12, fit: 13, loan: 13, demolition: 10, grading: 11, hazard: 12, asset: 12 }, source: "REINS", propertyNo: "R20250218-035", torihikiTaiyo: "専任" },
+    { rank: 5, score: 75, name: "目黒区 中根 住宅用地", address: "東京都目黒区中根1丁目", size: 105.2, sizeTsubo: 31.8, price: 72000000, tsuboPrice: 226.0, avgTsubo: 235.0, discount: "+3.8%", discountLabel: "相場", zoning: "第一種低層", coverage: 40, far: 80, maxFloor: 25.5, fitLabel: "✕ 不可", landCategory: "宅地", farmConversion: false, hazardFlood: "低", hazardSlide: "なし", hazardTsunami: "なし", hazardLiquefaction: "中", hazardScore: "B", demolition: 0, grading: 0, totalCost: 85640000, loanAmount: 85640000, monthlyPayment: 219000, yearIncome: 0, status: "受付中", station: "都立大学駅 徒歩8分", scoreDetail: { cheap: 10, fit: 4, loan: 8, demolition: 10, grading: 15, hazard: 12, asset: 12 }, source: "SUUMO", propertyNo: "S20250218-003", torihikiTaiyo: "-" },
+    { rank: 6, score: 72, name: "中野区 鷺宮 分譲地", address: "東京都中野区鷺宮2丁目", size: 98.8, sizeTsubo: 29.9, price: 51500000, tsuboPrice: 172.2, avgTsubo: 168.0, discount: "+2.5%", discountLabel: "相場", zoning: "第一種住居", coverage: 60, far: 200, maxFloor: 59.8, fitLabel: "◎ 余裕あり", landCategory: "宅地", farmConversion: false, hazardFlood: "低", hazardSlide: "なし", hazardTsunami: "なし", hazardLiquefaction: "低", hazardScore: "A", demolition: 0, grading: 200000, totalCost: 64845000, loanAmount: 64845000, monthlyPayment: 166000, yearIncome: 0, status: "受付中", station: "鷺宮駅 徒歩14分", scoreDetail: { cheap: 11, fit: 13, loan: 12, demolition: 10, grading: 11, hazard: 14, asset: 11 }, source: "REINS", propertyNo: "R20250218-042", torihikiTaiyo: "一般" },
+    { rank: 7, score: 68, name: "品川区 大井 住宅用地", address: "東京都品川区大井2丁目", size: 98.0, sizeTsubo: 29.6, price: 85000000, tsuboPrice: 286.0, avgTsubo: 278.0, discount: "-2.9%", discountLabel: "割高", zoning: "第一種低層", coverage: 50, far: 100, maxFloor: 29.6, fitLabel: "✕ 不可", landCategory: "宅地", farmConversion: false, hazardFlood: "中", hazardSlide: "なし", hazardTsunami: "低", hazardLiquefaction: "中", hazardScore: "C", demolition: 0, grading: 800000, totalCost: 101980000, loanAmount: 101980000, monthlyPayment: 261000, yearIncome: 0, status: "受付中", station: "大井町駅 徒歩14分", scoreDetail: { cheap: 6, fit: 4, loan: 6, demolition: 10, grading: 12, hazard: 10, asset: 12 }, source: "SUUMO", propertyNo: "S20250218-004", torihikiTaiyo: "-" },
+    { rank: 8, score: 64, name: "足立区 千住 住宅用地", address: "東京都足立区千住1丁目", size: 92.4, sizeTsubo: 27.9, price: 38500000, tsuboPrice: 137.9, avgTsubo: 145.0, discount: "-4.8%", discountLabel: "割高", zoning: "第二種住居", coverage: 60, far: 300, maxFloor: 83.7, fitLabel: "◎ 余裕あり", landCategory: "宅地", farmConversion: false, hazardFlood: "中", hazardSlide: "なし", hazardTsunami: "中", hazardLiquefaction: "高", hazardScore: "D", demolition: 0, grading: 1200000, totalCost: 51680000, loanAmount: 51680000, monthlyPayment: 132000, yearIncome: 0, status: "受付中", station: "千住大橋駅 徒歩12分", scoreDetail: { cheap: 9, fit: 12, loan: 11, demolition: 10, grading: 9, hazard: 8, asset: 10 }, source: "REINS", propertyNo: "R20250218-051", torihikiTaiyo: "専属専任" },
   ];
 
   const scoreColors = (s: number) => s >= 85 ? "#059669" : s >= 70 ? "#2563eb" : s >= 50 ? "#d97706" : "#dc2626";
   const hazardColor = (v: string) => v === "なし" || v === "低" ? "#059669" : v === "中" ? "#d97706" : "#dc2626";
 
   const detail = selectedProperty !== null ? properties.find(p => p.rank === selectedProperty) : null;
+  const filteredProperties = properties.filter(p => {
+    if (suumoSelected && reinsSelected) return true;
+    if (suumoSelected && p.source === "SUUMO") return true;
+    if (reinsSelected && p.source === "REINS") return true;
+    return false;
+  });
 
   return (<>
     <ToolHeader title="土地探し" color="#059669" onCreateNew={onCreateNew} onExport={onExport} />
     <div className="bg-green-50 border border-green-200 rounded-xl p-4 mb-6 flex items-center gap-3">
       <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#059669" strokeWidth="2"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/><circle cx="12" cy="10" r="3"/></svg>
-      <div><p className="text-sm font-bold text-green-800">SUUMO連動 全国土地 事業性完全分析エンジン</p><p className="text-xs text-green-600">SUUMO検索 × 自動査定 × ハザード評価 × 総事業費算出 × 投資判断まで一括分析</p></div>
+      <div><p className="text-sm font-bold text-green-800">SUUMO × レインズ 全国土地 事業性完全分析エンジン</p><p className="text-xs text-green-600">SUUMO + レインズ同時検索 × 自動査定 × ハザード評価 × 総事業費算出 × 投資判断まで一括分析</p></div>
     </div>
 
     <div className="flex gap-2 mb-6">
       <button onClick={() => { setLandTab("search"); setSelectedProperty(null); }} className={`px-4 py-2 rounded-lg text-sm font-bold transition-colors ${landTab === "search" ? "bg-green-600 text-white" : "bg-gray-100 text-text-sub hover:bg-gray-200"}`}>🔍 検索条件入力</button>
-      <button onClick={() => { setLandTab("results"); setSelectedProperty(null); }} className={`px-4 py-2 rounded-lg text-sm font-bold transition-colors ${landTab === "results" ? "bg-green-600 text-white" : "bg-gray-100 text-text-sub hover:bg-gray-200"}`}>📊 分析結果</button>
+      <button onClick={() => { setLandTab("results"); setSelectedProperty(null); }} className={`px-4 py-2 rounded-lg text-sm font-bold transition-colors ${landTab === "results" ? "bg-green-600 text-white" : "bg-gray-100 text-text-sub hover:bg-gray-200"}`}>📊 分析結果（SUUMO × レインズ）</button>
     </div>
 
     {landTab === "search" ? (<>
       <div className="bg-white border border-border rounded-xl p-5 mb-6">
+        <div className="flex items-center justify-between mb-5">
+          <h3 className="text-sm font-bold text-text-main">データソース選択</h3>
+          <div className="flex gap-2">
+            <button onClick={() => setSuumoSelected(!suumoSelected)} className={`px-3 py-1.5 rounded-lg text-xs font-bold transition-colors ${suumoSelected ? "bg-orange-500 text-white" : "bg-gray-100 text-gray-500"}`}>SUUMO {suumoSelected ? "✓" : ""}</button>
+            <button onClick={() => setReinsSelected(!reinsSelected)} className={`px-3 py-1.5 rounded-lg text-xs font-bold transition-colors ${reinsSelected ? "bg-blue-600 text-white" : "bg-gray-100 text-gray-500"}`}>レインズ {reinsSelected ? "✓" : ""}</button>
+          </div>
+        </div>
+
         <h3 className="text-sm font-bold text-text-main mb-4">検索パラメータ入力</h3>
         <div className="grid grid-cols-2 lg:grid-cols-4 gap-4 mb-4">
           <div><label className="text-[10px] text-text-sub block mb-1">予算上限（万円）</label><input type="text" defaultValue="5,000" className="w-full px-3 py-2 border border-border rounded-lg text-sm" /></div>
@@ -1519,11 +1591,21 @@ function LandSearch({ onCreateNew, onExport }: ToolProps) {
         <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50">
           <div className="bg-white rounded-2xl p-8 max-w-md w-full mx-4 text-center">
             <div className="w-16 h-16 border-4 border-green-200 border-t-green-600 rounded-full animate-spin mx-auto mb-4" />
-            <h3 className="text-lg font-bold text-text-main mb-2">SUUMO検索 × 事業性分析中...</h3>
+            <h3 className="text-lg font-bold text-text-main mb-2">SUUMO × レインズ 統合検索中...</h3>
             <div className="space-y-2 text-xs text-text-sub">
-              <p>✅ SUUMO API接続完了</p>
-              <p>✅ 条件マッチング実行中</p>
-              <p className="animate-pulse">⏳ 事業性スコア算出中...</p>
+              {[
+                "検索開始...",
+                "SUUMO データベース接続中...",
+                "レインズ 不動産流通標準情報システム接続中...",
+                "条件マッチング実行中... 852件をスキャン",
+                "ハザードマップ照合中...",
+                "事業性スコア算出中...",
+                "AI最適ランキング生成完了 ✓",
+              ].map((msg, i) => (
+                <p key={i} className={i < searchStep ? "text-green-600" : i === searchStep ? "animate-pulse" : "text-gray-400"}>
+                  {i < searchStep ? "✅" : i === searchStep ? "⏳" : "⭕"} {msg}
+                </p>
+              ))}
             </div>
           </div>
         </div>
@@ -1535,10 +1617,12 @@ function LandSearch({ onCreateNew, onExport }: ToolProps) {
         <div className="flex items-start justify-between mb-4">
           <div>
             <div className="flex items-center gap-2 mb-1">
+              <span className="text-xs font-bold text-white px-2 py-0.5 rounded" style={{ backgroundColor: detail.source === "SUUMO" ? "#f97316" : "#2563eb" }}>{detail.source}</span>
               <span className="text-xs font-bold text-white px-2 py-0.5 rounded" style={{ backgroundColor: scoreColors(detail.score) }}>#{detail.rank}</span>
               <h3 className="text-base font-bold text-text-main">{detail.name}</h3>
             </div>
             <p className="text-xs text-text-sub">{detail.address} ｜ {detail.station}</p>
+            {detail.source === "REINS" && <p className="text-[10px] text-text-sub mt-1">物件番号: {detail.propertyNo} | 取引態様: {detail.torihikiTaiyo}</p>}
           </div>
           <div className="text-center"><div className="text-3xl font-black" style={{ color: scoreColors(detail.score) }}>{detail.score}</div><p className="text-[10px] text-text-sub">/ 100点</p></div>
         </div>
@@ -1557,7 +1641,7 @@ function LandSearch({ onCreateNew, onExport }: ToolProps) {
         </div>
         {/* Hazard */}
         <div className="bg-white border border-border rounded-lg p-4 mb-4">
-          <h4 className="text-xs font-bold mb-3">ハザード評価 <span className="ml-2 px-2 py-0.5 rounded text-xs font-bold" style={{ backgroundColor: detail.hazardScore === "A" ? "#d1fae5" : detail.hazardScore === "B" ? "#fef3c7" : "#fee2e2", color: detail.hazardScore === "A" ? "#059669" : detail.hazardScore === "B" ? "#d97706" : "#dc2626" }}>総合 {detail.hazardScore}</span></h4>
+          <h4 className="text-xs font-bold mb-3">ハザード評価 <span className="ml-2 px-2 py-0.5 rounded text-xs font-bold" style={{ backgroundColor: detail.hazardScore === "A" ? "#d1fae5" : detail.hazardScore === "B" ? "#fef3c7" : detail.hazardScore === "C" ? "#fee2e2" : "#fecaca", color: detail.hazardScore === "A" ? "#059669" : detail.hazardScore === "B" ? "#d97706" : detail.hazardScore === "C" ? "#dc2626" : "#991b1b" }}>総合 {detail.hazardScore}</span></h4>
           <div className="grid grid-cols-4 gap-3">
             {[{ label: "洪水", val: detail.hazardFlood }, { label: "土砂災害", val: detail.hazardSlide }, { label: "津波", val: detail.hazardTsunami }, { label: "液状化", val: detail.hazardLiquefaction }].map((h, i) => (
               <div key={i} className="text-center rounded-lg p-2 border border-border"><p className="text-[10px] text-text-sub">{h.label}</p><p className="text-sm font-bold" style={{ color: hazardColor(h.val) }}>{h.val}</p></div>
@@ -1575,13 +1659,18 @@ function LandSearch({ onCreateNew, onExport }: ToolProps) {
           </div>
         </div>
         {/* Loan */}
-        <div className="bg-blue-50 border border-blue-200 rounded-lg p-4">
+        <div className="bg-blue-50 border border-blue-200 rounded-lg p-4 mb-4">
           <h4 className="text-xs font-bold mb-2">住宅ローンシミュレーション（元利均等）</h4>
           <div className="grid grid-cols-3 gap-3">
             <div><p className="text-[10px] text-text-sub">借入額</p><p className="text-sm font-bold text-blue-700">¥{detail.loanAmount.toLocaleString()}</p></div>
             <div><p className="text-[10px] text-text-sub">金利 0.6% / 35年</p><p className="text-sm font-bold text-blue-700">月額 ¥{detail.monthlyPayment.toLocaleString()}</p></div>
             <div><p className="text-[10px] text-text-sub">総返済額</p><p className="text-sm font-bold text-blue-700">¥{(detail.monthlyPayment * 420).toLocaleString()}</p></div>
           </div>
+        </div>
+        {/* Source links */}
+        <div className="flex gap-2">
+          {detail.source === "SUUMO" && <button className="flex-1 py-2 bg-orange-500 text-white rounded-lg text-xs font-bold hover:bg-orange-600 transition-colors">SUUMOで詳細を見る</button>}
+          {detail.source === "REINS" && <button className="flex-1 py-2 bg-blue-600 text-white rounded-lg text-xs font-bold hover:bg-blue-700 transition-colors">レインズ物件確認</button>}
         </div>
       </div>
     </>) : (<>
@@ -1590,13 +1679,18 @@ function LandSearch({ onCreateNew, onExport }: ToolProps) {
         <div className="bg-green-50 border border-green-300 rounded-xl p-4 mb-6 flex items-center gap-3">
           <span className="text-2xl">✅</span>
           <div>
-            <p className="text-sm font-bold text-green-800">検索完了 — {properties.length}件の候補が見つかりました</p>
+            <p className="text-sm font-bold text-green-800">検索完了 — {filteredProperties.length}件の候補が見つかりました</p>
             <p className="text-xs text-green-600">希望面積: {searchAreaTsubo ? `${searchAreaTsubo}坪（${searchAreaM2}㎡）` : "指定なし"} ｜ スコア順に表示</p>
           </div>
         </div>
       )}
-      <div className="grid grid-cols-4 gap-4 mb-6">
-        {[{ label: "検索ヒット", value: "5件", color: "#059669" }, { label: "最高スコア", value: "92点", color: "#3b82f6" }, { label: "平均坪単価", value: "¥172万", color: "#8b5cf6" }, { label: "割安物件", value: "1件", color: "#f59e0b" }].map((s, i) => (
+      <div className="grid grid-cols-2 lg:grid-cols-4 gap-4 mb-6">
+        {[
+          { label: "検索ヒット", value: `${filteredProperties.length}件`, color: "#059669" },
+          { label: "最高スコア", value: filteredProperties.length > 0 ? `${filteredProperties[0].score}点` : "0点", color: "#3b82f6" },
+          { label: "SUUMO", value: `${filteredProperties.filter(p => p.source === "SUUMO").length}件`, color: "#f97316" },
+          { label: "レインズ", value: `${filteredProperties.filter(p => p.source === "REINS").length}件`, color: "#2563eb" },
+        ].map((s, i) => (
           <div key={i} className="bg-white rounded-xl border border-border p-4"><p className="text-xs text-text-sub">{s.label}</p><p className="text-xl font-black" style={{ color: s.color }}>{s.value}</p></div>
         ))}
       </div>
@@ -1607,23 +1701,26 @@ function LandSearch({ onCreateNew, onExport }: ToolProps) {
         <div className="overflow-x-auto">
           <table className="w-full text-sm">
             <thead><tr className="border-b-2 border-border">
-              {["", "1位 杉並区", "2位 練馬区", "3位 世田谷区"].map((h, i) => <th key={i} className="text-left py-2 px-2 text-xs text-text-sub font-bold">{h}</th>)}
+              {["", filteredProperties.length > 0 ? `1位 ${filteredProperties[0].name}` : "-", filteredProperties.length > 1 ? `2位 ${filteredProperties[1].name}` : "-", filteredProperties.length > 2 ? `3位 ${filteredProperties[2].name}` : "-"].map((h, i) => <th key={i} className="text-left py-2 px-2 text-xs text-text-sub font-bold">{h}</th>)}
             </tr></thead>
             <tbody>
-              {[
-                { label: "総合スコア", vals: ["92点", "85点", "78点"], colors: ["#059669", "#2563eb", "#2563eb"] },
-                { label: "土地価格", vals: ["4,850万", "3,800万", "5,800万"], colors: ["#059669", "#059669", "#d97706"] },
-                { label: "総事業費", vals: ["5,970万", "4,974万", "7,061万"], colors: ["#3b82f6", "#059669", "#d97706"] },
-                { label: "月額返済", vals: ["15.3万", "12.7万", "18.1万"], colors: ["#3b82f6", "#059669", "#d97706"] },
-                { label: "建物適合", vals: ["◎ 余裕", "◎ 余裕", "△ やや不足"], colors: ["#059669", "#059669", "#d97706"] },
-                { label: "ハザード", vals: ["A", "B", "A"], colors: ["#059669", "#d97706", "#059669"] },
-                { label: "割安判定", vals: ["割安 +10.5%", "相場 +5.3%", "相場 +3.9%"], colors: ["#059669", "#6b7280", "#6b7280"] },
-              ].map((row, i) => (
-                <tr key={i} className="border-b border-border last:border-0">
-                  <td className="py-2 px-2 text-xs text-text-sub font-bold">{row.label}</td>
-                  {row.vals.map((v, j) => <td key={j} className="py-2 px-2 text-xs font-bold" style={{ color: row.colors[j] }}>{v}</td>)}
-                </tr>
-              ))}
+              {filteredProperties.length > 0 && [
+                { label: "総合スコア", getVals: () => [filteredProperties[0].score, filteredProperties[1]?.score || "-", filteredProperties[2]?.score || "-"].map(v => typeof v === "number" ? `${v}点` : v), colors: ["#059669", "#2563eb", "#2563eb"] },
+                { label: "土地価格", getVals: () => [filteredProperties[0].price, filteredProperties[1]?.price || 0, filteredProperties[2]?.price || 0].map(v => typeof v === "number" ? `¥${(v / 10000).toLocaleString()}万` : v), colors: ["#059669", "#059669", "#d97706"] },
+                { label: "総事業費", getVals: () => [filteredProperties[0].totalCost, filteredProperties[1]?.totalCost || 0, filteredProperties[2]?.totalCost || 0].map(v => typeof v === "number" ? `¥${(v / 10000).toLocaleString()}万` : v), colors: ["#3b82f6", "#059669", "#d97706"] },
+                { label: "月額返済", getVals: () => [filteredProperties[0].monthlyPayment, filteredProperties[1]?.monthlyPayment || 0, filteredProperties[2]?.monthlyPayment || 0].map(v => typeof v === "number" ? `¥${(v / 1000).toLocaleString()}k` : v), colors: ["#3b82f6", "#059669", "#d97706"] },
+                { label: "建物適合", getVals: () => [filteredProperties[0].fitLabel, filteredProperties[1]?.fitLabel || "-", filteredProperties[2]?.fitLabel || "-"], colors: ["#059669", "#059669", "#d97706"] },
+                { label: "ハザード", getVals: () => [filteredProperties[0].hazardScore, filteredProperties[1]?.hazardScore || "-", filteredProperties[2]?.hazardScore || "-"], colors: ["#059669", "#d97706", "#059669"] },
+                { label: "割安判定", getVals: () => [filteredProperties[0].discountLabel, filteredProperties[1]?.discountLabel || "-", filteredProperties[2]?.discountLabel || "-"].map((v, i) => v === "割安" ? `割安 ${filteredProperties[i].discount}` : v === "割高" ? `割高 ${filteredProperties[i].discount}` : "相場"), colors: ["#059669", "#6b7280", "#6b7280"] },
+              ].map((row, i) => {
+                const vals = row.getVals();
+                return (
+                  <tr key={i} className="border-b border-border last:border-0">
+                    <td className="py-2 px-2 text-xs text-text-sub font-bold">{row.label}</td>
+                    {vals.map((v, j) => <td key={j} className="py-2 px-2 text-xs font-bold" style={{ color: row.colors[j] }}>{v}</td>)}
+                  </tr>
+                );
+              })}
             </tbody>
           </table>
         </div>
@@ -1633,16 +1730,19 @@ function LandSearch({ onCreateNew, onExport }: ToolProps) {
       <div className="bg-green-50 border border-green-200 rounded-xl p-5 mb-6">
         <h3 className="text-sm font-bold text-green-800 mb-3">AI事業性判定</h3>
         <div className="space-y-2 text-xs text-green-900">
-          <p><span className="font-bold">推奨物件:</span> 杉並区 成田東（92点）— 割安率+10.5%、建物30坪が余裕で配置可能、ハザードA評価。総事業費5,970万円で月額返済15.3万円と負担も適正。</p>
-          <p><span className="font-bold">次点:</span> 練馬区 豊玉北（85点）— 総事業費が最安の4,974万円。洪水リスク「中」がマイナスだが、返済負担は最も軽い。</p>
-          <p><span className="font-bold">注意:</span> 世田谷区 桜丘（78点）— 容積率100%で建物30坪は延床ギリギリ。3階建てへの変更を要検討。</p>
-          <p><span className="font-bold">最大リスク:</span> 目黒区・品川区は土地価格が高く総事業費8,500万〜1億超。ローン審査の年収条件（年収の7倍以内）に注意。</p>
+          {filteredProperties.length > 0 && (
+            <>
+              <p><span className="font-bold">推奨物件:</span> {filteredProperties[0].name}（{filteredProperties[0].score}点） — {filteredProperties[0].source}検索。割安率{filteredProperties[0].discount}、建物配置{filteredProperties[0].fitLabel}、ハザード{filteredProperties[0].hazardScore}評価。</p>
+              {filteredProperties.length > 1 && <p><span className="font-bold">次点:</span> {filteredProperties[1].name}（{filteredProperties[1].score}点） — 総事業費￥{(filteredProperties[1].totalCost / 10000).toLocaleString()}万、月額返済￥{filteredProperties[1].monthlyPayment.toLocaleString()}。</p>}
+              {filteredProperties.length > 2 && <p><span className="font-bold">検討対象:</span> {filteredProperties[2].name}（{filteredProperties[2].score}点） — {filteredProperties[2].fitLabel}だが、ハザード{filteredProperties[2].hazardScore}に注視が必要。</p>}
+            </>
+          )}
         </div>
       </div>
 
       {/* Property cards */}
       <div className="space-y-3">
-        {properties.map((p) => (
+        {filteredProperties.map((p) => (
           <button key={p.rank} onClick={() => setSelectedProperty(p.rank)} className="w-full text-left bg-white border border-border rounded-xl p-4 hover:shadow-md hover:border-green-300 transition-all">
             <div className="flex items-start justify-between">
               <div className="flex items-center gap-3">
@@ -1651,6 +1751,7 @@ function LandSearch({ onCreateNew, onExport }: ToolProps) {
                 </div>
                 <div>
                   <div className="flex items-center gap-2">
+                    <span className="text-[10px] font-bold text-white px-1.5 py-0.5 rounded" style={{ backgroundColor: p.source === "SUUMO" ? "#f97316" : "#2563eb" }}>{p.source}</span>
                     <span className="text-[10px] font-bold text-white px-1.5 py-0.5 rounded" style={{ backgroundColor: scoreColors(p.score) }}>#{p.rank}</span>
                     <span className="text-sm font-bold text-text-main">{p.name}</span>
                     <span className="text-[10px] px-1.5 py-0.5 rounded font-bold" style={{ backgroundColor: p.discountLabel === "割安" ? "#d1fae5" : p.discountLabel === "割高" ? "#fee2e2" : "#f3f4f6", color: p.discountLabel === "割安" ? "#059669" : p.discountLabel === "割高" ? "#dc2626" : "#6b7280" }}>{p.discountLabel} {p.discount}</span>
