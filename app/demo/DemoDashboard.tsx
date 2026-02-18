@@ -1430,28 +1430,33 @@ function LandSearch({ onCreateNew, onExport }: ToolProps) {
     "福岡県": { ta: "40", ar: "090" }, "佐賀県": { ta: "41", ar: "090" }, "長崎県": { ta: "42", ar: "090" }, "熊本県": { ta: "43", ar: "090" }, "大分県": { ta: "44", ar: "090" }, "宮崎県": { ta: "45", ar: "090" }, "鹿児島県": { ta: "46", ar: "090" }, "沖縄県": { ta: "47", ar: "090" },
   };
 
+  const prefSlugMap: Record<string, string> = {
+    "北海道": "hokkaido", "青森県": "aomori", "岩手県": "iwate", "宮城県": "miyagi", "秋田県": "akita",
+    "山形県": "yamagata", "福島県": "fukushima", "茨城県": "ibaraki", "栃木県": "tochigi", "群馬県": "gunma",
+    "埼玉県": "saitama", "千葉県": "chiba", "東京都": "tokyo", "神奈川県": "kanagawa",
+    "新潟県": "niigata", "富山県": "toyama", "石川県": "ishikawa", "福井県": "fukui",
+    "山梨県": "yamanashi", "長野県": "nagano", "岐阜県": "gifu", "静岡県": "shizuoka", "愛知県": "aichi", "三重県": "mie",
+    "滋賀県": "shiga", "京都府": "kyoto", "大阪府": "osaka", "兵庫県": "hyogo", "奈良県": "nara", "和歌山県": "wakayama",
+    "鳥取県": "tottori", "島根県": "shimane", "岡山県": "okayama", "広島県": "hiroshima", "山口県": "yamaguchi",
+    "徳島県": "tokushima", "香川県": "kagawa", "愛媛県": "ehime", "高知県": "kochi",
+    "福岡県": "fukuoka", "佐賀県": "saga", "長崎県": "nagasaki", "熊本県": "kumamoto", "大分県": "oita", "宮崎県": "miyazaki", "鹿児島県": "kagoshima", "沖縄県": "okinawa",
+  };
+
   const openSuumo = () => {
-    const codes = prefCodeMap[sf.pref] || { ta: "13", ar: "030" };
-    const params = new URLSearchParams();
-    params.set("ar", codes.ar);
-    params.set("bs", "020");
-    params.set("ta", codes.ta);
-    // 価格上限（万円→万円のまま）
-    const budgetNum = parseInt(sf.budget.replace(/[^0-9]/g, ""));
-    if (budgetNum) params.set("kt", String(budgetNum));
-    params.set("kb", "0");
-    // 面積（㎡）
-    const areaMin = searchAreaM2 ? String(Math.floor(Number(searchAreaM2) * 0.8)) : "";
-    const areaMax = searchAreaM2 ? String(Math.ceil(Number(searchAreaM2) * 1.3)) : "";
-    if (areaMin) params.set("tb", areaMin);
-    if (areaMax) params.set("tt", areaMax);
-    // 徒歩
-    const walkNum = parseInt(sf.walk);
-    if (walkNum) params.set("et", String(walkNum));
-    params.set("pc", "50");
-    params.set("pj", "1");
-    const url = `https://suumo.jp/jj/bukken/ichiran/JJ012FC001/?${params.toString()}`;
+    // SUUMOの土地検索ページ（都道府県別）を開く
+    const slug = prefSlugMap[sf.pref] || "tokyo";
+    const url = `https://suumo.jp/tochi/${slug}/`;
     window.open(url, "_blank");
+  };
+
+  const openSuumoKeyword = () => {
+    // 条件をキーワードにしてSUUMO検索
+    const parts = [sf.pref, sf.city, "土地"];
+    if (searchAreaTsubo) parts.push(`${searchAreaTsubo}坪`);
+    if (sf.budget) parts.push(`${sf.budget}万円以下`);
+    if (sf.station) parts.push(sf.station);
+    const query = encodeURIComponent(parts.join(" "));
+    window.open(`https://suumo.jp/b/tochi/kw/${query}/`, "_blank");
   };
 
   const handleSearch = () => {
@@ -1460,9 +1465,6 @@ function LandSearch({ onCreateNew, onExport }: ToolProps) {
       return;
     }
     setAreaError("");
-    // SUUMOを新タブで開く
-    openSuumo();
-    // 同時にAI分析を実行
     setIsSearching(true);
     setSearchStep(1);
     [600, 1200, 1800, 2300, 2700].forEach((ms, i) => {
@@ -1618,8 +1620,11 @@ function LandSearch({ onCreateNew, onExport }: ToolProps) {
             <div><label className="text-[10px] text-text-sub block mb-1">頭金（万円）</label><input type="text" value={sf.down} onChange={e => uf("down", e.target.value)} className="w-full px-3 py-2 border border-border rounded-lg text-sm" /></div>
           </div>
 
-          <button onClick={handleSearch} className="w-full mt-6 py-4 bg-green-600 text-white rounded-xl font-bold hover:bg-green-700 transition-colors text-lg shadow-lg">🔍 SUUMOで検索する（新しいタブで開きます）</button>
-          <p className="text-center text-[10px] text-text-sub mt-2">SUUMOの{sf.pref}土地検索ページが新しいタブで開き、同時にAI事業性分析を実行します</p>
+          <div className="flex gap-3 mt-6">
+            <button onClick={handleSearch} className="flex-1 py-4 bg-green-600 text-white rounded-xl font-bold hover:bg-green-700 transition-colors text-base shadow-lg">🔍 検索（AI事業性分析）</button>
+            <button onClick={openSuumoKeyword} className="flex-1 py-4 bg-orange-500 text-white rounded-xl font-bold hover:bg-orange-600 transition-colors text-base shadow-lg">🏠 SUUMOで条件検索 →</button>
+          </div>
+          <p className="text-center text-[10px] text-text-sub mt-2">「SUUMOで条件検索」をクリックすると、入力条件でSUUMOの土地検索ページが新しいタブで開きます</p>
         </div>
       )}
     </div>
@@ -1653,7 +1658,10 @@ function LandSearch({ onCreateNew, onExport }: ToolProps) {
               <p className="text-xs text-orange-700">SUUMOタブで本物の物件情報をご確認ください ｜ 以下はAIによる事業性分析サンプルです</p>
             </div>
           </div>
-          <button onClick={openSuumo} className="mt-2 px-4 py-2 bg-orange-500 text-white rounded-lg text-sm font-bold hover:bg-orange-600 transition-colors">SUUMOをもう一度開く →</button>
+          <div className="flex gap-2 mt-2">
+            <button onClick={openSuumoKeyword} className="px-4 py-2 bg-orange-500 text-white rounded-lg text-sm font-bold hover:bg-orange-600 transition-colors">🏠 SUUMOで条件検索 →</button>
+            <button onClick={openSuumo} className="px-4 py-2 bg-orange-300 text-orange-900 rounded-lg text-sm font-bold hover:bg-orange-400 transition-colors">SUUMO {sf.pref}トップ</button>
+          </div>
         </div>
 
         <div className="bg-green-100 border-2 border-green-400 rounded-xl p-5 mb-6">
