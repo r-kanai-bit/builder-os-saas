@@ -1418,21 +1418,39 @@ function LandSearch({ onCreateNew, onExport }: ToolProps) {
     else if (!val) setSearchAreaM2("");
   };
 
-  const prefSlugMap: Record<string, string> = {
-    "北海道": "hokkaido", "青森県": "aomori", "岩手県": "iwate", "宮城県": "miyagi", "秋田県": "akita",
-    "山形県": "yamagata", "福島県": "fukushima", "茨城県": "ibaraki", "栃木県": "tochigi", "群馬県": "gunma",
-    "埼玉県": "saitama", "千葉県": "chiba", "東京都": "tokyo", "神奈川県": "kanagawa",
-    "新潟県": "niigata", "富山県": "toyama", "石川県": "ishikawa", "福井県": "fukui",
-    "山梨県": "yamanashi", "長野県": "nagano", "岐阜県": "gifu", "静岡県": "shizuoka", "愛知県": "aichi", "三重県": "mie",
-    "滋賀県": "shiga", "京都府": "kyoto", "大阪府": "osaka", "兵庫県": "hyogo", "奈良県": "nara", "和歌山県": "wakayama",
-    "鳥取県": "tottori", "島根県": "shimane", "岡山県": "okayama", "広島県": "hiroshima", "山口県": "yamaguchi",
-    "徳島県": "tokushima", "香川県": "kagawa", "愛媛県": "ehime", "高知県": "kochi",
-    "福岡県": "fukuoka", "佐賀県": "saga", "長崎県": "nagasaki", "熊本県": "kumamoto", "大分県": "oita", "宮崎県": "miyazaki", "鹿児島県": "kagoshima", "沖縄県": "okinawa",
+  // SUUMO prefecture code (JIS) & area code mapping
+  const prefCodeMap: Record<string, { ta: string; ar: string }> = {
+    "北海道": { ta: "01", ar: "010" }, "青森県": { ta: "02", ar: "020" }, "岩手県": { ta: "03", ar: "020" }, "宮城県": { ta: "04", ar: "020" }, "秋田県": { ta: "05", ar: "020" }, "山形県": { ta: "06", ar: "020" }, "福島県": { ta: "07", ar: "020" },
+    "茨城県": { ta: "08", ar: "030" }, "栃木県": { ta: "09", ar: "030" }, "群馬県": { ta: "10", ar: "030" }, "埼玉県": { ta: "11", ar: "030" }, "千葉県": { ta: "12", ar: "030" }, "東京都": { ta: "13", ar: "030" }, "神奈川県": { ta: "14", ar: "030" },
+    "新潟県": { ta: "15", ar: "040" }, "富山県": { ta: "16", ar: "040" }, "石川県": { ta: "17", ar: "040" }, "福井県": { ta: "18", ar: "040" },
+    "山梨県": { ta: "19", ar: "040" }, "長野県": { ta: "20", ar: "040" }, "岐阜県": { ta: "21", ar: "050" }, "静岡県": { ta: "22", ar: "050" }, "愛知県": { ta: "23", ar: "050" }, "三重県": { ta: "24", ar: "050" },
+    "滋賀県": { ta: "25", ar: "060" }, "京都府": { ta: "26", ar: "060" }, "大阪府": { ta: "27", ar: "060" }, "兵庫県": { ta: "28", ar: "060" }, "奈良県": { ta: "29", ar: "060" }, "和歌山県": { ta: "30", ar: "060" },
+    "鳥取県": { ta: "31", ar: "070" }, "島根県": { ta: "32", ar: "070" }, "岡山県": { ta: "33", ar: "070" }, "広島県": { ta: "34", ar: "070" }, "山口県": { ta: "35", ar: "070" },
+    "徳島県": { ta: "36", ar: "080" }, "香川県": { ta: "37", ar: "080" }, "愛媛県": { ta: "38", ar: "080" }, "高知県": { ta: "39", ar: "080" },
+    "福岡県": { ta: "40", ar: "090" }, "佐賀県": { ta: "41", ar: "090" }, "長崎県": { ta: "42", ar: "090" }, "熊本県": { ta: "43", ar: "090" }, "大分県": { ta: "44", ar: "090" }, "宮崎県": { ta: "45", ar: "090" }, "鹿児島県": { ta: "46", ar: "090" }, "沖縄県": { ta: "47", ar: "090" },
   };
 
   const openSuumo = () => {
-    const slug = prefSlugMap[sf.pref] || "tokyo";
-    const url = `https://suumo.jp/tochi/${slug}/`;
+    const codes = prefCodeMap[sf.pref] || { ta: "13", ar: "030" };
+    const params = new URLSearchParams();
+    params.set("ar", codes.ar);
+    params.set("bs", "020");
+    params.set("ta", codes.ta);
+    // 価格上限（万円→万円のまま）
+    const budgetNum = parseInt(sf.budget.replace(/[^0-9]/g, ""));
+    if (budgetNum) params.set("kt", String(budgetNum));
+    params.set("kb", "0");
+    // 面積（㎡）
+    const areaMin = searchAreaM2 ? String(Math.floor(Number(searchAreaM2) * 0.8)) : "";
+    const areaMax = searchAreaM2 ? String(Math.ceil(Number(searchAreaM2) * 1.3)) : "";
+    if (areaMin) params.set("tb", areaMin);
+    if (areaMax) params.set("tt", areaMax);
+    // 徒歩
+    const walkNum = parseInt(sf.walk);
+    if (walkNum) params.set("et", String(walkNum));
+    params.set("pc", "50");
+    params.set("pj", "1");
+    const url = `https://suumo.jp/jj/bukken/ichiran/JJ012FC001/?${params.toString()}`;
     window.open(url, "_blank");
   };
 
