@@ -1866,6 +1866,22 @@ function SubsidyManagement({ onCreateNew, onExport }: ToolProps) {
     { id: 30, name: "京都府断熱改修支援事業", category: "断熱", amount: "最大180万円", deadline: "2026/08/31", jurisdiction: "京都府", pref: "京都府", city: "all", status: "受付中", keywords: ["断熱","断熱改修","改修","省エネ"], totalBudget: 1200000000, usedBudget: 360000000 },
     { id: 31, name: "兵庫県エコハウス支援事業", category: "省エネ改修", amount: "最大250万円", deadline: "2026/07/31", jurisdiction: "兵庫県", pref: "兵庫県", city: "all", status: "受付中", keywords: ["エコ","省エネ","リフォーム"], totalBudget: 2000000000, usedBudget: 800000000 },
     { id: 32, name: "岡山県太陽光導入事業", category: "太陽光", amount: "最大120万円", deadline: "2026/09/30", jurisdiction: "岡山県", pref: "岡山県", city: "all", status: "受付中", keywords: ["太陽光","太陽光発電","自家消費"], totalBudget: 800000000, usedBudget: 240000000 },
+    { id: 33, name: "三重県住宅省エネルギー改修事業", category: "省エネ改修", amount: "最大100万円", deadline: "2026/10/31", jurisdiction: "三重県", pref: "三重県", city: "all", status: "受付中", keywords: ["省エネ","断熱","改修","三重"], totalBudget: 600000000, usedBudget: 180000000 },
+    { id: 34, name: "三重県木造住宅耐震補強事業", category: "耐震改修", amount: "最大100万円", deadline: "2026/12/28", jurisdiction: "三重県", pref: "三重県", city: "all", status: "受付中", keywords: ["耐震","木造","補強","三重"], totalBudget: 400000000, usedBudget: 120000000 },
+    { id: 35, name: "宮城県住宅リフォーム支援事業", category: "リフォーム", amount: "最大60万円", deadline: "2026/11/30", jurisdiction: "宮城県", pref: "宮城県", city: "all", status: "受付中", keywords: ["リフォーム","改修","宮城"], totalBudget: 700000000, usedBudget: 280000000 },
+    { id: 36, name: "千葉県住宅用太陽光発電設備等導入促進事業", category: "省エネ設備", amount: "最大15万円", deadline: "2026/09/30", jurisdiction: "千葉県", pref: "千葉県", city: "all", status: "受付中", keywords: ["太陽光","蓄電池","千葉","省エネ"], totalBudget: 1000000000, usedBudget: 400000000 },
+    { id: 37, name: "静岡県住宅耐震化促進事業", category: "耐震改修", amount: "最大100万円", deadline: "2026/12/28", jurisdiction: "静岡県", pref: "静岡県", city: "all", status: "受付中", keywords: ["耐震","静岡","木造","補強"], totalBudget: 800000000, usedBudget: 240000000 },
+    { id: 38, name: "新潟県住宅省エネルギー改修支援事業", category: "省エネ改修", amount: "最大150万円", deadline: "2026/10/31", jurisdiction: "新潟県", pref: "新潟県", city: "all", status: "受付中", keywords: ["省エネ","断熱","新潟","寒冷地"], totalBudget: 900000000, usedBudget: 270000000 },
+    { id: 39, name: "長野県信州健康ゼロエネ住宅助成金", category: "新築", amount: "最大200万円", deadline: "2026/08/31", jurisdiction: "長野県", pref: "長野県", city: "all", status: "受付中", keywords: ["ZEH","省エネ","新築","長野"], totalBudget: 1200000000, usedBudget: 480000000 },
+    { id: 40, name: "岐阜県住宅リフォーム助成事業", category: "リフォーム", amount: "最大50万円", deadline: "2026/09/30", jurisdiction: "岐阜県", pref: "岐阜県", city: "all", status: "受付中", keywords: ["リフォーム","岐阜","改修"], totalBudget: 500000000, usedBudget: 200000000 },
+    { id: 41, name: "滋賀県既存住宅省エネ改修支援事業", category: "省エネ改修", amount: "最大80万円", deadline: "2026/11/30", jurisdiction: "滋賀県", pref: "滋賀県", city: "all", status: "受付中", keywords: ["省エネ","断熱","滋賀","改修"], totalBudget: 400000000, usedBudget: 120000000 },
+    { id: 42, name: "奈良県住宅耐震化支援事業", category: "耐震改修", amount: "最大120万円", deadline: "2026/12/28", jurisdiction: "奈良県", pref: "奈良県", city: "all", status: "受付中", keywords: ["耐震","奈良","木造","補強"], totalBudget: 350000000, usedBudget: 105000000 },
+    { id: 43, name: "福岡県既存住宅省エネ改修促進事業", category: "省エネ改修", amount: "最大100万円", deadline: "2026/10/31", jurisdiction: "福岡県", pref: "福岡県", city: "all", status: "受付中", keywords: ["省エネ","断熱","福岡","改修"], totalBudget: 1000000000, usedBudget: 300000000 },
+    { id: 44, name: "熊本県住宅耐震化緊急促進事業", category: "耐震改修", amount: "最大150万円", deadline: "2026/12/28", jurisdiction: "熊本県", pref: "熊本県", city: "all", status: "受付中", keywords: ["耐震","熊本","木造","地震"], totalBudget: 1500000000, usedBudget: 450000000 },
+    { id: 45, name: "沖縄県住宅リフォーム支援事業", category: "リフォーム", amount: "最大40万円", deadline: "2026/11/30", jurisdiction: "沖縄県", pref: "沖縄県", city: "all", status: "受付中", keywords: ["リフォーム","沖縄","改修","台風対策"], totalBudget: 300000000, usedBudget: 90000000 },
+    { id: 46, name: "小規模事業者持続化補助金", category: "経営支援", amount: "最大250万円", deadline: "2026/06/30", jurisdiction: "日本商工会議所", pref: "国（全国共通）", city: "all", status: "受付中", keywords: ["小規模","持続化","販路開拓","経営"], totalBudget: 80000000000, usedBudget: 32000000000 },
+    { id: 47, name: "ものづくり・商業・サービス補助金", category: "設備投資", amount: "最大1,250万円", deadline: "2026/05/31", jurisdiction: "中小企業庁", pref: "国（全国共通）", city: "all", status: "受付中", keywords: ["ものづくり","製造業","サービス","革新"], totalBudget: 100000000000, usedBudget: 40000000000 },
+    { id: 48, name: "事業再構築補助金", category: "経営支援", amount: "最大1,500万円", deadline: "2026/04/30", jurisdiction: "経済産業省", pref: "国（全国共通）", city: "all", status: "受付中", keywords: ["事業再構築","新事業","転換","経営革新"], totalBudget: 120000000000, usedBudget: 60000000000 },
   ];
 
   const ALERT_LEVELS = [
@@ -1883,7 +1899,8 @@ function SubsidyManagement({ onCreateNew, onExport }: ToolProps) {
   };
 
   const filtered = allSubsidies.filter(s => {
-    const prefMatch = selectedPref === "all" || s.pref === selectedPref;
+    // 都道府県フィルタ: "all"なら全件、それ以外は「国（全国共通）」＋選択した都道府県を表示
+    const prefMatch = selectedPref === "all" || s.pref === "国（全国共通）" || s.pref === selectedPref;
     if (!prefMatch) return false;
 
     if (selectedCity !== "all" && s.pref !== "国（全国共通）") {
@@ -1893,7 +1910,8 @@ function SubsidyManagement({ onCreateNew, onExport }: ToolProps) {
 
     if (!searchQuery.trim()) return true;
     const q = searchQuery.trim().toLowerCase();
-    return s.name.toLowerCase().includes(q) || s.category.toLowerCase().includes(q) || s.jurisdiction.toLowerCase().includes(q) || s.keywords.some(k => k.toLowerCase().includes(q));
+    const expanded = expandKeywords(searchQuery.trim());
+    return s.name.toLowerCase().includes(q) || s.category.toLowerCase().includes(q) || s.jurisdiction.toLowerCase().includes(q) || s.keywords.some(k => k.toLowerCase().includes(q)) || expanded.some(ek => s.keywords.some(k => k.toLowerCase().includes(ek)) || s.name.toLowerCase().includes(ek) || s.category.toLowerCase().includes(ek));
   });
 
   const totalAvailable = allSubsidies.filter(s => s.status === "受付中").length;
