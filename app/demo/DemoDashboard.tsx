@@ -302,20 +302,93 @@ function DataTable({ headers, rows }: { headers: string[]; rows: (string | React
 // ============ ツール画面 ============
 
 function ConstructionLedger({ onCreateNew, onExport }: ToolProps) {
+  const [showForm, setShowForm] = useState(false);
+  const [entries, setEntries] = useState([
+    { id: "K-2026-001", name: "○○マンション新築工事", client: "○○不動産", amount: "¥128,500,000", deadline: "2026/06/30", progress: 65, status: "進行中" as const },
+    { id: "K-2026-002", name: "△△ビル改修工事", client: "△△商事", amount: "¥45,000,000", deadline: "2026/09/15", progress: 30, status: "進行中" as const },
+    { id: "K-2026-003", name: "□□住宅リフォーム", client: "□□様", amount: "¥8,500,000", deadline: "2026/03/20", progress: 75, status: "進行中" as const },
+    { id: "K-2026-004", name: "●●商業施設外構工事", client: "●●開発", amount: "¥32,000,000", deadline: "2026/04/30", progress: 90, status: "進行中" as const },
+    { id: "K-2025-012", name: "◎◎事務所ビル新築", client: "◎◎建設", amount: "¥68,000,000", deadline: "2025/12/20", progress: 100, status: "完了" as const },
+  ]);
+  const [formData, setFormData] = useState({ name: "", client: "", amount: "", deadline: "", type: "新築", memo: "" });
+  const [saved, setSaved] = useState(false);
+
+  const handleSave = () => {
+    if (!formData.name || !formData.client) return;
+    const newId = `K-2026-${String(entries.length + 1).padStart(3, "0")}`;
+    const amountNum = parseInt(formData.amount.replace(/[^0-9]/g, "")) || 0;
+    const formatted = amountNum > 0 ? `¥${amountNum.toLocaleString()}` : "未定";
+    setEntries(prev => [{ id: newId, name: formData.name, client: formData.client, amount: formatted, deadline: formData.deadline || "未定", progress: 0, status: "進行中" as const }, ...prev]);
+    setSaved(true);
+    setTimeout(() => { setSaved(false); setShowForm(false); setFormData({ name: "", client: "", amount: "", deadline: "", type: "新築", memo: "" }); }, 1200);
+  };
+
+  const inProgress = entries.filter(e => e.status === "進行中").length;
+  const completed = entries.filter(e => e.status === "完了").length;
+
+  if (showForm) {
+    return (<>
+      <div className="flex items-center gap-3 mb-6">
+        <button onClick={() => setShowForm(false)} className="text-sm text-text-sub hover:text-primary">← 一覧に戻る</button>
+        <h2 className="text-lg font-bold text-text-main">工事台帳 ー 新規登録</h2>
+      </div>
+      {saved && (
+        <div className="bg-emerald-50 border border-emerald-300 rounded-xl p-4 mb-6 flex items-center gap-3">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#059669" strokeWidth="2"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg>
+          <p className="text-sm font-bold text-emerald-700">保存しました！一覧に反映されます。</p>
+        </div>
+      )}
+      <div className="bg-white rounded-xl border border-border p-6">
+        <div className="grid grid-cols-2 gap-6 mb-6">
+          <div>
+            <label className="block text-sm font-bold text-text-main mb-1.5">工事名 <span className="text-red-500">*</span></label>
+            <input type="text" value={formData.name} onChange={e => setFormData({...formData, name: e.target.value})} className="w-full px-4 py-3 border border-border rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-blue-200 focus:border-blue-400" placeholder="例: ○○邸新築工事" />
+          </div>
+          <div>
+            <label className="block text-sm font-bold text-text-main mb-1.5">発注者 <span className="text-red-500">*</span></label>
+            <input type="text" value={formData.client} onChange={e => setFormData({...formData, client: e.target.value})} className="w-full px-4 py-3 border border-border rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-blue-200 focus:border-blue-400" placeholder="例: ○○不動産株式会社" />
+          </div>
+        </div>
+        <div className="grid grid-cols-3 gap-6 mb-6">
+          <div>
+            <label className="block text-sm font-bold text-text-main mb-1.5">工事種別</label>
+            <select value={formData.type} onChange={e => setFormData({...formData, type: e.target.value})} className="w-full px-4 py-3 border border-border rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-blue-200 focus:border-blue-400 bg-white">
+              {["新築", "改修", "リフォーム", "外構", "解体", "設備", "その他"].map(t => <option key={t} value={t}>{t}</option>)}
+            </select>
+          </div>
+          <div>
+            <label className="block text-sm font-bold text-text-main mb-1.5">請負金額</label>
+            <input type="text" value={formData.amount} onChange={e => setFormData({...formData, amount: e.target.value})} className="w-full px-4 py-3 border border-border rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-blue-200 focus:border-blue-400" placeholder="例: 50000000" />
+          </div>
+          <div>
+            <label className="block text-sm font-bold text-text-main mb-1.5">引渡し予定日</label>
+            <input type="date" value={formData.deadline} onChange={e => setFormData({...formData, deadline: e.target.value})} className="w-full px-4 py-3 border border-border rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-blue-200 focus:border-blue-400" />
+          </div>
+        </div>
+        <div className="mb-6">
+          <label className="block text-sm font-bold text-text-main mb-1.5">備考</label>
+          <textarea value={formData.memo} onChange={e => setFormData({...formData, memo: e.target.value})} rows={3} className="w-full px-4 py-3 border border-border rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-blue-200 focus:border-blue-400 resize-none" placeholder="特記事項があれば入力してください" />
+        </div>
+        <div className="flex gap-3">
+          <button onClick={() => setShowForm(false)} className="flex-1 py-3 border border-border rounded-lg font-medium hover:bg-gray-50 transition-colors">キャンセル</button>
+          <button onClick={handleSave} disabled={!formData.name || !formData.client} className={`flex-1 py-3 rounded-lg font-bold text-white transition-colors ${formData.name && formData.client ? "bg-blue-500 hover:bg-blue-600" : "bg-gray-300 cursor-not-allowed"}`}>保存する</button>
+        </div>
+      </div>
+    </>);
+  }
+
   return (<>
-    <ToolHeader title="工事台帳" color="#3b82f6" onCreateNew={onCreateNew} onExport={onExport} />
+    <ToolHeader title="工事台帳" color="#3b82f6" onCreateNew={() => setShowForm(true)} onExport={onExport} />
     <div className="grid grid-cols-3 gap-4 mb-6">
-      {[{ label: "進行中", value: "12件", color: "#3b82f6" }, { label: "今月完了", value: "3件", color: "#10b981" }, { label: "受注総額", value: "¥2億8,500万", color: "#f59e0b" }].map((s, i) => (
+      {[{ label: "進行中", value: inProgress + "件", color: "#3b82f6" }, { label: "完了", value: completed + "件", color: "#10b981" }, { label: "受注総額", value: "¥2億8,500万", color: "#f59e0b" }].map((s, i) => (
         <div key={i} className="bg-white rounded-xl border border-border p-4"><p className="text-xs text-text-sub">{s.label}</p><p className="text-xl font-black" style={{ color: s.color }}>{s.value}</p></div>
       ))}
     </div>
-    <DataTable headers={["工事番号", "工事名", "発注者", "請負金額", "引渡し日", "進捗", "状態"]} rows={[
-      ["K-2026-001", "○○マンション新築工事", "○○不動産", "¥128,500,000", "2026/06/30", "65%", <StatusBadge key="1" status="進行中" />],
-      ["K-2026-002", "△△ビル改修工事", "△△商事", "¥45,000,000", "2026/09/15", "30%", <StatusBadge key="2" status="進行中" />],
-      ["K-2026-003", "□□住宅リフォーム", "□□様", "¥8,500,000", "2026/03/20", "75%", <StatusBadge key="3" status="進行中" />],
-      ["K-2026-004", "●●商業施設外構工事", "●●開発", "¥32,000,000", "2026/04/30", "90%", <StatusBadge key="4" status="進行中" />],
-      ["K-2025-012", "◎◎事務所ビル新築", "◎◎建設", "¥68,000,000", "2025/12/20", "100%", <StatusBadge key="5" status="完了" />],
-    ]} />
+    <DataTable headers={["工事番号", "工事名", "発注者", "請負金額", "引渡し日", "進捗", "状態"]} rows={entries.map((e, i) => [
+      e.id, e.name, e.client, e.amount, e.deadline,
+      <div key={`p-${i}`} className="w-16"><div className="flex items-center gap-1"><div className="flex-1 bg-gray-100 rounded-full h-1.5"><div className="h-1.5 rounded-full" style={{ width: `${e.progress}%`, backgroundColor: e.progress >= 90 ? "#10b981" : e.progress >= 50 ? "#3b82f6" : "#f59e0b" }} /></div><span className="text-[10px] text-text-sub">{e.progress}%</span></div></div>,
+      <StatusBadge key={`s-${i}`} status={e.status} />,
+    ])} />
   </>);
 }
 
