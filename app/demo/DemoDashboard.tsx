@@ -1443,20 +1443,9 @@ function LandSearch({ onCreateNew, onExport }: ToolProps) {
   };
 
   const openSuumo = () => {
-    // SUUMOの土地検索ページ（都道府県別）を開く
     const slug = prefSlugMap[sf.pref] || "tokyo";
-    const url = `https://suumo.jp/tochi/${slug}/`;
-    window.open(url, "_blank");
-  };
-
-  const openSuumoKeyword = () => {
-    // 条件をキーワードにしてSUUMO検索
-    const parts = [sf.pref, sf.city, "土地"];
-    if (searchAreaTsubo) parts.push(`${searchAreaTsubo}坪`);
-    if (sf.budget) parts.push(`${sf.budget}万円以下`);
-    if (sf.station) parts.push(sf.station);
-    const query = encodeURIComponent(parts.join(" "));
-    window.open(`https://suumo.jp/b/tochi/kw/${query}/`, "_blank");
+    // 都道府県の市区町村選択ページ（物件数も表示される確実なURL）
+    window.open(`https://suumo.jp/tochi/${slug}/city/`, "_blank");
   };
 
   const handleSearch = () => {
@@ -1622,9 +1611,9 @@ function LandSearch({ onCreateNew, onExport }: ToolProps) {
 
           <div className="flex gap-3 mt-6">
             <button onClick={handleSearch} className="flex-1 py-4 bg-green-600 text-white rounded-xl font-bold hover:bg-green-700 transition-colors text-base shadow-lg">🔍 検索（AI事業性分析）</button>
-            <button onClick={openSuumoKeyword} className="flex-1 py-4 bg-orange-500 text-white rounded-xl font-bold hover:bg-orange-600 transition-colors text-base shadow-lg">🏠 SUUMOで条件検索 →</button>
+            <button onClick={openSuumo} className="flex-1 py-4 bg-orange-500 text-white rounded-xl font-bold hover:bg-orange-600 transition-colors text-base shadow-lg">🏠 SUUMOで{sf.pref}の土地を探す →</button>
           </div>
-          <p className="text-center text-[10px] text-text-sub mt-2">「SUUMOで条件検索」をクリックすると、入力条件でSUUMOの土地検索ページが新しいタブで開きます</p>
+          <p className="text-center text-[10px] text-text-sub mt-2">SUUMOの{sf.pref}土地一覧ページが新しいタブで開きます ｜ AI分析はダッシュボード内に表示されます</p>
         </div>
       )}
     </div>
@@ -1659,8 +1648,7 @@ function LandSearch({ onCreateNew, onExport }: ToolProps) {
             </div>
           </div>
           <div className="flex gap-2 mt-2">
-            <button onClick={openSuumoKeyword} className="px-4 py-2 bg-orange-500 text-white rounded-lg text-sm font-bold hover:bg-orange-600 transition-colors">🏠 SUUMOで条件検索 →</button>
-            <button onClick={openSuumo} className="px-4 py-2 bg-orange-300 text-orange-900 rounded-lg text-sm font-bold hover:bg-orange-400 transition-colors">SUUMO {sf.pref}トップ</button>
+            <button onClick={openSuumo} className="px-4 py-2 bg-orange-500 text-white rounded-lg text-sm font-bold hover:bg-orange-600 transition-colors">🏠 SUUMOで{sf.pref}の土地を探す →</button>
           </div>
         </div>
 
