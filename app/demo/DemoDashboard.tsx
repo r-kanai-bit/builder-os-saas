@@ -1386,8 +1386,50 @@ function VendorManagement({ onCreateNew, onExport }: ToolProps) {
 }
 
 function LandSearch({ onCreateNew, onExport }: ToolProps) {
-  const [landTab, setLandTab] = useState<"search" | "results">("results");
+  const [landTab, setLandTab] = useState<"search" | "results">("search");
   const [selectedProperty, setSelectedProperty] = useState<number | null>(null);
+  const [isSearching, setIsSearching] = useState(false);
+  const [hasSearched, setHasSearched] = useState(false);
+  const [searchAreaM2, setSearchAreaM2] = useState("");
+  const [searchAreaTsubo, setSearchAreaTsubo] = useState("");
+  const [areaError, setAreaError] = useState("");
+
+  const m2ToTsubo = (m2: number) => Math.round(m2 / 3.30579 * 10) / 10;
+  const tsuboToM2 = (tsubo: number) => Math.round(tsubo * 3.30579 * 10) / 10;
+
+  const handleM2Change = (val: string) => {
+    setSearchAreaM2(val);
+    setAreaError("");
+    if (val && !isNaN(Number(val))) {
+      setSearchAreaTsubo(String(m2ToTsubo(Number(val))));
+    } else if (!val) {
+      setSearchAreaTsubo("");
+    }
+  };
+
+  const handleTsuboChange = (val: string) => {
+    setSearchAreaTsubo(val);
+    setAreaError("");
+    if (val && !isNaN(Number(val))) {
+      setSearchAreaM2(String(tsuboToM2(Number(val))));
+    } else if (!val) {
+      setSearchAreaM2("");
+    }
+  };
+
+  const handleSearch = () => {
+    if (!searchAreaM2 && !searchAreaTsubo) {
+      setAreaError("㎡ または 坪数 のどちらかを入力してください（必須）");
+      return;
+    }
+    setAreaError("");
+    setIsSearching(true);
+    setTimeout(() => {
+      setIsSearching(false);
+      setHasSearched(true);
+      setLandTab("results");
+    }, 1800);
+  };
 
   const properties = [
     { rank: 1, score: 92, name: "杉並区 成田東 土地", address: "東京都杉並区成田東3丁目", size: 150.0, sizeTsubo: 45.4, price: 48500000, tsuboPrice: 106.8, avgTsubo: 118.0, discount: "+10.5%", discountLabel: "割安", zoning: "第一種住居", coverage: 60, far: 200, maxFloor: 90.8, fitLabel: "◎ 余裕あり", landCategory: "宅地", farmConversion: false, hazardFlood: "低", hazardSlide: "なし", hazardTsunami: "なし", hazardLiquefaction: "低", hazardScore: "A", demolition: 0, grading: 0, totalCost: 59695000, loanAmount: 59695000, monthlyPayment: 153000, yearIncome: 0, status: "受付中", station: "南阿佐ケ谷駅 徒歩12分", scoreDetail: { cheap: 14, fit: 14, loan: 13, demolition: 10, grading: 14, hazard: 14, asset: 13 } },
@@ -1429,6 +1471,26 @@ function LandSearch({ onCreateNew, onExport }: ToolProps) {
           <div><label className="text-[10px] text-text-sub block mb-1">徒歩（分以内）</label><input type="text" defaultValue="20" className="w-full px-3 py-2 border border-border rounded-lg text-sm" /></div>
           <div><label className="text-[10px] text-text-sub block mb-1">建築条件</label><select className="w-full px-3 py-2 border border-border rounded-lg text-sm bg-white"><option>条件付き含む</option><option>条件なしのみ</option></select></div>
         </div>
+        <div className="bg-green-50 border border-green-200 rounded-lg p-4 mb-4">
+          <div className="flex items-center gap-2 mb-3">
+            <span className="text-xs font-bold text-green-800">希望面積（どちらか必須）</span>
+            <span className="text-[10px] bg-red-500 text-white px-1.5 py-0.5 rounded font-bold">必須</span>
+          </div>
+          <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
+            <div>
+              <label className="text-[10px] text-text-sub block mb-1">希望面積（㎡）</label>
+              <input type="text" value={searchAreaM2} onChange={(e) => handleM2Change(e.target.value)} placeholder="例: 100" className={`w-full px-3 py-2 border rounded-lg text-sm ${areaError ? "border-red-400 bg-red-50" : "border-border"}`} />
+            </div>
+            <div>
+              <label className="text-[10px] text-text-sub block mb-1">希望面積（坪数）</label>
+              <input type="text" value={searchAreaTsubo} onChange={(e) => handleTsuboChange(e.target.value)} placeholder="例: 30" className={`w-full px-3 py-2 border rounded-lg text-sm ${areaError ? "border-red-400 bg-red-50" : "border-border"}`} />
+            </div>
+            <div className="col-span-2 flex items-end">
+              <p className="text-[10px] text-green-700">※ どちらか一方を入力すると自動換算されます（1坪 ≒ 3.306㎡）</p>
+            </div>
+          </div>
+          {areaError && <p className="text-xs text-red-500 mt-2 font-bold">{areaError}</p>}
+        </div>
         <div className="grid grid-cols-2 lg:grid-cols-4 gap-4 mb-4">
           <div><label className="text-[10px] text-text-sub block mb-1">土地面積（坪）下限</label><input type="text" defaultValue="30" className="w-full px-3 py-2 border border-border rounded-lg text-sm" /></div>
           <div><label className="text-[10px] text-text-sub block mb-1">土地面積（坪）上限</label><input type="text" defaultValue="70" className="w-full px-3 py-2 border border-border rounded-lg text-sm" /></div>
@@ -1446,8 +1508,22 @@ function LandSearch({ onCreateNew, onExport }: ToolProps) {
           <div><label className="text-[10px] text-text-sub block mb-1">借入年数</label><input type="text" defaultValue="35" className="w-full px-3 py-2 border border-border rounded-lg text-sm" /></div>
           <div><label className="text-[10px] text-text-sub block mb-1">頭金（万円）</label><input type="text" defaultValue="0" className="w-full px-3 py-2 border border-border rounded-lg text-sm" /></div>
         </div>
-        <button onClick={() => setLandTab("results")} className="w-full mt-6 py-3 bg-green-600 text-white rounded-lg font-bold hover:bg-green-700 transition-colors">🔍 SUUMO検索 × 事業性分析を実行</button>
+        <button onClick={handleSearch} className="w-full mt-6 py-3 bg-green-600 text-white rounded-lg font-bold hover:bg-green-700 transition-colors text-base">🔍 検索</button>
       </div>
+
+      {isSearching && (
+        <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50">
+          <div className="bg-white rounded-2xl p-8 max-w-md w-full mx-4 text-center">
+            <div className="w-16 h-16 border-4 border-green-200 border-t-green-600 rounded-full animate-spin mx-auto mb-4" />
+            <h3 className="text-lg font-bold text-text-main mb-2">SUUMO検索 × 事業性分析中...</h3>
+            <div className="space-y-2 text-xs text-text-sub">
+              <p>✅ SUUMO API接続完了</p>
+              <p>✅ 条件マッチング実行中</p>
+              <p className="animate-pulse">⏳ 事業性スコア算出中...</p>
+            </div>
+          </div>
+        </div>
+      )}
     </>) : detail ? (<>
       {/* Detail view */}
       <button onClick={() => setSelectedProperty(null)} className="text-sm text-green-600 hover:text-green-800 mb-4 font-bold">← 一覧に戻る</button>
@@ -1506,6 +1582,15 @@ function LandSearch({ onCreateNew, onExport }: ToolProps) {
       </div>
     </>) : (<>
       {/* Results list */}
+      {hasSearched && (
+        <div className="bg-green-50 border border-green-300 rounded-xl p-4 mb-6 flex items-center gap-3">
+          <span className="text-2xl">✅</span>
+          <div>
+            <p className="text-sm font-bold text-green-800">検索完了 — {properties.length}件の候補が見つかりました</p>
+            <p className="text-xs text-green-600">希望面積: {searchAreaTsubo ? `${searchAreaTsubo}坪（${searchAreaM2}㎡）` : "指定なし"} ｜ スコア順に表示</p>
+          </div>
+        </div>
+      )}
       <div className="grid grid-cols-4 gap-4 mb-6">
         {[{ label: "検索ヒット", value: "5件", color: "#059669" }, { label: "最高スコア", value: "92点", color: "#3b82f6" }, { label: "平均坪単価", value: "¥172万", color: "#8b5cf6" }, { label: "割安物件", value: "1件", color: "#f59e0b" }].map((s, i) => (
           <div key={i} className="bg-white rounded-xl border border-border p-4"><p className="text-xs text-text-sub">{s.label}</p><p className="text-xl font-black" style={{ color: s.color }}>{s.value}</p></div>
