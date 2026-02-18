@@ -1610,6 +1610,23 @@ function LandSearch({ onCreateNew, onExport }: ToolProps) {
           </div>
         </div>
       )}
+    </>) : !hasSearched ? (<>
+      {/* Empty state - before search */}
+      <div className="bg-white border border-border rounded-2xl p-12 text-center">
+        <div className="w-20 h-20 bg-green-50 rounded-full flex items-center justify-center mx-auto mb-5">
+          <svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="#059669" strokeWidth="2"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/></svg>
+        </div>
+        <h3 className="text-lg font-bold text-text-main mb-2">検索条件を入力してください</h3>
+        <p className="text-sm text-text-sub mb-6">SUUMO × レインズのデータベースから<br/>条件に合う土地を一括検索・事業性分析します</p>
+        <div className="flex flex-col items-center gap-3 mb-6">
+          <div className="flex items-center gap-3 text-xs text-text-sub">
+            <span className="flex items-center gap-1"><span className="w-2 h-2 rounded-full bg-orange-400" />SUUMO 掲載物件</span>
+            <span className="flex items-center gap-1"><span className="w-2 h-2 rounded-full bg-blue-500" />レインズ 登録物件</span>
+          </div>
+          <p className="text-[10px] text-text-sub">全国852万件超のデータベースからAIが最適物件を抽出</p>
+        </div>
+        <button onClick={() => setLandTab("search")} className="px-8 py-3 bg-green-600 text-white rounded-lg font-bold hover:bg-green-700 transition-colors">🔍 検索条件を入力する</button>
+      </div>
     </>) : detail ? (<>
       {/* Detail view */}
       <button onClick={() => setSelectedProperty(null)} className="text-sm text-green-600 hover:text-green-800 mb-4 font-bold">← 一覧に戻る</button>
@@ -1675,15 +1692,13 @@ function LandSearch({ onCreateNew, onExport }: ToolProps) {
       </div>
     </>) : (<>
       {/* Results list */}
-      {hasSearched && (
-        <div className="bg-green-50 border border-green-300 rounded-xl p-4 mb-6 flex items-center gap-3">
-          <span className="text-2xl">✅</span>
-          <div>
-            <p className="text-sm font-bold text-green-800">検索完了 — {filteredProperties.length}件の候補が見つかりました</p>
-            <p className="text-xs text-green-600">希望面積: {searchAreaTsubo ? `${searchAreaTsubo}坪（${searchAreaM2}㎡）` : "指定なし"} ｜ スコア順に表示</p>
-          </div>
+      <div className="bg-green-50 border border-green-300 rounded-xl p-4 mb-6 flex items-center gap-3">
+        <span className="text-2xl">✅</span>
+        <div>
+          <p className="text-sm font-bold text-green-800">検索完了 — {filteredProperties.length}件の候補が見つかりました</p>
+          <p className="text-xs text-green-600">データソース: {suumoSelected ? "SUUMO" : ""}{suumoSelected && reinsSelected ? " + " : ""}{reinsSelected ? "レインズ" : ""} ｜ 希望面積: {searchAreaTsubo ? `${searchAreaTsubo}坪（${searchAreaM2}㎡）` : "指定なし"} ｜ スコア順に表示</p>
         </div>
-      )}
+      </div>
       <div className="grid grid-cols-2 lg:grid-cols-4 gap-4 mb-6">
         {[
           { label: "検索ヒット", value: `${filteredProperties.length}件`, color: "#059669" },
