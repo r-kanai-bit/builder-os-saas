@@ -1418,12 +1418,33 @@ function LandSearch({ onCreateNew, onExport }: ToolProps) {
     else if (!val) setSearchAreaM2("");
   };
 
+  const prefSlugMap: Record<string, string> = {
+    "北海道": "hokkaido", "青森県": "aomori", "岩手県": "iwate", "宮城県": "miyagi", "秋田県": "akita",
+    "山形県": "yamagata", "福島県": "fukushima", "茨城県": "ibaraki", "栃木県": "tochigi", "群馬県": "gunma",
+    "埼玉県": "saitama", "千葉県": "chiba", "東京都": "tokyo", "神奈川県": "kanagawa",
+    "新潟県": "niigata", "富山県": "toyama", "石川県": "ishikawa", "福井県": "fukui",
+    "山梨県": "yamanashi", "長野県": "nagano", "岐阜県": "gifu", "静岡県": "shizuoka", "愛知県": "aichi", "三重県": "mie",
+    "滋賀県": "shiga", "京都府": "kyoto", "大阪府": "osaka", "兵庫県": "hyogo", "奈良県": "nara", "和歌山県": "wakayama",
+    "鳥取県": "tottori", "島根県": "shimane", "岡山県": "okayama", "広島県": "hiroshima", "山口県": "yamaguchi",
+    "徳島県": "tokushima", "香川県": "kagawa", "愛媛県": "ehime", "高知県": "kochi",
+    "福岡県": "fukuoka", "佐賀県": "saga", "長崎県": "nagasaki", "熊本県": "kumamoto", "大分県": "oita", "宮崎県": "miyazaki", "鹿児島県": "kagoshima", "沖縄県": "okinawa",
+  };
+
+  const openSuumo = () => {
+    const slug = prefSlugMap[sf.pref] || "tokyo";
+    const url = `https://suumo.jp/tochi/${slug}/`;
+    window.open(url, "_blank");
+  };
+
   const handleSearch = () => {
     if (!searchAreaM2 && !searchAreaTsubo) {
       setAreaError("㎡ または 坪数 のどちらかを入力してください（必須）");
       return;
     }
     setAreaError("");
+    // SUUMOを新タブで開く
+    openSuumo();
+    // 同時にAI分析を実行
     setIsSearching(true);
     setSearchStep(1);
     [600, 1200, 1800, 2300, 2700].forEach((ms, i) => {
@@ -1579,7 +1600,8 @@ function LandSearch({ onCreateNew, onExport }: ToolProps) {
             <div><label className="text-[10px] text-text-sub block mb-1">頭金（万円）</label><input type="text" value={sf.down} onChange={e => uf("down", e.target.value)} className="w-full px-3 py-2 border border-border rounded-lg text-sm" /></div>
           </div>
 
-          <button onClick={handleSearch} className="w-full mt-6 py-4 bg-green-600 text-white rounded-xl font-bold hover:bg-green-700 transition-colors text-lg shadow-lg">🔍 SUUMO × レインズ 一括検索</button>
+          <button onClick={handleSearch} className="w-full mt-6 py-4 bg-green-600 text-white rounded-xl font-bold hover:bg-green-700 transition-colors text-lg shadow-lg">🔍 SUUMOで検索する（新しいタブで開きます）</button>
+          <p className="text-center text-[10px] text-text-sub mt-2">SUUMOの{sf.pref}土地検索ページが新しいタブで開き、同時にAI事業性分析を実行します</p>
         </div>
       )}
     </div>
@@ -1605,12 +1627,23 @@ function LandSearch({ onCreateNew, onExport }: ToolProps) {
     {/* SEARCH RESULTS - only shown after search */}
     {hasSearched && (
       <>
+        <div className="bg-orange-50 border-2 border-orange-300 rounded-xl p-5 mb-6">
+          <div className="flex items-center gap-3 mb-2">
+            <span className="text-3xl">🏠</span>
+            <div>
+              <h3 className="text-lg font-bold text-orange-800">SUUMOの検索結果は新しいタブで表示中</h3>
+              <p className="text-xs text-orange-700">SUUMOタブで本物の物件情報をご確認ください ｜ 以下はAIによる事業性分析サンプルです</p>
+            </div>
+          </div>
+          <button onClick={openSuumo} className="mt-2 px-4 py-2 bg-orange-500 text-white rounded-lg text-sm font-bold hover:bg-orange-600 transition-colors">SUUMOをもう一度開く →</button>
+        </div>
+
         <div className="bg-green-100 border-2 border-green-400 rounded-xl p-5 mb-6">
           <div className="flex items-center gap-3 mb-3">
-            <span className="text-3xl">✅</span>
+            <span className="text-3xl">📊</span>
             <div>
-              <h3 className="text-lg font-bold text-green-800">検索結果 — {properties.length}件ヒット</h3>
-              <p className="text-xs text-green-700">SUUMO {properties.filter(p => p.source === "SUUMO").length}件 + レインズ {properties.filter(p => p.source === "REINS").length}件 ｜ 希望面積: {searchAreaTsubo}坪（{searchAreaM2}㎡） ｜ 事業性スコア順</p>
+              <h3 className="text-lg font-bold text-green-800">AI事業性分析（参考データ）— {properties.length}件</h3>
+              <p className="text-xs text-green-700">希望面積: {searchAreaTsubo}坪（{searchAreaM2}㎡） ｜ {sf.pref} ｜ スコア順に表示</p>
             </div>
           </div>
           <div className="grid grid-cols-2 lg:grid-cols-4 gap-3">
