@@ -310,7 +310,7 @@ function ConstructionLedger({ onCreateNew, onExport }: ToolProps) {
     { id: "K-2026-004", name: "●●商業施設外構工事", client: "●●開発", amount: "¥32,000,000", deadline: "2026/04/30", progress: 90, status: "進行中" as const },
     { id: "K-2025-012", name: "◎◎事務所ビル新築", client: "◎◎建設", amount: "¥68,000,000", deadline: "2025/12/20", progress: 100, status: "完了" as const },
   ]);
-  const [formData, setFormData] = useState({ name: "", client: "", amount: "", deadline: "", type: "新築", memo: "" });
+  const [formData, setFormData] = useState({ name: "", client: "", amount: "", deadline: "", startDate: "", type: "新築", memo: "" });
   const [saved, setSaved] = useState(false);
 
   const handleSave = () => {
@@ -320,7 +320,7 @@ function ConstructionLedger({ onCreateNew, onExport }: ToolProps) {
     const formatted = amountNum > 0 ? `¥${amountNum.toLocaleString()}` : "未定";
     setEntries(prev => [{ id: newId, name: formData.name, client: formData.client, amount: formatted, deadline: formData.deadline || "未定", progress: 0, status: "進行中" as const }, ...prev]);
     setSaved(true);
-    setTimeout(() => { setSaved(false); setShowForm(false); setFormData({ name: "", client: "", amount: "", deadline: "", type: "新築", memo: "" }); }, 1200);
+    setTimeout(() => { setSaved(false); setShowForm(false); setFormData({ name: "", client: "", amount: "", deadline: "", startDate: "", type: "新築", memo: "" }); }, 1200);
   };
 
   const inProgress = entries.filter(e => e.status === "進行中").length;
@@ -349,7 +349,7 @@ function ConstructionLedger({ onCreateNew, onExport }: ToolProps) {
             <input type="text" value={formData.client} onChange={e => setFormData({...formData, client: e.target.value})} className="w-full px-4 py-3 border border-border rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-blue-200 focus:border-blue-400" placeholder="例: ○○不動産株式会社" />
           </div>
         </div>
-        <div className="grid grid-cols-3 gap-6 mb-6">
+        <div className="grid grid-cols-2 lg:grid-cols-4 gap-6 mb-6">
           <div>
             <label className="block text-sm font-bold text-text-main mb-1.5">工事種別</label>
             <select value={formData.type} onChange={e => setFormData({...formData, type: e.target.value})} className="w-full px-4 py-3 border border-border rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-blue-200 focus:border-blue-400 bg-white">
@@ -359,6 +359,10 @@ function ConstructionLedger({ onCreateNew, onExport }: ToolProps) {
           <div>
             <label className="block text-sm font-bold text-text-main mb-1.5">請負金額</label>
             <input type="text" value={formData.amount} onChange={e => setFormData({...formData, amount: e.target.value})} className="w-full px-4 py-3 border border-border rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-blue-200 focus:border-blue-400" placeholder="例: 50000000" />
+          </div>
+          <div>
+            <label className="block text-sm font-bold text-text-main mb-1.5">着工日</label>
+            <input type="date" value={formData.startDate} onChange={e => setFormData({...formData, startDate: e.target.value})} className="w-full px-4 py-3 border border-border rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-blue-200 focus:border-blue-400" />
           </div>
           <div>
             <label className="block text-sm font-bold text-text-main mb-1.5">引渡し予定日</label>
