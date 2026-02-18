@@ -409,8 +409,173 @@ function Estimate({ onCreateNew, onExport }: ToolProps) {
 }
 
 function Budget({ onCreateNew, onExport }: ToolProps) {
+  const [view, setView] = useState<"list"|"create"|"result">("list");
+  const [blueprintFile, setBlueprintFile] = useState("");
+  const [tsubo, setTsubo] = useState("");
+  const [buildingType, setBuildingType] = useState("2階建");
+  const [projectName, setProjectName] = useState("");
+  const [isAnalyzing, setIsAnalyzing] = useState(false);
+  const [analyzeStep, setAnalyzeStep] = useState(0);
+  const [budgetResult, setBudgetResult] = useState<{ name: string; tsubo: string; type: string; items: { category: string; detail: string; amount: number; note: string }[]; total: number } | null>(null);
+  const fileRef = useRef<HTMLInputElement>(null);
+
+  const buildingTypes = ["平屋", "2階建", "3階建", "アパート", "店舗"];
+
+  const analyzeSteps = ["図面データを読み込み中...", "間取り・構造を解析中...", "建物仕様を特定中...", "資材単価をマッチング中...", "工事費を積算中...", "実行予算書を生成中..."];
+
+  const generateBudget = () => {
+    if (!tsubo || !blueprintFile) return;
+    setIsAnalyzing(true);
+    setAnalyzeStep(0);
+    let step = 0;
+    const iv = setInterval(() => {
+      step++;
+      setAnalyzeStep(step);
+      if (step >= analyzeSteps.length) {
+        clearInterval(iv);
+        const t = parseFloat(tsubo) || 30;
+        // 建物種別ごとの坪単価（万円）
+        const unitCosts: Record<string, number> = { "平屋": 75, "2階建": 68, "3階建": 72, "アパート": 58, "店舗": 82 };
+        const unit = unitCosts[buildingType] || 68;
+        const base = t * unit;
+        const items = [
+          { category: "仮設工事", detail: "足場・仮囲い・養生・仮設電気水道", amount: Math.round(base * 0.05), note: "足場面積から算出" },
+          { category: "基礎工事", detail: "根切り・砕石・捨コン・配筋・型枠・コンクリート打設", amount: Math.round(base * 0.12), note: buildingType === "3階建" ? "杭基礎含む" : "ベタ基礎" },
+          { category: "躯体工事", detail: buildingType === "店舗" ? "鉄骨造・デッキプレート" : "木造軸組・プレカット材", amount: Math.round(base * 0.18), note: "図面より柱・梁数量算出" },
+          { category: "屋根・板金工事", detail: buildingType === "アパート" ? "ガルバリウム鋼板葺き" : "瓦葺き・板金役物", amount: Math.round(base * 0.06), note: "屋根面積: " + Math.round(t * 3.3 * (buildingType === "平屋" ? 1.2 : 0.6)) + "㎡" },
+          { category: "外壁工事", detail: "窯業系サイディング16mm・通気工法", amount: Math.round(base * 0.08), note: "外壁面積より算出" },
+          { category: "防水工事", detail: buildingType === "アパート" ? "シート防水・FRP防水" : "FRP防水（バルコニー）", amount: Math.round(base * 0.03), note: "" },
+          { category: "建具工事", detail: "アルミ樹脂複合サッシ・玄関ドア・室内建具", amount: Math.round(base * 0.08), note: "Low-E複層ガラス仕様" },
+          { category: "内装工事", detail: "石膏ボード・クロス・フローリング・タイル", amount: Math.round(base * 0.10), note: "延床" + Math.round(t * 3.3) + "㎡" },
+          { category: "電気設備工事", detail: "分電盤・配線・照明・コンセント・LAN", amount: Math.round(base * 0.08), note: buildingType === "店舗" ? "動力電源含む" : "太陽光対応PB" },
+          { category: "給排水衛生設備", detail: "給水管・排水管・衛生器具・給湯器", amount: Math.round(base * 0.08), note: buildingType === "アパート" ? (Math.round(t / 8) + "戸分") : "" },
+          { category: "空調換気設備", detail: buildingType === "店舗" ? "業務用エアコン・換気設備" : "ルームエアコン・24h換気", amount: Math.round(base * 0.05), note: "" },
+          { category: "外構工事", detail: "駐車場・アプローチ・フェンス・植栽", amount: Math.round(base * 0.05), note: "" },
+          { category: "諸経費", detail: "現場管理費・一般管理費・産廃処理", amount: Math.round(base * 0.08), note: "工事費の8%" },
+        ];
+        const total = items.reduce((sum, it) => sum + it.amount, 0);
+        setBudgetResult({ name: projectName || "新規工事", tsubo, type: buildingType, items, total });
+        setIsAnalyzing(false);
+        setView("result");
+      }
+    }, 600);
+  };
+
+  if (view === "result" && budgetResult) {
+    return (<>
+      <ToolHeader title="実行予算" color="#f59e0b" onCreateNew={() => setView("list")} onExport={onExport} />
+      <div className="bg-green-50 border border-green-200 rounded-xl p-4 mb-6 flex items-center justify-between">
+        <div className="flex items-center gap-3">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#16a34a" strokeWidth="2"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg>
+          <div>
+            <p className="text-sm font-bold text-green-800">AI図面解析完了 —「{budgetResult.name}」の実行予算書を作成しました</p>
+            <p className="text-xs text-green-600">{budgetResult.type} ｜ {budgetResult.tsubo}坪（{Math.round(parseFloat(budgetResult.tsubo) * 3.3)}㎡）｜ 図面: {blueprintFile}</p>
+          </div>
+        </div>
+        <button onClick={() => { setView("create"); setBudgetResult(null); }} className="text-xs text-amber-600 hover:text-amber-800 font-bold">再作成</button>
+      </div>
+      <div className="grid grid-cols-3 gap-4 mb-6">
+        <div className="bg-white rounded-xl border border-border p-4"><p className="text-xs text-text-sub">実行予算 合計</p><p className="text-xl font-black text-amber-600">¥{(budgetResult.total).toLocaleString()}万</p></div>
+        <div className="bg-white rounded-xl border border-border p-4"><p className="text-xs text-text-sub">坪単価</p><p className="text-xl font-black text-text-main">¥{Math.round(budgetResult.total / parseFloat(budgetResult.tsubo)).toLocaleString()}万/坪</p></div>
+        <div className="bg-white rounded-xl border border-border p-4"><p className="text-xs text-text-sub">㎡単価</p><p className="text-xl font-black text-text-main">¥{Math.round(budgetResult.total / (parseFloat(budgetResult.tsubo) * 3.3) * 10000).toLocaleString()}/㎡</p></div>
+      </div>
+      <DataTable headers={["工種", "工事内容", "金額（万円）", "備考"]} rows={budgetResult.items.map((it, i) => [
+        it.category,
+        <span key={`d${i}`} className="text-xs">{it.detail}</span>,
+        <span key={`a${i}`} className="font-bold">¥{it.amount.toLocaleString()}</span>,
+        <span key={`n${i}`} className="text-xs text-text-sub">{it.note}</span>,
+      ]).concat([[
+        <span key="tt" className="font-black text-amber-600">合計</span>,
+        "",
+        <span key="ta" className="font-black text-amber-600 text-base">¥{budgetResult.total.toLocaleString()}万</span>,
+        "",
+      ]])} />
+    </>);
+  }
+
+  if (view === "create") {
+    return (<>
+      <ToolHeader title="実行予算" color="#f59e0b" onCreateNew={() => setView("list")} onExport={onExport} />
+      {isAnalyzing ? (
+        <div className="bg-white rounded-xl border border-border p-10 text-center">
+          <div className="w-16 h-16 border-4 border-amber-200 border-t-amber-500 rounded-full animate-spin mx-auto mb-6" />
+          <p className="text-base font-bold text-text-main mb-2">AI が図面を解析中...</p>
+          <div className="max-w-md mx-auto space-y-2 mt-4">
+            {analyzeSteps.map((s, i) => (
+              <div key={i} className="flex items-center gap-3">
+                {i < analyzeStep ? (
+                  <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#16a34a" strokeWidth="2.5"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg>
+                ) : i === analyzeStep ? (
+                  <div className="w-[18px] h-[18px] border-2 border-amber-300 border-t-amber-600 rounded-full animate-spin" />
+                ) : (
+                  <div className="w-[18px] h-[18px] rounded-full border-2 border-gray-200" />
+                )}
+                <span className={`text-sm ${i < analyzeStep ? "text-green-700 font-medium" : i === analyzeStep ? "text-amber-700 font-bold" : "text-text-sub"}`}>{s}</span>
+              </div>
+            ))}
+          </div>
+        </div>
+      ) : (
+        <div className="bg-white rounded-xl border border-border p-6">
+          <h3 className="text-base font-bold text-text-main mb-2">実行予算 新規作成</h3>
+          <p className="text-xs text-text-sub mb-6">図面をアップロードし、建物情報を入力すると、AIが図面を解読して実行予算を自動作成します。</p>
+
+          <div className="mb-6">
+            <label className="block text-sm font-bold text-text-main mb-1.5">図面アップロード <span className="text-red-500">*</span></label>
+            <input type="file" ref={fileRef} className="hidden" accept=".pdf,.jpg,.jpeg,.png,.jww,.dxf,.dwg" onChange={e => { if (e.target.files?.[0]) setBlueprintFile(e.target.files[0].name); }} />
+            <div onClick={() => fileRef.current?.click()} onDragOver={e => { e.preventDefault(); e.currentTarget.classList.add("border-amber-400","bg-amber-50"); }} onDragLeave={e => { e.currentTarget.classList.remove("border-amber-400","bg-amber-50"); }} onDrop={e => { e.preventDefault(); e.currentTarget.classList.remove("border-amber-400","bg-amber-50"); if (e.dataTransfer.files?.[0]) setBlueprintFile(e.dataTransfer.files[0].name); }} className="border-2 border-dashed border-border rounded-xl p-8 text-center hover:border-amber-300 hover:bg-amber-50/30 transition-colors cursor-pointer">
+              {blueprintFile ? (
+                <div className="flex items-center justify-center gap-3">
+                  <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#f59e0b" strokeWidth="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>
+                  <span className="text-sm font-medium text-amber-700">{blueprintFile}</span>
+                  <button onClick={ev => { ev.stopPropagation(); setBlueprintFile(""); }} className="text-xs text-red-500 hover:text-red-700 ml-2">✕ 削除</button>
+                </div>
+              ) : (
+                <>
+                  <svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="#9ca3af" strokeWidth="1.5" className="mx-auto mb-3"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg>
+                  <p className="text-sm font-medium text-text-main mb-1">図面をアップロード（クリックまたはドラッグ&ドロップ）</p>
+                  <p className="text-xs text-text-sub">対応形式: PDF / JPG / PNG / JWW / DXF / DWG</p>
+                </>
+              )}
+            </div>
+          </div>
+
+          <div className="grid grid-cols-2 lg:grid-cols-4 gap-4 mb-6">
+            <div>
+              <label className="block text-sm font-bold text-text-main mb-1.5">工事名</label>
+              <input type="text" value={projectName} onChange={e => setProjectName(e.target.value)} className="w-full px-4 py-3 border border-border rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-amber-200 focus:border-amber-400" placeholder="例: ○○邸新築工事" />
+            </div>
+            <div>
+              <label className="block text-sm font-bold text-text-main mb-1.5">建物の坪数 <span className="text-red-500">*</span></label>
+              <div className="relative">
+                <input type="number" value={tsubo} onChange={e => setTsubo(e.target.value)} className="w-full px-4 py-3 border border-border rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-amber-200 focus:border-amber-400 pr-10" placeholder="例: 35" />
+                <span className="absolute right-3 top-1/2 -translate-y-1/2 text-xs text-text-sub">坪</span>
+              </div>
+              {tsubo && <p className="text-[10px] text-text-sub mt-1">= {Math.round(parseFloat(tsubo) * 3.3)}㎡</p>}
+            </div>
+            <div className="lg:col-span-2">
+              <label className="block text-sm font-bold text-text-main mb-1.5">建物種別 <span className="text-red-500">*</span></label>
+              <div className="flex gap-2 flex-wrap">
+                {buildingTypes.map(bt => (
+                  <button key={bt} onClick={() => setBuildingType(bt)} className={`px-4 py-3 rounded-lg text-sm font-bold transition-colors border ${buildingType === bt ? "bg-amber-500 text-white border-amber-500" : "bg-white text-text-main border-border hover:border-amber-300 hover:bg-amber-50"}`}>{bt}</button>
+                ))}
+              </div>
+            </div>
+          </div>
+
+          <div className="flex gap-3">
+            <button onClick={() => setView("list")} className="flex-1 py-3 border border-border rounded-lg font-medium hover:bg-gray-50 transition-colors">キャンセル</button>
+            <button onClick={generateBudget} disabled={!blueprintFile || !tsubo} className={`flex-1 py-3 rounded-lg font-bold text-white transition-colors ${blueprintFile && tsubo ? "bg-amber-500 hover:bg-amber-600" : "bg-gray-300 cursor-not-allowed"}`}>
+              AI図面解析 → 実行予算を自動作成
+            </button>
+          </div>
+        </div>
+      )}
+    </>);
+  }
+
   return (<>
-    <ToolHeader title="実行予算" color="#f59e0b" onCreateNew={onCreateNew} onExport={onExport} />
+    <ToolHeader title="実行予算" color="#f59e0b" onCreateNew={() => setView("create")} onExport={onExport} />
     <div className="grid grid-cols-4 gap-4 mb-6">
       {[{ label: "予算総額", value: "¥2億8,500万" }, { label: "実行額", value: "¥1億9,800万" }, { label: "残予算", value: "¥8,700万" }, { label: "予算消化率", value: "69.5%" }].map((s, i) => (
         <div key={i} className="bg-white rounded-xl border border-border p-4"><p className="text-xs text-text-sub">{s.label}</p><p className="text-xl font-black text-text-main">{s.value}</p></div>
