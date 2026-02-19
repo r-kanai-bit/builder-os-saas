@@ -413,13 +413,17 @@ function Budget({ onCreateNew, onExport }: ToolProps) {
   const [blueprintFile, setBlueprintFile] = useState("");
   const [tsubo, setTsubo] = useState("");
   const [buildingType, setBuildingType] = useState("2階建");
+  const [buildingOrder, setBuildingOrder] = useState("注文");
+  const [futaiCost, setFutaiCost] = useState("");
+  const [shokeihi, setShokeihi] = useState("");
   const [projectName, setProjectName] = useState("");
   const [isAnalyzing, setIsAnalyzing] = useState(false);
   const [analyzeStep, setAnalyzeStep] = useState(0);
-  const [budgetResult, setBudgetResult] = useState<{ name: string; tsubo: string; type: string; items: { category: string; detail: string; amount: number; note: string }[]; total: number } | null>(null);
+  const [budgetResult, setBudgetResult] = useState<{ name: string; tsubo: string; type: string; orderType: string; items: { category: string; detail: string; amount: number; note: string }[]; total: number } | null>(null);
   const fileRef = useRef<HTMLInputElement>(null);
 
   const buildingTypes = ["平屋", "2階建", "3階建", "アパート", "店舗"];
+  const orderTypes = ["注文", "規格", "セミオーダー"];
 
   const analyzeSteps = ["図面データを読み込み中...", "間取り・構造を解析中...", "建物仕様を特定中...", "資材単価をマッチング中...", "工事費を積算中...", "実行予算書を生成中..."];
 
@@ -439,23 +443,38 @@ function Budget({ onCreateNew, onExport }: ToolProps) {
         const unitCosts: Record<string, number> = { "平屋": 75, "2階建": 68, "3階建": 72, "アパート": 58, "店舗": 82 };
         const unit = unitCosts[buildingType] || 68;
         const base = t * unit;
-        const items = [
-          { category: "仮設工事", detail: "足場・仮囲い・養生・仮設電気水道", amount: Math.round(base * 0.05), note: "足場面積から算出" },
-          { category: "基礎工事", detail: "根切り・砕石・捨コン・配筋・型枠・コンクリート打設", amount: Math.round(base * 0.12), note: buildingType === "3階建" ? "杭基礎含む" : "ベタ基礎" },
-          { category: "躯体工事", detail: buildingType === "店舗" ? "鉄骨造・デッキプレート" : "木造軸組・プレカット材", amount: Math.round(base * 0.18), note: "図面より柱・梁数量算出" },
-          { category: "屋根・板金工事", detail: buildingType === "アパート" ? "ガルバリウム鋼板葺き" : "瓦葺き・板金役物", amount: Math.round(base * 0.06), note: "屋根面積: " + Math.round(t * 3.3 * (buildingType === "平屋" ? 1.2 : 0.6)) + "㎡" },
-          { category: "外壁工事", detail: "窯業系サイディング16mm・通気工法", amount: Math.round(base * 0.08), note: "外壁面積より算出" },
-          { category: "防水工事", detail: buildingType === "アパート" ? "シート防水・FRP防水" : "FRP防水（バルコニー）", amount: Math.round(base * 0.03), note: "" },
-          { category: "建具工事", detail: "アルミ樹脂複合サッシ・玄関ドア・室内建具", amount: Math.round(base * 0.08), note: "Low-E複層ガラス仕様" },
-          { category: "内装工事", detail: "石膏ボード・クロス・フローリング・タイル", amount: Math.round(base * 0.10), note: "延床" + Math.round(t * 3.3) + "㎡" },
-          { category: "電気設備工事", detail: "分電盤・配線・照明・コンセント・LAN", amount: Math.round(base * 0.08), note: buildingType === "店舗" ? "動力電源含む" : "太陽光対応PB" },
-          { category: "給排水衛生設備", detail: "給水管・排水管・衛生器具・給湯器", amount: Math.round(base * 0.08), note: buildingType === "アパート" ? (Math.round(t / 8) + "戸分") : "" },
-          { category: "空調換気設備", detail: buildingType === "店舗" ? "業務用エアコン・換気設備" : "ルームエアコン・24h換気", amount: Math.round(base * 0.05), note: "" },
-          { category: "外構工事", detail: "駐車場・アプローチ・フェンス・植栽", amount: Math.round(base * 0.05), note: "" },
-          { category: "諸経費", detail: "現場管理費・一般管理費・産廃処理", amount: Math.round(base * 0.08), note: "工事費の8%" },
+        // 注文/規格/セミオーダーで坪単価を微調整
+        const orderAdj: Record<string, number> = { "注文": 1.0, "規格": 0.85, "セミオーダー": 0.92 };
+        const adj = orderAdj[buildingOrder] || 1.0;
+        const adjBase = base * adj;
+        const items: { category: string; detail: string; amount: number; note: string }[] = [
+          { category: "仮設工事", detail: "足場・仮囲い・養生・仮設電気水道", amount: Math.round(adjBase * 0.05), note: "足場面積から算出" },
+          { category: "基礎工事", detail: "根切り・砕石・捨コン・配筋・型枠・コンクリート打設", amount: Math.round(adjBase * 0.12), note: buildingType === "3階建" ? "杭基礎含む" : "ベタ基礎" },
+          { category: "躯体工事", detail: buildingType === "店舗" ? "鉄骨造・デッキプレート" : "木造軸組・プレカット材", amount: Math.round(adjBase * 0.18), note: "図面より柱・梁数量算出" },
+          { category: "屋根・板金工事", detail: buildingType === "アパート" ? "ガルバリウム鋼板葺き" : "瓦葺き・板金役物", amount: Math.round(adjBase * 0.06), note: "屋根面積: " + Math.round(t * 3.3 * (buildingType === "平屋" ? 1.2 : 0.6)) + "㎡" },
+          { category: "外壁工事", detail: "窯業系サイディング16mm・通気工法", amount: Math.round(adjBase * 0.08), note: "外壁面積より算出" },
+          { category: "防水工事", detail: buildingType === "アパート" ? "シート防水・FRP防水" : "FRP防水（バルコニー）", amount: Math.round(adjBase * 0.03), note: "" },
+          { category: "建具工事", detail: "アルミ樹脂複合サッシ・玄関ドア・室内建具", amount: Math.round(adjBase * 0.08), note: "Low-E複層ガラス仕様" },
+          { category: "内装工事", detail: "石膏ボード・クロス・フローリング・タイル", amount: Math.round(adjBase * 0.10), note: "延床" + Math.round(t * 3.3) + "㎡" },
+          { category: "電気設備工事", detail: "分電盤・配線・照明・コンセント・LAN", amount: Math.round(adjBase * 0.08), note: buildingType === "店舗" ? "動力電源含む" : "太陽光対応PB" },
+          { category: "給排水衛生設備", detail: "給水管・排水管・衛生器具・給湯器", amount: Math.round(adjBase * 0.08), note: buildingType === "アパート" ? (Math.round(t / 8) + "戸分") : "" },
+          { category: "空調換気設備", detail: buildingType === "店舗" ? "業務用エアコン・換気設備" : "ルームエアコン・24h換気", amount: Math.round(adjBase * 0.05), note: "" },
+          { category: "外構工事", detail: "駐車場・アプローチ・フェンス・植栽", amount: Math.round(adjBase * 0.05), note: "" },
         ];
+        // 付帯工事（手入力）を加算
+        const futaiVal = parseFloat(futaiCost) || 0;
+        if (futaiVal > 0) {
+          items.push({ category: "付帯工事", detail: "手入力による付帯工事費", amount: futaiVal, note: "手入力" });
+        }
+        // 諸経費（手入力）を加算
+        const shokeihiVal = parseFloat(shokeihi) || 0;
+        if (shokeihiVal > 0) {
+          items.push({ category: "諸経費", detail: "手入力による諸経費", amount: shokeihiVal, note: "手入力" });
+        } else {
+          items.push({ category: "諸経費", detail: "現場管理費・一般管理費・産廃処理", amount: Math.round(adjBase * 0.08), note: "工事費の8%（自動算出）" });
+        }
         const total = items.reduce((sum, it) => sum + it.amount, 0);
-        setBudgetResult({ name: projectName || "新規工事", tsubo, type: buildingType, items, total });
+        setBudgetResult({ name: projectName || "新規工事", tsubo, type: buildingType, orderType: buildingOrder, items, total });
         setIsAnalyzing(false);
         setView("result");
       }
@@ -470,7 +489,7 @@ function Budget({ onCreateNew, onExport }: ToolProps) {
           <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#16a34a" strokeWidth="2"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg>
           <div>
             <p className="text-sm font-bold text-green-800">AI図面解析完了 —「{budgetResult.name}」の実行予算書を作成しました</p>
-            <p className="text-xs text-green-600">{budgetResult.type} ｜ {budgetResult.tsubo}坪（{Math.round(parseFloat(budgetResult.tsubo) * 3.3)}㎡）｜ 図面: {blueprintFile}</p>
+            <p className="text-xs text-green-600">{budgetResult.type}（{budgetResult.orderType}）｜ {budgetResult.tsubo}坪（{Math.round(parseFloat(budgetResult.tsubo) * 3.3)}㎡）｜ 図面: {blueprintFile}</p>
           </div>
         </div>
         <button onClick={() => { setView("create"); setBudgetResult(null); }} className="text-xs text-amber-600 hover:text-amber-800 font-bold">再作成</button>
@@ -557,7 +576,7 @@ function Budget({ onCreateNew, onExport }: ToolProps) {
             </div>
           </div>
 
-          <div className="grid grid-cols-2 lg:grid-cols-4 gap-4 mb-6">
+          <div className="grid grid-cols-2 lg:grid-cols-4 gap-4 mb-4">
             <div>
               <label className="block text-sm font-bold text-text-main mb-1.5">工事名</label>
               <input type="text" value={projectName} onChange={e => setProjectName(e.target.value)} className="w-full px-4 py-3 border border-border rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-amber-200 focus:border-amber-400" placeholder="例: ○○邸新築工事" />
@@ -570,13 +589,40 @@ function Budget({ onCreateNew, onExport }: ToolProps) {
               </div>
               {tsubo && <p className="text-[10px] text-text-sub mt-1">= {Math.round(parseFloat(tsubo) * 3.3)}㎡</p>}
             </div>
-            <div className="lg:col-span-2">
-              <label className="block text-sm font-bold text-text-main mb-1.5">建物種別 <span className="text-red-500">*</span></label>
+            <div>
+              <label className="block text-sm font-bold text-text-main mb-1.5">構造種別 <span className="text-red-500">*</span></label>
               <div className="flex gap-2 flex-wrap">
                 {buildingTypes.map(bt => (
-                  <button key={bt} onClick={() => setBuildingType(bt)} className={`px-4 py-3 rounded-lg text-sm font-bold transition-colors border ${buildingType === bt ? "bg-amber-500 text-white border-amber-500" : "bg-white text-text-main border-border hover:border-amber-300 hover:bg-amber-50"}`}>{bt}</button>
+                  <button key={bt} onClick={() => setBuildingType(bt)} className={`px-3 py-2 rounded-lg text-xs font-bold transition-colors border ${buildingType === bt ? "bg-amber-500 text-white border-amber-500" : "bg-white text-text-main border-border hover:border-amber-300 hover:bg-amber-50"}`}>{bt}</button>
                 ))}
               </div>
+            </div>
+            <div>
+              <label className="block text-sm font-bold text-text-main mb-1.5">建物種別 <span className="text-red-500">*</span></label>
+              <div className="flex gap-2 flex-wrap">
+                {orderTypes.map(ot => (
+                  <button key={ot} onClick={() => setBuildingOrder(ot)} className={`px-3 py-2 rounded-lg text-xs font-bold transition-colors border ${buildingOrder === ot ? "bg-blue-500 text-white border-blue-500" : "bg-white text-text-main border-border hover:border-blue-300 hover:bg-blue-50"}`}>{ot}</button>
+                ))}
+              </div>
+            </div>
+          </div>
+
+          <div className="grid grid-cols-2 gap-4 mb-6">
+            <div>
+              <label className="block text-sm font-bold text-text-main mb-1.5">付帯工事（万円）</label>
+              <div className="relative">
+                <input type="number" value={futaiCost} onChange={e => setFutaiCost(e.target.value)} className="w-full px-4 py-3 border border-border rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-amber-200 focus:border-amber-400 pr-12" placeholder="例: 150" />
+                <span className="absolute right-3 top-1/2 -translate-y-1/2 text-xs text-text-sub">万円</span>
+              </div>
+              <p className="text-[10px] text-text-sub mt-1">外構・地盤改良・水道引込等（手入力 → 自動加算）</p>
+            </div>
+            <div>
+              <label className="block text-sm font-bold text-text-main mb-1.5">諸経費（万円）</label>
+              <div className="relative">
+                <input type="number" value={shokeihi} onChange={e => setShokeihi(e.target.value)} className="w-full px-4 py-3 border border-border rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-amber-200 focus:border-amber-400 pr-12" placeholder="未入力時は工事費の8%で自動算出" />
+                <span className="absolute right-3 top-1/2 -translate-y-1/2 text-xs text-text-sub">万円</span>
+              </div>
+              <p className="text-[10px] text-text-sub mt-1">現場管理費・一般管理費等（手入力 → 自動加算 / 未入力時は8%自動）</p>
             </div>
           </div>
 
