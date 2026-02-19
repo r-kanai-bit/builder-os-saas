@@ -2175,6 +2175,25 @@ function SubsidyManagement({ onCreateNew, onExport }: ToolProps) {
           <p className="text-text-sub text-xs mt-1">キーワードや都道府県を変更してお試しください</p>
         </div>
       )}
+
+      <div className="mt-6 bg-purple-50 border border-purple-200 rounded-xl p-5">
+        <h4 className="text-sm font-bold text-purple-800 mb-3">公式サイトで最新情報を確認</h4>
+        <p className="text-xs text-purple-600 mb-3">デモ版はサンプルデータです。最新の補助金・助成金情報は以下の公式サイトをご確認ください。</p>
+        <div className="grid grid-cols-2 lg:grid-cols-4 gap-3">
+          {[
+            { name: "jGrants（補助金申請）", url: "https://www.jgrants-portal.go.jp/", desc: "経産省 補助金電子申請" },
+            { name: "国土交通省 住宅支援", url: "https://www.mlit.go.jp/jutakukentiku/house/", desc: "住宅省エネ・耐震等" },
+            { name: "環境省 補助金", url: "https://www.env.go.jp/policy/", desc: "省エネ・再エネ補助金" },
+            { name: "住宅リフォーム推進協議会", url: "https://www.j-reform.com/", desc: "リフォーム助成金情報" },
+          ].map((site, i) => (
+            <a key={i} href={site.url} target="_blank" rel="noopener noreferrer" className="block bg-white border border-purple-200 rounded-lg p-3 hover:border-purple-400 hover:shadow-md transition-all">
+              <p className="text-xs font-bold text-purple-700 mb-1">{site.name}</p>
+              <p className="text-[10px] text-text-sub">{site.desc}</p>
+              <p className="text-[10px] text-purple-500 mt-1">→ 公式サイトへ</p>
+            </a>
+          ))}
+        </div>
+      </div>
     </>) : activeTab === "pipeline" ? (<>
       <div className="bg-white border border-border rounded-xl p-5">
         <h3 className="text-sm font-bold text-text-main mb-4">検索パイプライン（7ステップ処理）</h3>
