@@ -474,8 +474,10 @@ function Budget({ onCreateNew, onExport }: ToolProps) {
         </div>
         <button onClick={() => { setView("create"); setBudgetResult(null); }} className="text-xs text-amber-600 hover:text-amber-800 font-bold">再作成</button>
       </div>
-      <div className="grid grid-cols-3 gap-4 mb-6">
+      <div className="grid grid-cols-5 gap-4 mb-6">
         <div className="bg-white rounded-xl border border-border p-4"><p className="text-xs text-text-sub">実行予算 合計</p><p className="text-xl font-black text-amber-600">¥{(budgetResult.total).toLocaleString()}万</p></div>
+        <div className="bg-white rounded-xl border border-border p-4"><p className="text-xs text-text-sub">粗利率</p><p className="text-xl font-black text-green-600">30%</p></div>
+        <div className="bg-white rounded-xl border border-border p-4"><p className="text-xs text-text-sub">粗利額</p><p className="text-xl font-black text-green-600">¥{Math.round(budgetResult.total * 0.3).toLocaleString()}万</p></div>
         <div className="bg-white rounded-xl border border-border p-4"><p className="text-xs text-text-sub">坪単価</p><p className="text-xl font-black text-text-main">¥{Math.round(budgetResult.total / parseFloat(budgetResult.tsubo)).toLocaleString()}万/坪</p></div>
         <div className="bg-white rounded-xl border border-border p-4"><p className="text-xs text-text-sub">㎡単価</p><p className="text-xl font-black text-text-main">¥{Math.round(budgetResult.total / (parseFloat(budgetResult.tsubo) * 3.3) * 10000).toLocaleString()}/㎡</p></div>
       </div>
@@ -484,12 +486,26 @@ function Budget({ onCreateNew, onExport }: ToolProps) {
         <span key={`d${i}`} className="text-xs">{it.detail}</span>,
         <span key={`a${i}`} className="font-bold">¥{it.amount.toLocaleString()}</span>,
         <span key={`n${i}`} className="text-xs text-text-sub">{it.note}</span>,
-      ]).concat([[
-        <span key="tt" className="font-black text-amber-600">合計</span>,
-        "",
-        <span key="ta" className="font-black text-amber-600 text-base">¥{budgetResult.total.toLocaleString()}万</span>,
-        "",
-      ]])} />
+      ]).concat([
+        [
+          <span key="tt" className="font-black text-amber-600">実行予算 合計</span>,
+          "",
+          <span key="ta" className="font-black text-amber-600 text-base">¥{budgetResult.total.toLocaleString()}万</span>,
+          "",
+        ],
+        [
+          <span key="gt" className="font-black text-green-600">粗利（30%）</span>,
+          "",
+          <span key="ga" className="font-black text-green-600 text-base">¥{Math.round(budgetResult.total * 0.3).toLocaleString()}万</span>,
+          "",
+        ],
+        [
+          <span key="ct" className="font-black text-blue-600">請負金額（税抜）</span>,
+          <span key="cd" className="text-xs text-text-sub">実行予算 + 粗利</span>,
+          <span key="ca" className="font-black text-blue-600 text-lg">¥{Math.round(budgetResult.total * 1.3).toLocaleString()}万</span>,
+          <span key="cn" className="text-xs text-text-sub">税込 ¥{Math.round(budgetResult.total * 1.3 * 1.1).toLocaleString()}万</span>,
+        ],
+      ])} />
     </>);
   }
 
