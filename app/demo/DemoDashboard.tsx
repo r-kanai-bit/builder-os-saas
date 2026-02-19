@@ -424,7 +424,8 @@ function Budget({ onCreateNew, onExport }: ToolProps) {
   const analyzeSteps = ["図面データを読み込み中...", "間取り・構造を解析中...", "建物仕様を特定中...", "資材単価をマッチング中...", "工事費を積算中...", "実行予算書を生成中..."];
 
   const generateBudget = () => {
-    if (!tsubo || !blueprintFile) return;
+    if (!blueprintFile) return;
+    if (!tsubo) { alert("建物の坪数を入力してください（必須）"); return; }
     setIsAnalyzing(true);
     setAnalyzeStep(0);
     let step = 0;
@@ -579,9 +580,17 @@ function Budget({ onCreateNew, onExport }: ToolProps) {
             </div>
           </div>
 
+          {(!blueprintFile || !tsubo) && (blueprintFile || tsubo) && (
+            <div className="mb-4 bg-amber-50 border border-amber-200 rounded-lg p-3">
+              <p className="text-xs text-amber-700 font-bold">
+                {!blueprintFile && "⚠ 図面をアップロードしてください"}
+                {blueprintFile && !tsubo && "⚠ 建物の坪数を入力してください（必須）"}
+              </p>
+            </div>
+          )}
           <div className="flex gap-3">
             <button onClick={() => setView("list")} className="flex-1 py-3 border border-border rounded-lg font-medium hover:bg-gray-50 transition-colors">キャンセル</button>
-            <button onClick={generateBudget} disabled={!blueprintFile || !tsubo} className={`flex-1 py-3 rounded-lg font-bold text-white transition-colors ${blueprintFile && tsubo ? "bg-amber-500 hover:bg-amber-600" : "bg-gray-300 cursor-not-allowed"}`}>
+            <button onClick={generateBudget} disabled={!blueprintFile} className={`flex-1 py-3 rounded-lg font-bold text-white transition-colors ${blueprintFile ? "bg-amber-500 hover:bg-amber-600" : "bg-gray-300 cursor-not-allowed"}`}>
               AI図面解析 → 実行予算を自動作成
             </button>
           </div>
