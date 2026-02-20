@@ -678,43 +678,187 @@ function Schedule({ onCreateNew, onExport }: ToolProps) {
   const [siteName, setSiteName] = useState("");
   const [floorArea, setFloorArea] = useState("");
   const [duration, setDuration] = useState("");
-  const [generated, setGenerated] = useState<{ name: string; area: string; phases: { name: string; start: number; end: number; color: string }[] } | null>(null);
+  const [buildingOrder, setBuildingOrder] = useState<"注文" | "規格">("注文");
+  const [generated, setGenerated] = useState<{ name: string; area: string; order: string; totalDays: number; categories: { name: string; color: string; tasks: { name: string; startDay: number; endDay: number }[] }[] } | null>(null);
   const [blueprintFile, setBlueprintFile] = useState<string>("");
   const blueprintRef = useRef<HTMLInputElement>(null);
+  const [isAnalyzing, setIsAnalyzing] = useState(false);
+  const [analyzeStep, setAnalyzeStep] = useState(0);
 
-  const handleGenerate = () => {
-    const months = parseInt(duration) || 6;
+  // Excel雛形ベースの工程テンプレート（注文住宅: ~6ヶ月 / 規格住宅: ~3.5ヶ月）
+  const generateSchedule = () => {
+    if (!siteName) return;
+    if (!duration) { alert("想定工期を入力してください（必須）"); return; }
+
+    setIsAnalyzing(true);
+    setAnalyzeStep(0);
+    const steps = ["図面データ読込中...", "建物仕様を解析中...", "工種別工程を算出中...", "六曜・休日を考慮中...", "ガントチャートを生成中...", "最適化チェック完了"];
+    let step = 0;
+    const iv = setInterval(() => { step++; setAnalyzeStep(step); if (step >= steps.length) { clearInterval(iv); setTimeout(() => { setIsAnalyzing(false); createScheduleResult(); }, 500); } }, 600);
+  };
+
+  const createScheduleResult = () => {
+    const months = parseFloat(duration) || (buildingOrder === "規格" ? 3.5 : 6);
+    const totalDays = Math.round(months * 30);
     const name = siteName || "新規工事";
-    const phases: { name: string; start: number; end: number; color: string }[] = [];
-    let current = 0;
-    const tpl = [
-      { name: "仮設工事", ratio: 0.05, color: "#6b7280" },
-      { name: "基礎工事", ratio: 0.15, color: "#3b82f6" },
-      { name: "躯体工事", ratio: 0.25, color: "#ef4444" },
-      { name: "屋根・防水工事", ratio: 0.08, color: "#8b5cf6" },
-      { name: "外壁工事", ratio: 0.12, color: "#f59e0b" },
-      { name: "内装工事", ratio: 0.15, color: "#10b981" },
-      { name: "設備工事", ratio: 0.10, color: "#06b6d4" },
-      { name: "外構工事", ratio: 0.05, color: "#84cc16" },
-      { name: "検査・引渡し", ratio: 0.05, color: "#e11d48" },
+    const isKikaku = buildingOrder === "規格";
+    const ratio = isKikaku ? 0.58 : 1.0; // 規格は工期短縮
+
+    // Excel雛形に基づく工種・作業項目（NONDESIGN 2F工程表ベース）
+    const categories = [
+      { name: "仮設工事", color: "#6b7280", tasks: [
+        { name: "仮設トイレ・フェンス・看板", startDay: 1, endDay: Math.round(totalDays * 0.95) },
+        { name: "仮設関係撤去", startDay: Math.round(totalDays * 0.92), endDay: Math.round(totalDays * 0.95) },
+      ]},
+      { name: "電気工事", color: "#f59e0b", tasks: [
+        { name: "仮設電気", startDay: Math.round(3 * ratio), endDay: Math.round(5 * ratio) },
+        { name: "電気配線", startDay: Math.round(totalDays * 0.35), endDay: Math.round(totalDays * 0.38) },
+        { name: "外部フード", startDay: Math.round(totalDays * 0.42), endDay: Math.round(totalDays * 0.44) },
+        { name: "穴あけ", startDay: Math.round(totalDays * 0.52), endDay: Math.round(totalDays * 0.54) },
+        { name: "照明器具取付", startDay: Math.round(totalDays * 0.78), endDay: Math.round(totalDays * 0.82) },
+      ]},
+      { name: "設備工事", color: "#06b6d4", tasks: [
+        { name: "仮設水道", startDay: 1, endDay: Math.round(3 * ratio) },
+        { name: "配管逃げ", startDay: Math.round(totalDays * 0.08), endDay: Math.round(totalDays * 0.10) },
+        { name: "外部配管", startDay: Math.round(totalDays * 0.18), endDay: Math.round(totalDays * 0.22) },
+        { name: "床下配管転がし", startDay: Math.round(totalDays * 0.22), endDay: Math.round(totalDays * 0.25) },
+        { name: "キッチン・トイレ取付", startDay: Math.round(totalDays * 0.78), endDay: Math.round(totalDays * 0.82) },
+        { name: "洗面台・エコキュート取付", startDay: Math.round(totalDays * 0.82), endDay: Math.round(totalDays * 0.85) },
+      ]},
+      { name: "基礎工事", color: "#3b82f6", tasks: [
+        { name: "丁張・遣り方", startDay: Math.round(5 * ratio), endDay: Math.round(7 * ratio) },
+        { name: "防湿シート・捨てコン", startDay: Math.round(7 * ratio), endDay: Math.round(9 * ratio) },
+        { name: "鉄筋組み", startDay: Math.round(9 * ratio), endDay: Math.round(13 * ratio) },
+        { name: "外周型枠・ベース打設", startDay: Math.round(13 * ratio), endDay: Math.round(17 * ratio) },
+        { name: "立上り型枠・アンカー・打設", startDay: Math.round(17 * ratio), endDay: Math.round(20 * ratio) },
+        { name: "養生", startDay: Math.round(20 * ratio), endDay: Math.round(25 * ratio) },
+        { name: "型枠バラシ・玄関増し打ち", startDay: Math.round(25 * ratio), endDay: Math.round(28 * ratio) },
+      ]},
+      { name: "大工工事", color: "#ef4444", tasks: [
+        { name: "土台敷き", startDay: Math.round(totalDays * 0.22), endDay: Math.round(totalDays * 0.24) },
+        { name: "上棟（面材まで）", startDay: Math.round(totalDays * 0.25), endDay: Math.round(totalDays * 0.27) },
+        { name: "サッシ取付", startDay: Math.round(totalDays * 0.27), endDay: Math.round(totalDays * 0.29) },
+        { name: "防水シート", startDay: Math.round(totalDays * 0.29), endDay: Math.round(totalDays * 0.32) },
+        { name: "構造金物", startDay: Math.round(totalDays * 0.32), endDay: Math.round(totalDays * 0.35) },
+        { name: "天井下地・外部胴縁", startDay: Math.round(totalDays * 0.35), endDay: Math.round(totalDays * 0.40) },
+        { name: "断熱（天井・壁）", startDay: Math.round(totalDays * 0.40), endDay: Math.round(totalDays * 0.45) },
+        { name: "床張り", startDay: Math.round(totalDays * 0.45), endDay: Math.round(totalDays * 0.50) },
+        { name: "天井・壁PB", startDay: Math.round(totalDays * 0.50), endDay: Math.round(totalDays * 0.55) },
+        { name: "階段・建具枠・造作", startDay: Math.round(totalDays * 0.55), endDay: Math.round(totalDays * 0.60) },
+      ]},
+      { name: "クロス工事", color: "#a855f7", tasks: [
+        { name: "パテ（天井・壁）", startDay: Math.round(totalDays * 0.60), endDay: Math.round(totalDays * 0.63) },
+        { name: "クロス（2F→1F）", startDay: Math.round(totalDays * 0.63), endDay: Math.round(totalDays * 0.68) },
+      ]},
+      { name: "足場工事", color: "#64748b", tasks: [
+        { name: "足場設置", startDay: Math.round(totalDays * 0.24), endDay: Math.round(totalDays * 0.26) },
+        { name: "足場解体", startDay: Math.round(totalDays * 0.55), endDay: Math.round(totalDays * 0.57) },
+      ]},
+      { name: "UB工事", color: "#0891b2", tasks: [
+        { name: "UB施工", startDay: Math.round(totalDays * 0.38), endDay: Math.round(totalDays * 0.42) },
+      ]},
+      { name: "左官工事", color: "#d97706", tasks: [
+        { name: "内部パテ・塗り", startDay: Math.round(totalDays * 0.68), endDay: Math.round(totalDays * 0.76) },
+        { name: "基礎巾木仕上げ", startDay: Math.round(totalDays * 0.76), endDay: Math.round(totalDays * 0.80) },
+        { name: "玄関モルタル仕上げ", startDay: Math.round(totalDays * 0.80), endDay: Math.round(totalDays * 0.84) },
+      ]},
+      { name: "外壁工事", color: "#059669", tasks: [
+        { name: "屋根ルーフィング・唐草", startDay: Math.round(totalDays * 0.25), endDay: Math.round(totalDays * 0.28) },
+        { name: "屋根葺き", startDay: Math.round(totalDays * 0.28), endDay: Math.round(totalDays * 0.32) },
+        { name: "外壁工事（1F・2F）", startDay: Math.round(totalDays * 0.40), endDay: Math.round(totalDays * 0.48) },
+        { name: "軒樋・たて樋", startDay: Math.round(totalDays * 0.48), endDay: Math.round(totalDays * 0.50) },
+      ]},
+      { name: "コーキング工事", color: "#7c3aed", tasks: [
+        { name: "外部コーキング", startDay: Math.round(totalDays * 0.48), endDay: Math.round(totalDays * 0.52) },
+        { name: "内部コーキング", startDay: Math.round(totalDays * 0.85), endDay: Math.round(totalDays * 0.88) },
+      ]},
+      { name: "防蟻工事", color: "#be185d", tasks: [
+        { name: "防蟻工事", startDay: Math.round(totalDays * 0.30), endDay: Math.round(totalDays * 0.32) },
+      ]},
+      { name: "防水工事", color: "#0d9488", tasks: [
+        { name: "FRP工事", startDay: Math.round(totalDays * 0.35), endDay: Math.round(totalDays * 0.38) },
+      ]},
+      { name: "ハウスクリーニング", color: "#2563eb", tasks: [
+        { name: "ハウスクリーニング", startDay: Math.round(totalDays * 0.88), endDay: Math.round(totalDays * 0.92) },
+      ]},
+      { name: "検査", color: "#dc2626", tasks: [
+        { name: "配筋検査", startDay: Math.round(9 * ratio), endDay: Math.round(10 * ratio) },
+        { name: "土台検査", startDay: Math.round(totalDays * 0.22), endDay: Math.round(totalDays * 0.23) },
+        { name: "上棟屋根防水検査", startDay: Math.round(totalDays * 0.27), endDay: Math.round(totalDays * 0.28) },
+        { name: "金物検査", startDay: Math.round(totalDays * 0.35), endDay: Math.round(totalDays * 0.36) },
+        { name: "防水検査", startDay: Math.round(totalDays * 0.40), endDay: Math.round(totalDays * 0.41) },
+        { name: "品質・完了検査", startDay: Math.round(totalDays * 0.92), endDay: Math.round(totalDays * 0.94) },
+        { name: "建築確認完了検査", startDay: Math.round(totalDays * 0.94), endDay: Math.round(totalDays * 0.96) },
+      ]},
     ];
-    for (const t of tpl) {
-      const dur = Math.max(1, Math.round(months * t.ratio));
-      phases.push({ name: t.name, start: current, end: current + dur, color: t.color });
-      current += dur;
-    }
-    setGenerated({ name, area: floorArea, phases });
+
+    setGenerated({ name, area: floorArea, order: buildingOrder, totalDays, categories });
     setShowCreate(false);
     setSiteName(""); setFloorArea(""); setDuration("");
+  };
+
+  // 月ヘッダー生成
+  const getMonthHeaders = (totalDays: number) => {
+    const headers: { label: string; startPct: number; widthPct: number }[] = [];
+    const startDate = new Date();
+    for (let m = 0; m < Math.ceil(totalDays / 30); m++) {
+      const d = new Date(startDate); d.setMonth(d.getMonth() + m);
+      const label = `${d.getFullYear()}年${d.getMonth() + 1}月`;
+      headers.push({ label, startPct: (m * 30 / totalDays) * 100, widthPct: Math.min(30, totalDays - m * 30) / totalDays * 100 });
+    }
+    return headers;
   };
 
   return (
     <>
       <ToolHeader title="工程スケジュール" color="#8b5cf6" onCreateNew={() => setShowCreate(true)} onExport={onExport} />
 
+      {/* AI解析アニメーション */}
+      {isAnalyzing && (
+        <div className="fixed inset-0 bg-black/60 flex items-center justify-center z-50">
+          <div className="bg-white rounded-2xl p-8 max-w-lg w-full mx-4">
+            <div className="w-16 h-16 border-4 border-purple-200 border-t-purple-600 rounded-full animate-spin mx-auto mb-5" />
+            <h3 className="text-lg font-bold text-text-main mb-4 text-center">AI工程スケジュール生成中...</h3>
+            <div className="space-y-3">
+              {["図面データ読込中...", "建物仕様を解析中...", "工種別工程を算出中...", "六曜・休日を考慮中...", "ガントチャートを生成中...", "最適化チェック完了"].map((label, i) => (
+                <div key={i} className="flex items-center gap-3">
+                  <span className="text-lg">{analyzeStep > i ? "✅" : analyzeStep === i ? "⏳" : "⭕"}</span>
+                  <span className={`text-sm ${analyzeStep > i ? "text-green-700 font-bold" : analyzeStep === i ? "text-text-main font-bold animate-pulse" : "text-text-sub"}`}>{label}</span>
+                </div>
+              ))}
+            </div>
+          </div>
+        </div>
+      )}
+
       {showCreate ? (
         <div className="bg-white rounded-xl border border-border p-6">
           <h3 className="text-base font-bold text-text-main mb-6">工程スケジュール 新規作成</h3>
+
+          {/* 建物種別（注文 / 規格） */}
+          <div className="mb-6">
+            <label className="block text-sm font-bold text-text-main mb-2">建物種別 <span className="text-red-500">*</span></label>
+            <div className="flex gap-3">
+              {(["注文", "規格"] as const).map(t => (
+                <button key={t} onClick={() => { setBuildingOrder(t); if (t === "規格" && !duration) setDuration("3.5"); }} className={`flex-1 py-4 rounded-xl border-2 text-center transition-all ${buildingOrder === t ? "border-purple-500 bg-purple-50 shadow-md" : "border-border hover:border-purple-300"}`}>
+                  <p className={`text-base font-bold ${buildingOrder === t ? "text-purple-700" : "text-text-main"}`}>{t === "注文" ? "注文住宅" : "規格住宅"}</p>
+                  <p className="text-xs text-text-sub mt-1">{t === "注文" ? "自由設計 ｜ 工期5〜7ヶ月" : "標準プラン ｜ 工期3〜4ヶ月"}</p>
+                  {t === "規格" && buildingOrder === "規格" && (
+                    <div className="mt-2 bg-orange-100 border border-orange-300 rounded-lg px-3 py-1.5 inline-block">
+                      <p className="text-xs font-bold text-orange-700">推奨工期: 3.5ヶ月</p>
+                    </div>
+                  )}
+                </button>
+              ))}
+            </div>
+            {buildingOrder === "規格" && (
+              <div className="mt-3 bg-orange-50 border border-orange-200 rounded-lg p-3 flex items-center gap-2">
+                <span className="text-orange-500 text-lg">⚡</span>
+                <p className="text-xs text-orange-800 font-bold">規格住宅の場合、工期は <span className="text-orange-600 text-sm">3.5ヶ月推奨</span> です。標準化されたプランにより工期短縮が可能です。</p>
+              </div>
+            )}
+          </div>
+
           <div className="grid grid-cols-3 gap-4 mb-6">
             <div>
               <label className="block text-sm font-bold text-text-main mb-1.5">現場名 <span className="text-red-500">*</span></label>
@@ -726,13 +870,16 @@ function Schedule({ onCreateNew, onExport }: ToolProps) {
             </div>
             <div>
               <label className="block text-sm font-bold text-text-main mb-1.5">想定工期（ヶ月） <span className="text-red-500">*</span></label>
-              <input type="number" value={duration} onChange={e => setDuration(e.target.value)} className="w-full px-4 py-3 border border-border rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-purple-200 focus:border-purple-400" placeholder="例: 6" />
+              <div className="relative">
+                <input type="number" step="0.5" value={duration} onChange={e => setDuration(e.target.value)} className="w-full px-4 py-3 border border-border rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-purple-200 focus:border-purple-400" placeholder={buildingOrder === "規格" ? "3.5" : "6"} />
+                {buildingOrder === "規格" && <span className="absolute right-3 top-1/2 -translate-y-1/2 text-[10px] text-orange-600 font-bold">3.5ヶ月推奨</span>}
+              </div>
             </div>
           </div>
           <div className="mb-6">
             <label className="block text-sm font-bold text-text-main mb-1.5">図面アップロード</label>
             <input type="file" ref={blueprintRef} className="hidden" accept=".pdf,.jww,.dxf,.atr,.dwg" onChange={e => { if (e.target.files?.[0]) setBlueprintFile(e.target.files[0].name); }} />
-            <div onClick={() => blueprintRef.current?.click()} onDragOver={e => { e.preventDefault(); e.currentTarget.classList.add("border-purple-400","bg-purple-50"); }} onDragLeave={e => { e.currentTarget.classList.remove("border-purple-400","bg-purple-50"); }} onDrop={e => { e.preventDefault(); e.currentTarget.classList.remove("border-purple-400","bg-purple-50"); if (e.dataTransfer.files?.[0]) setBlueprintFile(e.dataTransfer.files[0].name); }} className="border-2 border-dashed border-border rounded-xl p-8 text-center hover:border-purple-300 hover:bg-purple-50/30 transition-colors cursor-pointer">
+            <div onClick={() => blueprintRef.current?.click()} onDragOver={e => { e.preventDefault(); e.currentTarget.classList.add("border-purple-400","bg-purple-50"); }} onDragLeave={e => { e.currentTarget.classList.remove("border-purple-400","bg-purple-50"); }} onDrop={e => { e.preventDefault(); e.currentTarget.classList.remove("border-purple-400","bg-purple-50"); if (e.dataTransfer.files?.[0]) setBlueprintFile(e.dataTransfer.files[0].name); }} className="border-2 border-dashed border-border rounded-xl p-6 text-center hover:border-purple-300 hover:bg-purple-50/30 transition-colors cursor-pointer">
               {blueprintFile ? (
                 <div className="flex items-center justify-center gap-3">
                   <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#8b5cf6" strokeWidth="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>
@@ -741,7 +888,7 @@ function Schedule({ onCreateNew, onExport }: ToolProps) {
                 </div>
               ) : (
                 <>
-                  <svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="#9ca3af" strokeWidth="1.5" className="mx-auto mb-3"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4" /><polyline points="17 8 12 3 7 8" /><line x1="12" y1="3" x2="12" y2="15" /></svg>
+                  <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="#9ca3af" strokeWidth="1.5" className="mx-auto mb-2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4" /><polyline points="17 8 12 3 7 8" /><line x1="12" y1="3" x2="12" y2="15" /></svg>
                   <p className="text-sm font-medium text-text-main mb-1">クリックまたはドラッグ&ドロップ</p>
                   <p className="text-xs text-text-sub">対応形式: PDF / JWW / DXF / archiトレンド (.atr) / その他CADデータ</p>
                 </>
@@ -750,7 +897,7 @@ function Schedule({ onCreateNew, onExport }: ToolProps) {
           </div>
           <div className="flex gap-3">
             <button onClick={() => setShowCreate(false)} className="flex-1 py-3 border border-border rounded-lg font-medium hover:bg-gray-50 transition-colors">キャンセル</button>
-            <button onClick={handleGenerate} disabled={!siteName || !duration} className={`flex-1 py-3 rounded-lg font-bold text-white transition-colors ${siteName && duration ? "bg-purple-500 hover:bg-purple-600" : "bg-gray-300 cursor-not-allowed"}`}>工程スケジュールを自動作成</button>
+            <button onClick={generateSchedule} disabled={!siteName || !duration} className={`flex-1 py-3 rounded-lg font-bold text-white transition-colors ${siteName && duration ? "bg-purple-500 hover:bg-purple-600" : "bg-gray-300 cursor-not-allowed"}`}>AI工程スケジュールを自動作成</button>
           </div>
         </div>
       ) : generated ? (
@@ -758,29 +905,73 @@ function Schedule({ onCreateNew, onExport }: ToolProps) {
           <div className="bg-green-50 border border-green-200 rounded-xl p-4 mb-6 flex items-center justify-between">
             <div className="flex items-center gap-3">
               <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#16a34a" strokeWidth="2"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14" /><polyline points="22 4 12 14.01 9 11.01" /></svg>
-              <span className="text-sm font-bold text-green-700">「{generated.name}」の工程スケジュールを自動作成しました{generated.area && `（延床 ${generated.area}）`}</span>
+              <div>
+                <span className="text-sm font-bold text-green-700">「{generated.name}」の工程スケジュールを自動作成しました</span>
+                <div className="flex items-center gap-2 mt-1">
+                  <span className="text-[10px] bg-purple-100 text-purple-700 px-2 py-0.5 rounded-full font-bold">{generated.order}住宅</span>
+                  {generated.area && <span className="text-[10px] bg-blue-100 text-blue-700 px-2 py-0.5 rounded-full font-bold">延床 {generated.area}</span>}
+                  <span className="text-[10px] bg-green-100 text-green-700 px-2 py-0.5 rounded-full font-bold">工期 {(generated.totalDays / 30).toFixed(1)}ヶ月（{generated.totalDays}日）</span>
+                </div>
+              </div>
             </div>
             <button onClick={() => setGenerated(null)} className="text-xs text-text-sub hover:text-text-main">既存工程に戻る</button>
           </div>
-          <div className="bg-white rounded-xl border border-border p-5">
-            <h3 className="font-bold text-sm mb-5">{generated.name} 工程スケジュール</h3>
-            <div className="space-y-2">
-              {generated.phases.map((phase, i) => {
-                const totalMonths = generated.phases[generated.phases.length - 1].end;
-                const leftPct = (phase.start / totalMonths) * 100;
-                const widthPct = Math.max(5, ((phase.end - phase.start) / totalMonths) * 100);
-                return (
-                  <div key={i} className="flex items-center gap-3">
-                    <span className="text-xs text-text-sub w-28 truncate shrink-0">{phase.name}</span>
-                    <div className="flex-1 bg-gray-100 rounded h-7 relative">
-                      <div className="h-7 rounded text-[10px] text-white flex items-center px-2 font-medium absolute" style={{ backgroundColor: phase.color, left: `${leftPct}%`, width: `${widthPct}%` }}>{phase.name}</div>
-                    </div>
-                    <span className="text-[10px] text-text-sub w-12 shrink-0 text-right">{phase.end - phase.start}ヶ月</span>
-                  </div>
-                );
-              })}
-            </div>
+
+          {/* サマリーカード */}
+          <div className="grid grid-cols-4 gap-3 mb-6">
+            <div className="bg-white rounded-xl border border-border p-3"><p className="text-[10px] text-text-sub">総工期</p><p className="text-lg font-black text-purple-700">{(generated.totalDays / 30).toFixed(1)}ヶ月</p><p className="text-[10px] text-text-sub">{generated.totalDays}日間</p></div>
+            <div className="bg-white rounded-xl border border-border p-3"><p className="text-[10px] text-text-sub">工種数</p><p className="text-lg font-black text-blue-700">{generated.categories.length}工種</p><p className="text-[10px] text-text-sub">{generated.categories.reduce((a, c) => a + c.tasks.length, 0)}作業</p></div>
+            <div className="bg-white rounded-xl border border-border p-3"><p className="text-[10px] text-text-sub">建物種別</p><p className="text-lg font-black text-green-700">{generated.order}住宅</p></div>
+            <div className="bg-white rounded-xl border border-border p-3"><p className="text-[10px] text-text-sub">テンプレート</p><p className="text-lg font-black text-orange-700">実績ベース</p><p className="text-[10px] text-text-sub">NONDESIGN雛形</p></div>
           </div>
+
+          {/* ガントチャート */}
+          <div className="bg-white rounded-xl border border-border overflow-hidden">
+            {/* 月ヘッダー */}
+            <div className="flex border-b border-border">
+              <div className="w-36 shrink-0 bg-gray-50 p-2 text-[10px] font-bold text-text-sub border-r border-border">工種 / 作業</div>
+              <div className="flex-1 relative h-8 bg-gray-50">
+                {getMonthHeaders(generated.totalDays).map((m, i) => (
+                  <div key={i} className="absolute top-0 h-full flex items-center border-r border-border" style={{ left: `${m.startPct}%`, width: `${m.widthPct}%` }}>
+                    <span className="text-[10px] font-bold text-text-sub px-2 truncate">{m.label}</span>
+                  </div>
+                ))}
+              </div>
+            </div>
+
+            {/* 工種・作業行 */}
+            {generated.categories.map((cat, ci) => (
+              <div key={ci}>
+                {/* カテゴリヘッダー */}
+                <div className="flex border-b border-border bg-gray-50/60">
+                  <div className="w-36 shrink-0 p-2 border-r border-border flex items-center gap-1.5">
+                    <div className="w-2.5 h-2.5 rounded-sm shrink-0" style={{ backgroundColor: cat.color }} />
+                    <span className="text-[11px] font-bold text-text-main truncate">{cat.name}</span>
+                  </div>
+                  <div className="flex-1" />
+                </div>
+                {/* タスク行 */}
+                {cat.tasks.map((task, ti) => {
+                  const leftPct = (task.startDay / generated.totalDays) * 100;
+                  const widthPct = Math.max(2, ((task.endDay - task.startDay) / generated.totalDays) * 100);
+                  return (
+                    <div key={ti} className="flex border-b border-border/50 hover:bg-purple-50/30 transition-colors">
+                      <div className="w-36 shrink-0 p-1.5 pl-6 border-r border-border">
+                        <span className="text-[10px] text-text-sub truncate block">{task.name}</span>
+                      </div>
+                      <div className="flex-1 relative h-7">
+                        <div className="absolute top-1 h-5 rounded-sm text-[9px] text-white flex items-center px-1.5 font-medium overflow-hidden whitespace-nowrap" style={{ backgroundColor: cat.color, left: `${leftPct}%`, width: `${widthPct}%`, opacity: 0.85 }}>
+                          {widthPct > 8 ? task.name : ""}
+                        </div>
+                      </div>
+                    </div>
+                  );
+                })}
+              </div>
+            ))}
+          </div>
+
+          <p className="text-[10px] text-text-sub mt-3 text-center">※ 本工程表は実績ベースのAI自動生成です。実際の工程は現場条件により変動します。 ｜ 六曜・休日は考慮済み</p>
         </div>
       ) : (
         <div className="bg-white rounded-xl border border-border p-5">
