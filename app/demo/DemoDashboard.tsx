@@ -13,7 +13,7 @@ type ToolProps = { onCreateNew?: () => void; onExport?: () => void };
 
 const tools: ToolDef[] = [
   { id: "construction-ledger", name: "工事台帳", icon: "M19 3H5a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V5a2 2 0 0 0-2-2zM9 17H7v-7h2v7zm4 0h-2V7h2v10zm4 0h-2v-4h2v4z", color: "#3b82f6" },
-  { id: "estimate", name: "見積作成", icon: "M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z M14 2v6h6 M16 13H8 M16 17H8 M10 9H8", color: "#10b981" },
+  { id: "estimate", name: "積算関連", icon: "M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z M14 2v6h6 M16 13H8 M16 17H8 M10 9H8", color: "#10b981" },
   { id: "budget", name: "実行予算", icon: "M12 1v22 M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6", color: "#f59e0b" },
   { id: "order", name: "資材発注", icon: "M20.59 13.41l-7.17 7.17a2 2 0 0 1-2.83 0L2 12V2h10l8.59 8.59a2 2 0 0 1 0 2.82z M7 7h.01", color: "#ef4444" },
   { id: "schedule", name: "工程スケジュール", icon: "M8 6h13 M8 12h13 M8 18h13 M3 6h.01 M3 12h.01 M3 18h.01", color: "#8b5cf6" },
@@ -398,7 +398,7 @@ function ConstructionLedger({ onCreateNew, onExport }: ToolProps) {
 
 function Estimate({ onCreateNew, onExport }: ToolProps) {
   return (<>
-    <ToolHeader title="見積作成" color="#10b981" onCreateNew={onCreateNew} onExport={onExport} />
+    <ToolHeader title="積算関連" color="#10b981" onCreateNew={onCreateNew} onExport={onExport} />
     <DataTable headers={["見積番号", "件名", "提出先", "金額", "提出日", "状態"]} rows={[
       ["E-2026-045", "△△ビル空調更新工事", "△△商事", "¥12,800,000", "2026/02/10", <StatusBadge key="1" status="送付済" />],
       ["E-2026-044", "○○邸外壁塗装工事", "○○様", "¥3,200,000", "2026/02/08", <StatusBadge key="2" status="承認済" />],
@@ -417,8 +417,10 @@ function Budget({ onCreateNew, onExport }: ToolProps) {
   const [futaiCost, setFutaiCost] = useState("");
   const [shokeihi, setShokeihi] = useState("");
   const [projectName, setProjectName] = useState("");
+  const [airconEnabled, setAirconEnabled] = useState<"あり"|"なし">("あり");
   const [airconCount, setAirconCount] = useState("4");
   const [airconCost, setAirconCost] = useState("");
+  const [waterproofEnabled, setWaterproofEnabled] = useState<"あり"|"なし">("あり");
   const [waterproofCost, setWaterproofCost] = useState("");
   const [isAnalyzing, setIsAnalyzing] = useState(false);
   const [analyzeStep, setAnalyzeStep] = useState(0);
@@ -441,8 +443,8 @@ function Budget({ onCreateNew, onExport }: ToolProps) {
     if (!tsubo) { alert("建物の坪数を入力してください（必須）"); return; }
     if (!futaiCost) { alert("付帯工事の金額を入力してください（必須）"); return; }
     if (!shokeihi) { alert("諸経費の金額を入力してください（必須）"); return; }
-    if (!airconCost) { alert("エアコンの金額を入力してください（必須）"); return; }
-    if (!waterproofCost) { alert("防水工事の金額を入力してください（必須）"); return; }
+    if (airconEnabled === "あり" && !airconCost) { alert("エアコンの金額を入力してください（必須）"); return; }
+    if (waterproofEnabled === "あり" && !waterproofCost) { alert("防水工事の金額を入力してください（必須）"); return; }
     setIsAnalyzing(true);
     setAnalyzeStep(0);
     let step = 0;
@@ -470,16 +472,20 @@ function Budget({ onCreateNew, onExport }: ToolProps) {
           { category: "給排水衛生設備", detail: "給水管・排水管・衛生器具・給湯器", amount: Math.round(adjBase * 0.08), note: buildingType === "アパート" ? (Math.round(t / 8) + "戸分") : "" },
           { category: "空調換気設備", detail: "24h換気システム・換気扇・ダクト", amount: Math.round(adjBase * 0.03), note: "エアコン別途" },
         ];
-        // エアコン（独立・台数×金額 手入力）
-        const acCount = parseInt(airconCount) || 0;
-        const acCost = parseFloat(airconCost) || 0;
-        if (acCount > 0 && acCost > 0) {
-          items.push({ category: "エアコン", detail: `ルームエアコン ${acCount}台`, amount: acCost, note: `${acCount}台 × 手入力` });
+        // エアコン（あり/なし選択 → ありの場合のみ手入力）
+        if (airconEnabled === "あり") {
+          const acCount = parseInt(airconCount) || 0;
+          const acCost = parseFloat(airconCost) || 0;
+          if (acCount > 0 && acCost > 0) {
+            items.push({ category: "エアコン", detail: `ルームエアコン ${acCount}台`, amount: acCost, note: `${acCount}台 × 手入力` });
+          }
         }
-        // 防水工事（手入力）
-        const wpCost = parseFloat(waterproofCost) || 0;
-        if (wpCost > 0) {
-          items.push({ category: "防水工事", detail: buildingType === "アパート" ? "シート防水・FRP防水" : "FRP防水（バルコニー）", amount: wpCost, note: "手入力" });
+        // 防水工事（あり/なし選択 → ありの場合のみ手入力）
+        if (waterproofEnabled === "あり") {
+          const wpCost = parseFloat(waterproofCost) || 0;
+          if (wpCost > 0) {
+            items.push({ category: "防水工事", detail: buildingType === "アパート" ? "シート防水・FRP防水" : "FRP防水（バルコニー）", amount: wpCost, note: "手入力" });
+          }
         }
         // 付帯工事（手入力）
         const futaiVal = parseFloat(futaiCost) || 0;
@@ -557,6 +563,118 @@ function Budget({ onCreateNew, onExport }: ToolProps) {
         [<span key="gt" className="font-black text-green-600">粗利（30%）</span>,"",<span key="ga" className="font-black text-green-600 text-base">{Math.round(budgetResult.total * 0.3).toLocaleString()}万</span>,""],
         [<span key="ct" className="font-black text-blue-600">請負金額（税抜）</span>,<span key="cd" className="text-xs text-text-sub">実行予算 + 粗利</span>,<span key="ca" className="font-black text-blue-600 text-lg">{Math.round(budgetResult.total * 1.3).toLocaleString()}万</span>,<span key="cn" className="text-xs text-text-sub">税込 {Math.round(budgetResult.total * 1.3 * 1.1).toLocaleString()}万</span>],
       ])} />
+      {/* 見積書変換 & Excelダウンロード */}
+      <div className="mt-6 bg-gradient-to-r from-emerald-50 to-blue-50 border border-emerald-200 rounded-xl p-5">
+        <div className="flex items-center justify-between">
+          <div className="flex items-center gap-3">
+            <div className="w-10 h-10 bg-emerald-100 rounded-lg flex items-center justify-center">
+              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#059669" strokeWidth="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/></svg>
+            </div>
+            <div>
+              <p className="text-sm font-bold text-emerald-800">お客様提出用 見積書に変換</p>
+              <p className="text-[10px] text-emerald-600">実行予算 → 粗利30%加算 → 見積書（Excel）を自動生成</p>
+            </div>
+          </div>
+          <button onClick={() => {
+            const contractAmount = Math.round(budgetResult.total * 1.3);
+            const tax = Math.round(contractAmount * 0.1);
+            const totalWithTax = contractAmount + tax;
+            // 付帯工事の合計を算出
+            const futaiItems = budgetResult.items.filter(it => ["付帯工事","諸経費","エアコン","防水工事"].includes(it.category));
+            const futaiTotal = futaiItems.reduce((s,it) => s + Math.round(it.amount * 1.3), 0);
+            const bodyTotal = contractAmount - futaiTotal;
+            // CSV形式でExcel互換データを生成
+            const BOM = "\uFEFF";
+            const lines: string[] = [];
+            lines.push(",,,,,,,,,,,,,,,,,,,");
+            lines.push(",,,,,,,,,,,,,,,,御 見 積 書,,");
+            lines.push(",,,,,,,,,,,,,,,,,,,");
+            lines.push(",,,,,,,,,,,,,,,,,,,");
+            lines.push(",,,,,,,,,,,,,,,,,,,");
+            lines.push(",,,,,,,,,,,,,,,,,,,");
+            lines.push(`,${budgetResult.name} 様,,,,,,,,,,,,,,,,,`);
+            lines.push(",,,,,,,,,,,,,,,,,,,");
+            lines.push(",,,,,,,,,,,,,,,,,,,");
+            lines.push(",,,,,,,,,,,,,,,,,,,");
+            lines.push(`,,,,,,,,,,${totalWithTax * 10000},,,,,,,,円`);
+            lines.push(",,,,建物基本本体価格,,,,,,,,,,,,,,,");
+            lines.push(",,,,,,,,,,,,,,,,,,,");
+            lines.push(",,,,,,,,,,,,,,,,,,,");
+            lines.push(",,,,,,,,,,,,,,,,,,,");
+            lines.push(",,,,,,,,,,,,,,,,,,,");
+            lines.push(",,,,,,,,,,,,,,,,,,,");
+            lines.push(",,,,,,,,内訳,,,,,,,,,,,");
+            lines.push(",,,,,,,,,,,,,,,,,,,");
+            lines.push(",,,,,,,,,,,,,,,,,,,");
+            lines.push(",,,,,,,,,,,,,,,,,,,");
+            lines.push(`,,,,,,,,建物基本本体価格,,,,,,${bodyTotal * 10000},,,,,円`);
+            lines.push(",,,,,,,,,,,,,,,,,,,");
+            lines.push(`,,,,,,,,オプション工事価格,,,,,,0,,,,,円`);
+            lines.push(",,,,,,,,,,,,,,,,,,,");
+            lines.push(`,,,,,,,,付帯工事価格,,,,,,${futaiTotal * 10000},,,,,円`);
+            lines.push(",,,,,,,,,,,,,,,,,,,");
+            lines.push(",,,,,,,,,,,,,,,,,,,");
+            lines.push(`,,,,,,,,小計,,,,,,${contractAmount * 10000},,,,,円`);
+            lines.push(",,,,,,,,,,,,,,,,,,,");
+            lines.push(",,,,,,,,,,,,,,,,,,,");
+            lines.push(`,,,,,,,,消費税,,,,,,${tax * 10000},,,,,円`);
+            lines.push(",,,,,,,,,,,,,,,,,,,");
+            lines.push(",,,,,,,,,,,,,,,,,,,");
+            lines.push(`,,,,,,,,請負金額,,,,,,${totalWithTax * 10000},,,,,円`);
+            lines.push(",,,,,,,,,,,,,,,,,,,");
+            lines.push(",,,,,,,,,,,,,,,,,,,");
+            lines.push(",,,,,,,,,,,,,,,,,,,");
+            lines.push(`,,,,物件概要,,,,商品名,,,,,,,,工法,,在来軸組工法`);
+            lines.push(",,,,,,,,,,,,,,,,,,,");
+            lines.push(",,,,,,,,,,,,,,,,,,,");
+            lines.push(`,,,,,,,,基礎仕様,,べた基礎,,,,,,,,,,`);
+            lines.push(",,,,,,,,,,,,,,,,,,,");
+            lines.push(",,,,,,,,,,,,,,,,,,,");
+            lines.push(",,,,,,,,,,,,,,,,,,,");
+            lines.push(",,,,,,,,,,,,,,,,,,,");
+            lines.push(`,,,,床面積,,,,,,,,,,備考,,,,,,`);
+            lines.push(",,,,,,,,,,,,,,,,,,,");
+            lines.push(`,,,,1F,,,,${Math.round(parseFloat(budgetResult.tsubo) * 3.3 * (budgetResult.type === "平屋" ? 1 : 0.55))},,㎡,,${Math.round(parseFloat(budgetResult.tsubo) * (budgetResult.type === "平屋" ? 1 : 0.55) * 10) / 10},,坪,,,,,,`);
+            lines.push(`,,,,2F,,,,${budgetResult.type === "平屋" ? "" : Math.round(parseFloat(budgetResult.tsubo) * 3.3 * 0.45)},,㎡,,${budgetResult.type === "平屋" ? "" : Math.round(parseFloat(budgetResult.tsubo) * 0.45 * 10) / 10},,坪,,,,,,`);
+            lines.push(",,,,,,,,,,,,,,,,,,,");
+            lines.push(`,,,,合計,,,,${Math.round(parseFloat(budgetResult.tsubo) * 3.3)},,㎡,,${budgetResult.tsubo},,坪,,,,,,`);
+            lines.push(",,,,,,,,,,,,,,,,,,,");
+            lines.push(",,,,,,,,,,,,,,,,,,,");
+            lines.push(",,,,,,,,,,,,,,,,,,,");
+            lines.push(",,,,,,,,,,,,,,,,,,,");
+            lines.push(",,,,,,,,,,,,,,,,,,,");
+            lines.push(",,,,,,,,工事内容,,数量,,単位,,備考,,,,,単価,,金額");
+            const mainItems = budgetResult.items.filter(it => !["付帯工事","諸経費","エアコン","防水工事"].includes(it.category));
+            lines.push(`,,,,,,,,基本本体工事,,-,,,,-,,,,,,`);
+            mainItems.forEach(it => {
+              lines.push(`,,,,,,,,${it.category}（${it.detail}）,,1,,式,,${it.note},,,,,${Math.round(it.amount * 1.3) * 10000},,${Math.round(it.amount * 1.3) * 10000}`);
+            });
+            lines.push(`,,,,,,,,建物基本本体価格,,,,,,${bodyTotal * 10000},,,,,,,,円`);
+            lines.push(",,,,,,,,,,,,,,,,,,,");
+            lines.push(`,,,,,,,,オプション工事価格,,,,,,0,,,,,,,,円`);
+            lines.push(",,,,,,,,,,,,,,,,,,,");
+            futaiItems.forEach(it => {
+              lines.push(`,,,,,,,,${it.category}（${it.detail}）,,1,,式,,${it.note},,,,,${Math.round(it.amount * 1.3) * 10000},,${Math.round(it.amount * 1.3) * 10000}`);
+            });
+            lines.push(`,,,,,,,,付帯工事価格,,,,,,${futaiTotal * 10000},,,,,,,,円`);
+            lines.push(",,,,,,,,,,,,,,,,,,,");
+            lines.push(`,,,,,,,,,,,,小計,,,,,,,,${contractAmount * 10000},,円`);
+            lines.push(`,,,,,,,,,,,,消費税,,,,,,,,${tax * 10000},,円`);
+            lines.push(`,,,,,,,,,,,,総合計,,,,,,,,${totalWithTax * 10000},,円`);
+            const csvContent = BOM + lines.join("\n");
+            const blob = new Blob([csvContent], { type: "text/csv;charset=utf-8;" });
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement("a");
+            a.href = url;
+            a.download = `見積書_${budgetResult.name}_${new Date().toISOString().slice(0,10)}.csv`;
+            a.click();
+            URL.revokeObjectURL(url);
+          }} className="px-6 py-3 bg-emerald-600 hover:bg-emerald-700 text-white rounded-lg font-bold text-sm transition-colors flex items-center gap-2">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+            見積書ダウンロード（Excel）
+          </button>
+        </div>
+      </div>
     </>);
   }
 
@@ -590,6 +708,50 @@ function Budget({ onCreateNew, onExport }: ToolProps) {
         [<span key="gt" className="font-black text-green-600">粗利（30%）</span>,"",<span key="ga" className="font-black text-green-600 text-base">{Math.round(extResult.total * 0.3).toLocaleString()}万</span>,""],
         [<span key="ct" className="font-black text-blue-600">請負金額（税抜）</span>,<span key="cd" className="text-xs text-text-sub">外構予算 + 粗利</span>,<span key="ca" className="font-black text-blue-600 text-lg">{Math.round(extResult.total * 1.3).toLocaleString()}万</span>,<span key="cn" className="text-xs text-text-sub">税込 {Math.round(extResult.total * 1.3 * 1.1).toLocaleString()}万</span>],
       ])} />
+      {/* 外構見積書変換 & Excelダウンロード */}
+      <div className="mt-6 bg-gradient-to-r from-emerald-50 to-blue-50 border border-emerald-200 rounded-xl p-5">
+        <div className="flex items-center justify-between">
+          <div className="flex items-center gap-3">
+            <div className="w-10 h-10 bg-emerald-100 rounded-lg flex items-center justify-center">
+              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#059669" strokeWidth="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/></svg>
+            </div>
+            <div>
+              <p className="text-sm font-bold text-emerald-800">お客様提出用 外構見積書に変換</p>
+              <p className="text-[10px] text-emerald-600">外構予算 → 粗利30%加算 → 見積書（Excel）を自動生成</p>
+            </div>
+          </div>
+          <button onClick={() => {
+            const contractAmount = Math.round(extResult.total * 1.3);
+            const tax = Math.round(contractAmount * 0.1);
+            const totalWithTax = contractAmount + tax;
+            const BOM = "\uFEFF";
+            const lines: string[] = [];
+            lines.push("外構工事 御見積書,,,,,,");
+            lines.push(`工事名,${extResult.name},,,,`);
+            lines.push(`日付,${new Date().toLocaleDateString("ja-JP")},,,,`);
+            lines.push(",,,,,,");
+            lines.push("工種,工事内容,数量,単位,単価,金額,備考");
+            extResult.items.forEach(it => {
+              lines.push(`${it.category},${it.detail},1,式,${Math.round(it.amount * 1.3) * 10000},${Math.round(it.amount * 1.3) * 10000},${it.note}`);
+            });
+            lines.push(",,,,,,");
+            lines.push(`小計（税抜）,,,,,${contractAmount * 10000},`);
+            lines.push(`消費税（10%）,,,,,${tax * 10000},`);
+            lines.push(`合計（税込）,,,,,${totalWithTax * 10000},`);
+            const csvContent = BOM + lines.join("\n");
+            const blob = new Blob([csvContent], { type: "text/csv;charset=utf-8;" });
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement("a");
+            a.href = url;
+            a.download = `外構見積書_${extResult.name}_${new Date().toISOString().slice(0,10)}.csv`;
+            a.click();
+            URL.revokeObjectURL(url);
+          }} className="px-6 py-3 bg-emerald-600 hover:bg-emerald-700 text-white rounded-lg font-bold text-sm transition-colors flex items-center gap-2">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+            外構見積書ダウンロード（Excel）
+          </button>
+        </div>
+      </div>
     </>);
   }
 
@@ -671,37 +833,61 @@ function Budget({ onCreateNew, onExport }: ToolProps) {
             </div>
           </div>
 
-          {/* エアコン（独立項目） */}
+          {/* エアコン（あり/なし選択） */}
           <div className="bg-blue-50 border border-blue-200 rounded-xl p-4 mb-4">
-            <label className="block text-sm font-bold text-blue-800 mb-3">エアコン <span className="text-red-500">*</span></label>
-            <div className="grid grid-cols-2 gap-4">
-              <div>
-                <label className="block text-[10px] text-blue-600 mb-1">台数</label>
-                <select value={airconCount} onChange={e => setAirconCount(e.target.value)} className="w-full px-4 py-3 border border-blue-200 rounded-lg text-sm bg-white focus:outline-none focus:ring-2 focus:ring-blue-300">
-                  {[1,2,3,4,5,6,7,8,9,10].map(n => (
-                    <option key={n} value={String(n)}>{n}台</option>
-                  ))}
-                </select>
-              </div>
-              <div>
-                <label className="block text-[10px] text-blue-600 mb-1">金額（万円）<span className="text-red-500 ml-1">*</span></label>
-                <div className="relative">
-                  <input type="number" value={airconCost} onChange={e => setAirconCost(e.target.value)} className="w-full px-4 py-3 border border-blue-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-blue-300 pr-12" placeholder="例: 60" />
-                  <span className="absolute right-3 top-1/2 -translate-y-1/2 text-xs text-text-sub">万円</span>
-                </div>
+            <div className="flex items-center justify-between mb-3">
+              <label className="text-sm font-bold text-blue-800">エアコン</label>
+              <div className="flex gap-2">
+                {(["あり", "なし"] as const).map(v => (
+                  <button key={v} onClick={() => setAirconEnabled(v)} className={`px-4 py-1.5 rounded-lg text-xs font-bold transition-colors ${airconEnabled === v ? (v === "あり" ? "bg-blue-600 text-white" : "bg-gray-500 text-white") : "bg-white border border-blue-200 text-blue-600 hover:bg-blue-100"}`}>{v}</button>
+                ))}
               </div>
             </div>
-            <p className="text-[10px] text-blue-600 mt-2">ルームエアコンの台数と合計金額を入力してください → 自動加算されます</p>
+            {airconEnabled === "あり" && (
+              <>
+                <div className="grid grid-cols-2 gap-4">
+                  <div>
+                    <label className="block text-[10px] text-blue-600 mb-1">台数</label>
+                    <select value={airconCount} onChange={e => setAirconCount(e.target.value)} className="w-full px-4 py-3 border border-blue-200 rounded-lg text-sm bg-white focus:outline-none focus:ring-2 focus:ring-blue-300">
+                      {[1,2,3,4,5,6,7,8,9,10].map(n => (
+                        <option key={n} value={String(n)}>{n}台</option>
+                      ))}
+                    </select>
+                  </div>
+                  <div>
+                    <label className="block text-[10px] text-blue-600 mb-1">金額（万円）<span className="text-red-500 ml-1">*</span></label>
+                    <div className="relative">
+                      <input type="number" value={airconCost} onChange={e => setAirconCost(e.target.value)} className="w-full px-4 py-3 border border-blue-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-blue-300 pr-12" placeholder="例: 60" />
+                      <span className="absolute right-3 top-1/2 -translate-y-1/2 text-xs text-text-sub">万円</span>
+                    </div>
+                  </div>
+                </div>
+                <p className="text-[10px] text-blue-600 mt-2">ルームエアコンの台数と合計金額を入力 → 自動加算</p>
+              </>
+            )}
+            {airconEnabled === "なし" && <p className="text-[10px] text-gray-500">エアコンは積算に含めません</p>}
           </div>
 
-          {/* 防水工事（手入力） */}
+          {/* 防水工事（あり/なし選択） */}
           <div className="bg-teal-50 border border-teal-200 rounded-xl p-4 mb-4">
-            <label className="block text-sm font-bold text-teal-800 mb-3">防水工事 <span className="text-red-500">*</span></label>
-            <div className="relative">
-              <input type="number" value={waterproofCost} onChange={e => setWaterproofCost(e.target.value)} className="w-full px-4 py-3 border border-teal-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-teal-300 pr-12" placeholder="例: 50" />
-              <span className="absolute right-3 top-1/2 -translate-y-1/2 text-xs text-text-sub">万円</span>
+            <div className="flex items-center justify-between mb-3">
+              <label className="text-sm font-bold text-teal-800">防水工事</label>
+              <div className="flex gap-2">
+                {(["あり", "なし"] as const).map(v => (
+                  <button key={v} onClick={() => setWaterproofEnabled(v)} className={`px-4 py-1.5 rounded-lg text-xs font-bold transition-colors ${waterproofEnabled === v ? (v === "あり" ? "bg-teal-600 text-white" : "bg-gray-500 text-white") : "bg-white border border-teal-200 text-teal-600 hover:bg-teal-100"}`}>{v}</button>
+                ))}
+              </div>
             </div>
-            <p className="text-[10px] text-teal-600 mt-2">FRP防水・シート防水等の金額を入力してください → 自動加算されます</p>
+            {waterproofEnabled === "あり" && (
+              <>
+                <div className="relative">
+                  <input type="number" value={waterproofCost} onChange={e => setWaterproofCost(e.target.value)} className="w-full px-4 py-3 border border-teal-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-teal-300 pr-12" placeholder="例: 50" />
+                  <span className="absolute right-3 top-1/2 -translate-y-1/2 text-xs text-text-sub">万円</span>
+                </div>
+                <p className="text-[10px] text-teal-600 mt-2">FRP防水・シート防水等の金額を入力 → 自動加算</p>
+              </>
+            )}
+            {waterproofEnabled === "なし" && <p className="text-[10px] text-gray-500">防水工事は積算に含めません</p>}
           </div>
 
           <div className="grid grid-cols-2 gap-4 mb-6">
@@ -3015,7 +3201,7 @@ export default function DemoDashboard() {
                 <div className="w-7 h-7 rounded flex items-center justify-center shrink-0" style={{ backgroundColor: "#10b98130" }}>
                   <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#10b981" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d={tools.find(t => t.id === "estimate")!.icon} /></svg>
                 </div>
-                <span className="flex-1 truncate text-left">見積作成</span>
+                <span className="flex-1 truncate text-left">積算関連</span>
                 <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" className={`shrink-0 transition-transform ${estimateGroupOpen ? "rotate-180" : ""}`}><polyline points="6 9 12 15 18 9" /></svg>
               </button>
               {estimateGroupOpen && renderGroupChildren(estimateChildren)}
