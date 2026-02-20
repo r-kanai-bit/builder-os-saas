@@ -430,6 +430,8 @@ function Budget({ onCreateNew, onExport }: ToolProps) {
   const generateBudget = () => {
     if (!blueprintFile) return;
     if (!tsubo) { alert("建物の坪数を入力してください（必須）"); return; }
+    if (!futaiCost) { alert("付帯工事の金額を入力してください（必須）"); return; }
+    if (!shokeihi) { alert("諸経費の金額を入力してください（必須）"); return; }
     setIsAnalyzing(true);
     setAnalyzeStep(0);
     let step = 0;
@@ -466,13 +468,9 @@ function Budget({ onCreateNew, onExport }: ToolProps) {
         if (futaiVal > 0) {
           items.push({ category: "付帯工事", detail: "手入力による付帯工事費", amount: futaiVal, note: "手入力" });
         }
-        // 諸経費（手入力）を加算
+        // 諸経費（手入力・必須）を加算
         const shokeihiVal = parseFloat(shokeihi) || 0;
-        if (shokeihiVal > 0) {
-          items.push({ category: "諸経費", detail: "手入力による諸経費", amount: shokeihiVal, note: "手入力" });
-        } else {
-          items.push({ category: "諸経費", detail: "現場管理費・一般管理費・産廃処理", amount: Math.round(adjBase * 0.08), note: "工事費の8%（自動算出）" });
-        }
+        items.push({ category: "諸経費", detail: "現場管理費・一般管理費・産廃処理", amount: shokeihiVal, note: "手入力" });
         const total = items.reduce((sum, it) => sum + it.amount, 0);
         setBudgetResult({ name: projectName || "新規工事", tsubo, type: buildingType, orderType: buildingOrder, items, total });
         setIsAnalyzing(false);
@@ -609,7 +607,7 @@ function Budget({ onCreateNew, onExport }: ToolProps) {
 
           <div className="grid grid-cols-2 gap-4 mb-6">
             <div>
-              <label className="block text-sm font-bold text-text-main mb-1.5">付帯工事（万円）</label>
+              <label className="block text-sm font-bold text-text-main mb-1.5">付帯工事（万円） <span className="text-red-500">*</span></label>
               <div className="relative">
                 <input type="number" value={futaiCost} onChange={e => setFutaiCost(e.target.value)} className="w-full px-4 py-3 border border-border rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-amber-200 focus:border-amber-400 pr-12" placeholder="例: 150" />
                 <span className="absolute right-3 top-1/2 -translate-y-1/2 text-xs text-text-sub">万円</span>
@@ -617,12 +615,12 @@ function Budget({ onCreateNew, onExport }: ToolProps) {
               <p className="text-[10px] text-text-sub mt-1">外構・地盤改良・水道引込等（手入力 → 自動加算）</p>
             </div>
             <div>
-              <label className="block text-sm font-bold text-text-main mb-1.5">諸経費（万円）</label>
+              <label className="block text-sm font-bold text-text-main mb-1.5">諸経費（万円） <span className="text-red-500">*</span></label>
               <div className="relative">
-                <input type="number" value={shokeihi} onChange={e => setShokeihi(e.target.value)} className="w-full px-4 py-3 border border-border rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-amber-200 focus:border-amber-400 pr-12" placeholder="未入力時は工事費の8%で自動算出" />
+                <input type="number" value={shokeihi} onChange={e => setShokeihi(e.target.value)} className="w-full px-4 py-3 border border-border rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-amber-200 focus:border-amber-400 pr-12" placeholder="例: 100" />
                 <span className="absolute right-3 top-1/2 -translate-y-1/2 text-xs text-text-sub">万円</span>
               </div>
-              <p className="text-[10px] text-text-sub mt-1">現場管理費・一般管理費等（手入力 → 自動加算 / 未入力時は8%自動）</p>
+              <p className="text-[10px] text-text-sub mt-1">現場管理費・一般管理費等（手入力 → 自動加算）</p>
             </div>
           </div>
 
@@ -631,6 +629,8 @@ function Budget({ onCreateNew, onExport }: ToolProps) {
               <p className="text-xs text-amber-700 font-bold">
                 {!blueprintFile && "⚠ 図面をアップロードしてください"}
                 {blueprintFile && !tsubo && "⚠ 建物の坪数を入力してください（必須）"}
+                {blueprintFile && tsubo && !futaiCost && "⚠ 付帯工事の金額を入力してください（必須）"}
+                {blueprintFile && tsubo && futaiCost && !shokeihi && "⚠ 諸経費の金額を入力してください（必須）"}
               </p>
             </div>
           )}
