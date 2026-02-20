@@ -409,7 +409,7 @@ function Estimate({ onCreateNew, onExport }: ToolProps) {
 }
 
 function Budget({ onCreateNew, onExport }: ToolProps) {
-  const [view, setView] = useState<"list"|"create"|"result">("list");
+  const [view, setView] = useState<"list"|"create-building"|"create-exterior"|"result-building"|"result-exterior">("list");
   const [blueprintFile, setBlueprintFile] = useState("");
   const [tsubo, setTsubo] = useState("");
   const [buildingType, setBuildingType] = useState("2階建");
@@ -417,21 +417,30 @@ function Budget({ onCreateNew, onExport }: ToolProps) {
   const [futaiCost, setFutaiCost] = useState("");
   const [shokeihi, setShokeihi] = useState("");
   const [projectName, setProjectName] = useState("");
+  const [airconCount, setAirconCount] = useState("4");
+  const [airconCost, setAirconCost] = useState("");
   const [isAnalyzing, setIsAnalyzing] = useState(false);
   const [analyzeStep, setAnalyzeStep] = useState(0);
   const [budgetResult, setBudgetResult] = useState<{ name: string; tsubo: string; type: string; orderType: string; items: { category: string; detail: string; amount: number; note: string }[]; total: number } | null>(null);
+  // 外構工事用
+  const [extBlueprintFile, setExtBlueprintFile] = useState("");
+  const [extProjectName, setExtProjectName] = useState("");
+  const [extResult, setExtResult] = useState<{ name: string; items: { category: string; detail: string; amount: number; note: string }[]; total: number } | null>(null);
   const fileRef = useRef<HTMLInputElement>(null);
+  const extFileRef = useRef<HTMLInputElement>(null);
 
   const buildingTypes = ["平屋", "2階建", "3階建", "アパート", "店舗"];
   const orderTypes = ["注文", "規格", "セミオーダー"];
 
   const analyzeSteps = ["図面データを読み込み中...", "間取り・構造を解析中...", "建物仕様を特定中...", "資材単価をマッチング中...", "工事費を積算中...", "実行予算書を生成中..."];
+  const extAnalyzeSteps = ["外構図面を読み込み中...", "敷地境界・面積を解析中...", "外構仕様を特定中...", "資材単価をマッチング中...", "外構工事費を積算中...", "外構予算書を生成中..."];
 
-  const generateBudget = () => {
+  const generateBuildingBudget = () => {
     if (!blueprintFile) return;
     if (!tsubo) { alert("建物の坪数を入力してください（必須）"); return; }
     if (!futaiCost) { alert("付帯工事の金額を入力してください（必須）"); return; }
     if (!shokeihi) { alert("諸経費の金額を入力してください（必須）"); return; }
+    if (!airconCost) { alert("エアコンの金額を入力してください（必須）"); return; }
     setIsAnalyzing(true);
     setAnalyzeStep(0);
     let step = 0;
@@ -441,11 +450,9 @@ function Budget({ onCreateNew, onExport }: ToolProps) {
       if (step >= analyzeSteps.length) {
         clearInterval(iv);
         const t = parseFloat(tsubo) || 30;
-        // 建物種別ごとの坪単価（万円）
         const unitCosts: Record<string, number> = { "平屋": 75, "2階建": 68, "3階建": 72, "アパート": 58, "店舗": 82 };
         const unit = unitCosts[buildingType] || 68;
         const base = t * unit;
-        // 注文/規格/セミオーダーで坪単価を微調整
         const orderAdj: Record<string, number> = { "注文": 1.0, "規格": 0.85, "セミオーダー": 0.92 };
         const adj = orderAdj[buildingOrder] || 1.0;
         const adjBase = base * adj;
@@ -460,38 +467,73 @@ function Budget({ onCreateNew, onExport }: ToolProps) {
           { category: "内装工事", detail: "石膏ボード・クロス・フローリング・タイル", amount: Math.round(adjBase * 0.10), note: "延床" + Math.round(t * 3.3) + "㎡" },
           { category: "電気設備工事", detail: "分電盤・配線・照明・コンセント・LAN", amount: Math.round(adjBase * 0.08), note: buildingType === "店舗" ? "動力電源含む" : "太陽光対応PB" },
           { category: "給排水衛生設備", detail: "給水管・排水管・衛生器具・給湯器", amount: Math.round(adjBase * 0.08), note: buildingType === "アパート" ? (Math.round(t / 8) + "戸分") : "" },
-          { category: "空調換気設備", detail: buildingType === "店舗" ? "業務用エアコン・換気設備" : "ルームエアコン・24h換気", amount: Math.round(adjBase * 0.05), note: "" },
-          { category: "外構工事", detail: "駐車場・アプローチ・フェンス・植栽", amount: Math.round(adjBase * 0.05), note: "" },
+          { category: "空調換気設備", detail: "24h換気システム・換気扇・ダクト", amount: Math.round(adjBase * 0.03), note: "エアコン別途" },
         ];
-        // 付帯工事（手入力）を加算
+        // エアコン（独立・台数×金額 手入力）
+        const acCount = parseInt(airconCount) || 0;
+        const acCost = parseFloat(airconCost) || 0;
+        if (acCount > 0 && acCost > 0) {
+          items.push({ category: "エアコン", detail: `ルームエアコン ${acCount}台`, amount: acCost, note: `${acCount}台 × 手入力` });
+        }
+        // 付帯工事（手入力）
         const futaiVal = parseFloat(futaiCost) || 0;
         if (futaiVal > 0) {
-          items.push({ category: "付帯工事", detail: "手入力による付帯工事費", amount: futaiVal, note: "手入力" });
+          items.push({ category: "付帯工事", detail: "地盤改良・水道引込等", amount: futaiVal, note: "手入力" });
         }
-        // 諸経費（手入力・必須）を加算
+        // 諸経費（手入力・必須）
         const shokeihiVal = parseFloat(shokeihi) || 0;
         items.push({ category: "諸経費", detail: "現場管理費・一般管理費・産廃処理", amount: shokeihiVal, note: "手入力" });
         const total = items.reduce((sum, it) => sum + it.amount, 0);
         setBudgetResult({ name: projectName || "新規工事", tsubo, type: buildingType, orderType: buildingOrder, items, total });
         setIsAnalyzing(false);
-        setView("result");
+        setView("result-building");
       }
     }, 600);
   };
 
-  if (view === "result" && budgetResult) {
+  const generateExteriorBudget = () => {
+    if (!extBlueprintFile) return;
+    setIsAnalyzing(true);
+    setAnalyzeStep(0);
+    let step = 0;
+    const iv = setInterval(() => {
+      step++;
+      setAnalyzeStep(step);
+      if (step >= extAnalyzeSteps.length) {
+        clearInterval(iv);
+        const items: { category: string; detail: string; amount: number; note: string }[] = [
+          { category: "駐車場工事", detail: "土間コンクリート打設・目地・型枠", amount: 85, note: "2台分想定" },
+          { category: "アプローチ工事", detail: "インターロッキング・タイル・石張り", amount: 45, note: "玄関〜道路" },
+          { category: "フェンス・塀工事", detail: "アルミフェンス・化粧ブロック・門柱", amount: 65, note: "敷地外周" },
+          { category: "植栽工事", detail: "シンボルツリー・低木・芝張り・砂利敷き", amount: 35, note: "植栽計画に基づく" },
+          { category: "土工事", detail: "残土処分・整地・盛土・砕石敷き", amount: 30, note: "GL調整含む" },
+          { category: "排水工事", detail: "雨水桝・排水管・側溝・浸透桝", amount: 25, note: "敷地内排水" },
+          { category: "照明・電気工事", detail: "外灯・ガーデンライト・インターホン移設", amount: 20, note: "" },
+          { category: "その他", detail: "物置・サイクルポート・宅配ボックス", amount: 15, note: "" },
+        ];
+        const total = items.reduce((sum, it) => sum + it.amount, 0);
+        setExtResult({ name: extProjectName || "新規外構工事", items, total });
+        setIsAnalyzing(false);
+        setView("result-exterior");
+      }
+    }, 600);
+  };
+
+  // ========== 建物予算 結果表示 ==========
+  if (view === "result-building" && budgetResult) {
     return (<>
       <ToolHeader title="実行予算" color="#f59e0b" onCreateNew={() => setView("list")} onExport={onExport} />
       <div className="bg-green-50 border border-green-200 rounded-xl p-4 mb-6 flex items-center justify-between">
         <div className="flex items-center gap-3">
           <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#16a34a" strokeWidth="2"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg>
           <div>
-            <p className="text-sm font-bold text-green-800">AI図面解析完了 —「{budgetResult.name}」の実行予算書を作成しました</p>
+            <p className="text-sm font-bold text-green-800">AI図面解析完了 —「{budgetResult.name}」の建物実行予算書を作成しました</p>
             <p className="text-xs text-green-600">{budgetResult.type}（{budgetResult.orderType}）｜ {budgetResult.tsubo}坪（{Math.round(parseFloat(budgetResult.tsubo) * 3.3)}㎡）｜ 図面: {blueprintFile}</p>
           </div>
         </div>
-        <button onClick={() => { setView("create"); setBudgetResult(null); }} className="text-xs text-amber-600 hover:text-amber-800 font-bold">再作成</button>
+        <button onClick={() => { setView("create-building"); setBudgetResult(null); }} className="text-xs text-amber-600 hover:text-amber-800 font-bold">再作成</button>
       </div>
+      <div className="bg-amber-50 border border-amber-200 rounded-lg p-2 mb-4 text-center"><span className="text-xs font-bold text-amber-700">建物のみ（外構工事は含まれていません）</span></div>
       <div className="grid grid-cols-5 gap-4 mb-6">
         <div className="bg-white rounded-xl border border-border p-4"><p className="text-xs text-text-sub">実行予算 合計</p><p className="text-xl font-black text-amber-600">¥{(budgetResult.total).toLocaleString()}万</p></div>
         <div className="bg-white rounded-xl border border-border p-4"><p className="text-xs text-text-sub">粗利率</p><p className="text-xl font-black text-green-600">30%</p></div>
@@ -505,45 +547,60 @@ function Budget({ onCreateNew, onExport }: ToolProps) {
         <span key={`a${i}`} className="font-bold">¥{it.amount.toLocaleString()}</span>,
         <span key={`n${i}`} className="text-xs text-text-sub">{it.note}</span>,
       ]).concat([
-        [
-          <span key="tt" className="font-black text-amber-600">実行予算 合計</span>,
-          "",
-          <span key="ta" className="font-black text-amber-600 text-base">¥{budgetResult.total.toLocaleString()}万</span>,
-          "",
-        ],
-        [
-          <span key="gt" className="font-black text-green-600">粗利（30%）</span>,
-          "",
-          <span key="ga" className="font-black text-green-600 text-base">¥{Math.round(budgetResult.total * 0.3).toLocaleString()}万</span>,
-          "",
-        ],
-        [
-          <span key="ct" className="font-black text-blue-600">請負金額（税抜）</span>,
-          <span key="cd" className="text-xs text-text-sub">実行予算 + 粗利</span>,
-          <span key="ca" className="font-black text-blue-600 text-lg">¥{Math.round(budgetResult.total * 1.3).toLocaleString()}万</span>,
-          <span key="cn" className="text-xs text-text-sub">税込 ¥{Math.round(budgetResult.total * 1.3 * 1.1).toLocaleString()}万</span>,
-        ],
+        [<span key="tt" className="font-black text-amber-600">実行予算 合計</span>,"",<span key="ta" className="font-black text-amber-600 text-base">¥{budgetResult.total.toLocaleString()}万</span>,""],
+        [<span key="gt" className="font-black text-green-600">粗利（30%）</span>,"",<span key="ga" className="font-black text-green-600 text-base">¥{Math.round(budgetResult.total * 0.3).toLocaleString()}万</span>,""],
+        [<span key="ct" className="font-black text-blue-600">請負金額（税抜）</span>,<span key="cd" className="text-xs text-text-sub">実行予算 + 粗利</span>,<span key="ca" className="font-black text-blue-600 text-lg">¥{Math.round(budgetResult.total * 1.3).toLocaleString()}万</span>,<span key="cn" className="text-xs text-text-sub">税込 ¥{Math.round(budgetResult.total * 1.3 * 1.1).toLocaleString()}万</span>],
       ])} />
     </>);
   }
 
-  if (view === "create") {
+  // ========== 外構予算 結果表示 ==========
+  if (view === "result-exterior" && extResult) {
+    return (<>
+      <ToolHeader title="実行予算" color="#f59e0b" onCreateNew={() => setView("list")} onExport={onExport} />
+      <div className="bg-green-50 border border-green-200 rounded-xl p-4 mb-6 flex items-center justify-between">
+        <div className="flex items-center gap-3">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#16a34a" strokeWidth="2"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg>
+          <div>
+            <p className="text-sm font-bold text-green-800">AI図面解析完了 —「{extResult.name}」の外構工事予算書を作成しました</p>
+            <p className="text-xs text-green-600">外構図面: {extBlueprintFile}</p>
+          </div>
+        </div>
+        <button onClick={() => { setView("create-exterior"); setExtResult(null); }} className="text-xs text-amber-600 hover:text-amber-800 font-bold">再作成</button>
+      </div>
+      <div className="bg-emerald-50 border border-emerald-200 rounded-lg p-2 mb-4 text-center"><span className="text-xs font-bold text-emerald-700">外構工事のみ</span></div>
+      <div className="grid grid-cols-3 gap-4 mb-6">
+        <div className="bg-white rounded-xl border border-border p-4"><p className="text-xs text-text-sub">外構工事 合計</p><p className="text-xl font-black text-emerald-600">¥{extResult.total.toLocaleString()}万</p></div>
+        <div className="bg-white rounded-xl border border-border p-4"><p className="text-xs text-text-sub">粗利（30%）</p><p className="text-xl font-black text-green-600">¥{Math.round(extResult.total * 0.3).toLocaleString()}万</p></div>
+        <div className="bg-white rounded-xl border border-border p-4"><p className="text-xs text-text-sub">請負金額（税込）</p><p className="text-xl font-black text-blue-600">¥{Math.round(extResult.total * 1.3 * 1.1).toLocaleString()}万</p></div>
+      </div>
+      <DataTable headers={["工種", "工事内容", "金額（万円）", "備考"]} rows={extResult.items.map((it, i) => [
+        it.category,
+        <span key={`d${i}`} className="text-xs">{it.detail}</span>,
+        <span key={`a${i}`} className="font-bold">¥{it.amount.toLocaleString()}</span>,
+        <span key={`n${i}`} className="text-xs text-text-sub">{it.note}</span>,
+      ]).concat([
+        [<span key="tt" className="font-black text-emerald-600">外構工事 合計</span>,"",<span key="ta" className="font-black text-emerald-600 text-base">¥{extResult.total.toLocaleString()}万</span>,""],
+        [<span key="gt" className="font-black text-green-600">粗利（30%）</span>,"",<span key="ga" className="font-black text-green-600 text-base">¥{Math.round(extResult.total * 0.3).toLocaleString()}万</span>,""],
+        [<span key="ct" className="font-black text-blue-600">請負金額（税抜）</span>,<span key="cd" className="text-xs text-text-sub">外構予算 + 粗利</span>,<span key="ca" className="font-black text-blue-600 text-lg">¥{Math.round(extResult.total * 1.3).toLocaleString()}万</span>,<span key="cn" className="text-xs text-text-sub">税込 ¥{Math.round(extResult.total * 1.3 * 1.1).toLocaleString()}万</span>],
+      ])} />
+    </>);
+  }
+
+  // ========== 建物予算 新規作成 ==========
+  if (view === "create-building") {
     return (<>
       <ToolHeader title="実行予算" color="#f59e0b" onCreateNew={() => setView("list")} onExport={onExport} />
       {isAnalyzing ? (
         <div className="bg-white rounded-xl border border-border p-10 text-center">
           <div className="w-16 h-16 border-4 border-amber-200 border-t-amber-500 rounded-full animate-spin mx-auto mb-6" />
-          <p className="text-base font-bold text-text-main mb-2">AI が図面を解析中...</p>
+          <p className="text-base font-bold text-text-main mb-2">AI が建物図面を解析中...</p>
           <div className="max-w-md mx-auto space-y-2 mt-4">
             {analyzeSteps.map((s, i) => (
               <div key={i} className="flex items-center gap-3">
-                {i < analyzeStep ? (
-                  <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#16a34a" strokeWidth="2.5"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg>
-                ) : i === analyzeStep ? (
-                  <div className="w-[18px] h-[18px] border-2 border-amber-300 border-t-amber-600 rounded-full animate-spin" />
-                ) : (
-                  <div className="w-[18px] h-[18px] rounded-full border-2 border-gray-200" />
-                )}
+                {i < analyzeStep ? (<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#16a34a" strokeWidth="2.5"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg>
+                ) : i === analyzeStep ? (<div className="w-[18px] h-[18px] border-2 border-amber-300 border-t-amber-600 rounded-full animate-spin" />
+                ) : (<div className="w-[18px] h-[18px] rounded-full border-2 border-gray-200" />)}
                 <span className={`text-sm ${i < analyzeStep ? "text-green-700 font-medium" : i === analyzeStep ? "text-amber-700 font-bold" : "text-text-sub"}`}>{s}</span>
               </div>
             ))}
@@ -551,13 +608,16 @@ function Budget({ onCreateNew, onExport }: ToolProps) {
         </div>
       ) : (
         <div className="bg-white rounded-xl border border-border p-6">
-          <h3 className="text-base font-bold text-text-main mb-2">実行予算 新規作成</h3>
-          <p className="text-xs text-text-sub mb-6">図面をアップロードし、建物情報を入力すると、AIが図面を解読して実行予算を自動作成します。</p>
+          <div className="flex items-center gap-2 mb-2">
+            <div className="w-3 h-3 rounded-full bg-amber-500" />
+            <h3 className="text-base font-bold text-text-main">建物のみ 自動積算</h3>
+          </div>
+          <p className="text-xs text-text-sub mb-6">建物図面をアップロードし、建物情報を入力すると、AIが図面を解読して建物の実行予算を自動作成します。（外構工事は含みません）</p>
 
           <div className="mb-6">
-            <label className="block text-sm font-bold text-text-main mb-1.5">図面アップロード <span className="text-red-500">*</span></label>
+            <label className="block text-sm font-bold text-text-main mb-1.5">建物図面アップロード <span className="text-red-500">*</span></label>
             <input type="file" ref={fileRef} className="hidden" accept=".pdf,.jpg,.jpeg,.png,.jww,.dxf,.dwg" onChange={e => { if (e.target.files?.[0]) setBlueprintFile(e.target.files[0].name); }} />
-            <div onClick={() => fileRef.current?.click()} onDragOver={e => { e.preventDefault(); e.currentTarget.classList.add("border-amber-400","bg-amber-50"); }} onDragLeave={e => { e.currentTarget.classList.remove("border-amber-400","bg-amber-50"); }} onDrop={e => { e.preventDefault(); e.currentTarget.classList.remove("border-amber-400","bg-amber-50"); if (e.dataTransfer.files?.[0]) setBlueprintFile(e.dataTransfer.files[0].name); }} className="border-2 border-dashed border-border rounded-xl p-8 text-center hover:border-amber-300 hover:bg-amber-50/30 transition-colors cursor-pointer">
+            <div onClick={() => fileRef.current?.click()} onDragOver={e => { e.preventDefault(); e.currentTarget.classList.add("border-amber-400","bg-amber-50"); }} onDragLeave={e => { e.currentTarget.classList.remove("border-amber-400","bg-amber-50"); }} onDrop={e => { e.preventDefault(); e.currentTarget.classList.remove("border-amber-400","bg-amber-50"); if (e.dataTransfer.files?.[0]) setBlueprintFile(e.dataTransfer.files[0].name); }} className="border-2 border-dashed border-border rounded-xl p-6 text-center hover:border-amber-300 hover:bg-amber-50/30 transition-colors cursor-pointer">
               {blueprintFile ? (
                 <div className="flex items-center justify-center gap-3">
                   <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#f59e0b" strokeWidth="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>
@@ -566,8 +626,8 @@ function Budget({ onCreateNew, onExport }: ToolProps) {
                 </div>
               ) : (
                 <>
-                  <svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="#9ca3af" strokeWidth="1.5" className="mx-auto mb-3"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg>
-                  <p className="text-sm font-medium text-text-main mb-1">図面をアップロード（クリックまたはドラッグ&ドロップ）</p>
+                  <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="#9ca3af" strokeWidth="1.5" className="mx-auto mb-2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg>
+                  <p className="text-sm font-medium text-text-main mb-1">建物図面をアップロード（クリックまたはドラッグ&ドロップ）</p>
                   <p className="text-xs text-text-sub">対応形式: PDF / JPG / PNG / JWW / DXF / DWG</p>
                 </>
               )}
@@ -577,67 +637,80 @@ function Budget({ onCreateNew, onExport }: ToolProps) {
           <div className="grid grid-cols-2 lg:grid-cols-4 gap-4 mb-4">
             <div>
               <label className="block text-sm font-bold text-text-main mb-1.5">工事名</label>
-              <input type="text" value={projectName} onChange={e => setProjectName(e.target.value)} className="w-full px-4 py-3 border border-border rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-amber-200 focus:border-amber-400" placeholder="例: ○○邸新築工事" />
+              <input type="text" value={projectName} onChange={e => setProjectName(e.target.value)} className="w-full px-4 py-3 border border-border rounded-lg text-sm" placeholder="例: ○○邸新築工事" />
             </div>
             <div>
               <label className="block text-sm font-bold text-text-main mb-1.5">建物の坪数 <span className="text-red-500">*</span></label>
               <div className="relative">
-                <input type="number" value={tsubo} onChange={e => setTsubo(e.target.value)} className="w-full px-4 py-3 border border-border rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-amber-200 focus:border-amber-400 pr-10" placeholder="例: 35" />
+                <input type="number" value={tsubo} onChange={e => setTsubo(e.target.value)} className="w-full px-4 py-3 border border-border rounded-lg text-sm pr-10" placeholder="例: 35" />
                 <span className="absolute right-3 top-1/2 -translate-y-1/2 text-xs text-text-sub">坪</span>
               </div>
               {tsubo && <p className="text-[10px] text-text-sub mt-1">= {Math.round(parseFloat(tsubo) * 3.3)}㎡</p>}
             </div>
             <div>
               <label className="block text-sm font-bold text-text-main mb-1.5">構造種別 <span className="text-red-500">*</span></label>
-              <div className="flex gap-2 flex-wrap">
+              <div className="flex gap-1.5 flex-wrap">
                 {buildingTypes.map(bt => (
-                  <button key={bt} onClick={() => setBuildingType(bt)} className={`px-3 py-2 rounded-lg text-xs font-bold transition-colors border ${buildingType === bt ? "bg-amber-500 text-white border-amber-500" : "bg-white text-text-main border-border hover:border-amber-300 hover:bg-amber-50"}`}>{bt}</button>
+                  <button key={bt} onClick={() => setBuildingType(bt)} className={`px-2.5 py-2 rounded-lg text-xs font-bold transition-colors border ${buildingType === bt ? "bg-amber-500 text-white border-amber-500" : "bg-white text-text-main border-border hover:border-amber-300"}`}>{bt}</button>
                 ))}
               </div>
             </div>
             <div>
               <label className="block text-sm font-bold text-text-main mb-1.5">建物種別 <span className="text-red-500">*</span></label>
-              <div className="flex gap-2 flex-wrap">
+              <div className="flex gap-1.5 flex-wrap">
                 {orderTypes.map(ot => (
-                  <button key={ot} onClick={() => setBuildingOrder(ot)} className={`px-3 py-2 rounded-lg text-xs font-bold transition-colors border ${buildingOrder === ot ? "bg-blue-500 text-white border-blue-500" : "bg-white text-text-main border-border hover:border-blue-300 hover:bg-blue-50"}`}>{ot}</button>
+                  <button key={ot} onClick={() => setBuildingOrder(ot)} className={`px-2.5 py-2 rounded-lg text-xs font-bold transition-colors border ${buildingOrder === ot ? "bg-blue-500 text-white border-blue-500" : "bg-white text-text-main border-border hover:border-blue-300"}`}>{ot}</button>
                 ))}
               </div>
             </div>
+          </div>
+
+          {/* エアコン（独立項目） */}
+          <div className="bg-blue-50 border border-blue-200 rounded-xl p-4 mb-4">
+            <label className="block text-sm font-bold text-blue-800 mb-3">エアコン <span className="text-red-500">*</span></label>
+            <div className="grid grid-cols-2 gap-4">
+              <div>
+                <label className="block text-[10px] text-blue-600 mb-1">台数</label>
+                <select value={airconCount} onChange={e => setAirconCount(e.target.value)} className="w-full px-4 py-3 border border-blue-200 rounded-lg text-sm bg-white focus:outline-none focus:ring-2 focus:ring-blue-300">
+                  {[1,2,3,4,5,6,7,8,9,10].map(n => (
+                    <option key={n} value={String(n)}>{n}台</option>
+                  ))}
+                </select>
+              </div>
+              <div>
+                <label className="block text-[10px] text-blue-600 mb-1">金額（万円）<span className="text-red-500 ml-1">*</span></label>
+                <div className="relative">
+                  <input type="number" value={airconCost} onChange={e => setAirconCost(e.target.value)} className="w-full px-4 py-3 border border-blue-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-blue-300 pr-12" placeholder="例: 60" />
+                  <span className="absolute right-3 top-1/2 -translate-y-1/2 text-xs text-text-sub">万円</span>
+                </div>
+              </div>
+            </div>
+            <p className="text-[10px] text-blue-600 mt-2">ルームエアコンの台数と合計金額を入力してください → 自動加算されます</p>
           </div>
 
           <div className="grid grid-cols-2 gap-4 mb-6">
             <div>
               <label className="block text-sm font-bold text-text-main mb-1.5">付帯工事（万円） <span className="text-red-500">*</span></label>
               <div className="relative">
-                <input type="number" value={futaiCost} onChange={e => setFutaiCost(e.target.value)} className="w-full px-4 py-3 border border-border rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-amber-200 focus:border-amber-400 pr-12" placeholder="例: 150" />
+                <input type="number" value={futaiCost} onChange={e => setFutaiCost(e.target.value)} className="w-full px-4 py-3 border border-border rounded-lg text-sm pr-12" placeholder="例: 150" />
                 <span className="absolute right-3 top-1/2 -translate-y-1/2 text-xs text-text-sub">万円</span>
               </div>
-              <p className="text-[10px] text-text-sub mt-1">外構・地盤改良・水道引込等（手入力 → 自動加算）</p>
+              <p className="text-[10px] text-text-sub mt-1">地盤改良・水道引込等（手入力 → 自動加算）</p>
             </div>
             <div>
               <label className="block text-sm font-bold text-text-main mb-1.5">諸経費（万円） <span className="text-red-500">*</span></label>
               <div className="relative">
-                <input type="number" value={shokeihi} onChange={e => setShokeihi(e.target.value)} className="w-full px-4 py-3 border border-border rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-amber-200 focus:border-amber-400 pr-12" placeholder="例: 100" />
+                <input type="number" value={shokeihi} onChange={e => setShokeihi(e.target.value)} className="w-full px-4 py-3 border border-border rounded-lg text-sm pr-12" placeholder="例: 100" />
                 <span className="absolute right-3 top-1/2 -translate-y-1/2 text-xs text-text-sub">万円</span>
               </div>
               <p className="text-[10px] text-text-sub mt-1">現場管理費・一般管理費等（手入力 → 自動加算）</p>
             </div>
           </div>
 
-          {(!blueprintFile || !tsubo) && (blueprintFile || tsubo) && (
-            <div className="mb-4 bg-amber-50 border border-amber-200 rounded-lg p-3">
-              <p className="text-xs text-amber-700 font-bold">
-                {!blueprintFile && "⚠ 図面をアップロードしてください"}
-                {blueprintFile && !tsubo && "⚠ 建物の坪数を入力してください（必須）"}
-                {blueprintFile && tsubo && !futaiCost && "⚠ 付帯工事の金額を入力してください（必須）"}
-                {blueprintFile && tsubo && futaiCost && !shokeihi && "⚠ 諸経費の金額を入力してください（必須）"}
-              </p>
-            </div>
-          )}
           <div className="flex gap-3">
             <button onClick={() => setView("list")} className="flex-1 py-3 border border-border rounded-lg font-medium hover:bg-gray-50 transition-colors">キャンセル</button>
-            <button onClick={generateBudget} disabled={!blueprintFile} className={`flex-1 py-3 rounded-lg font-bold text-white transition-colors ${blueprintFile ? "bg-amber-500 hover:bg-amber-600" : "bg-gray-300 cursor-not-allowed"}`}>
-              AI図面解析 → 実行予算を自動作成
+            <button onClick={generateBuildingBudget} disabled={!blueprintFile} className={`flex-1 py-3 rounded-lg font-bold text-white transition-colors ${blueprintFile ? "bg-amber-500 hover:bg-amber-600" : "bg-gray-300 cursor-not-allowed"}`}>
+              AI図面解析 → 建物予算を自動作成
             </button>
           </div>
         </div>
@@ -645,8 +718,103 @@ function Budget({ onCreateNew, onExport }: ToolProps) {
     </>);
   }
 
+  // ========== 外構工事 新規作成 ==========
+  if (view === "create-exterior") {
+    return (<>
+      <ToolHeader title="実行予算" color="#f59e0b" onCreateNew={() => setView("list")} onExport={onExport} />
+      {isAnalyzing ? (
+        <div className="bg-white rounded-xl border border-border p-10 text-center">
+          <div className="w-16 h-16 border-4 border-emerald-200 border-t-emerald-500 rounded-full animate-spin mx-auto mb-6" />
+          <p className="text-base font-bold text-text-main mb-2">AI が外構図面を解析中...</p>
+          <div className="max-w-md mx-auto space-y-2 mt-4">
+            {extAnalyzeSteps.map((s, i) => (
+              <div key={i} className="flex items-center gap-3">
+                {i < analyzeStep ? (<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#16a34a" strokeWidth="2.5"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg>
+                ) : i === analyzeStep ? (<div className="w-[18px] h-[18px] border-2 border-emerald-300 border-t-emerald-600 rounded-full animate-spin" />
+                ) : (<div className="w-[18px] h-[18px] rounded-full border-2 border-gray-200" />)}
+                <span className={`text-sm ${i < analyzeStep ? "text-green-700 font-medium" : i === analyzeStep ? "text-emerald-700 font-bold" : "text-text-sub"}`}>{s}</span>
+              </div>
+            ))}
+          </div>
+        </div>
+      ) : (
+        <div className="bg-white rounded-xl border border-border p-6">
+          <div className="flex items-center gap-2 mb-2">
+            <div className="w-3 h-3 rounded-full bg-emerald-500" />
+            <h3 className="text-base font-bold text-text-main">外構工事のみ 自動積算</h3>
+          </div>
+          <p className="text-xs text-text-sub mb-6">外構図面をアップロードすると、AIが図面を解読して外構工事の実行予算を自動作成します。</p>
+
+          <div className="mb-6">
+            <label className="block text-sm font-bold text-text-main mb-1.5">外構図面アップロード <span className="text-red-500">*</span></label>
+            <input type="file" ref={extFileRef} className="hidden" accept=".pdf,.jpg,.jpeg,.png,.jww,.dxf,.dwg" onChange={e => { if (e.target.files?.[0]) setExtBlueprintFile(e.target.files[0].name); }} />
+            <div onClick={() => extFileRef.current?.click()} onDragOver={e => { e.preventDefault(); e.currentTarget.classList.add("border-emerald-400","bg-emerald-50"); }} onDragLeave={e => { e.currentTarget.classList.remove("border-emerald-400","bg-emerald-50"); }} onDrop={e => { e.preventDefault(); e.currentTarget.classList.remove("border-emerald-400","bg-emerald-50"); if (e.dataTransfer.files?.[0]) setExtBlueprintFile(e.dataTransfer.files[0].name); }} className="border-2 border-dashed border-border rounded-xl p-6 text-center hover:border-emerald-300 hover:bg-emerald-50/30 transition-colors cursor-pointer">
+              {extBlueprintFile ? (
+                <div className="flex items-center justify-center gap-3">
+                  <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#059669" strokeWidth="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>
+                  <span className="text-sm font-medium text-emerald-700">{extBlueprintFile}</span>
+                  <button onClick={ev => { ev.stopPropagation(); setExtBlueprintFile(""); }} className="text-xs text-red-500 hover:text-red-700 ml-2">✕ 削除</button>
+                </div>
+              ) : (
+                <>
+                  <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="#9ca3af" strokeWidth="1.5" className="mx-auto mb-2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg>
+                  <p className="text-sm font-medium text-text-main mb-1">外構図面をアップロード（クリックまたはドラッグ&ドロップ）</p>
+                  <p className="text-xs text-text-sub">対応形式: PDF / JPG / PNG / JWW / DXF / DWG</p>
+                </>
+              )}
+            </div>
+          </div>
+
+          <div className="mb-6">
+            <label className="block text-sm font-bold text-text-main mb-1.5">工事名</label>
+            <input type="text" value={extProjectName} onChange={e => setExtProjectName(e.target.value)} className="w-full px-4 py-3 border border-border rounded-lg text-sm" placeholder="例: ○○邸外構工事" />
+          </div>
+
+          <div className="flex gap-3">
+            <button onClick={() => setView("list")} className="flex-1 py-3 border border-border rounded-lg font-medium hover:bg-gray-50 transition-colors">キャンセル</button>
+            <button onClick={generateExteriorBudget} disabled={!extBlueprintFile} className={`flex-1 py-3 rounded-lg font-bold text-white transition-colors ${extBlueprintFile ? "bg-emerald-500 hover:bg-emerald-600" : "bg-gray-300 cursor-not-allowed"}`}>
+              AI図面解析 → 外構予算を自動作成
+            </button>
+          </div>
+        </div>
+      )}
+    </>);
+  }
+
+  // ========== 一覧画面（2つの新規作成ボタン） ==========
   return (<>
-    <ToolHeader title="実行予算" color="#f59e0b" onCreateNew={() => setView("create")} onExport={onExport} />
+    <ToolHeader title="実行予算" color="#f59e0b" onCreateNew={() => {}} onExport={onExport} />
+
+    {/* 新規作成: 建物 / 外構 の2つのカード */}
+    <div className="grid grid-cols-2 gap-4 mb-6">
+      <button onClick={() => setView("create-building")} className="bg-gradient-to-br from-amber-50 to-orange-50 border-2 border-amber-300 rounded-xl p-6 text-left hover:shadow-lg hover:border-amber-500 transition-all group">
+        <div className="flex items-center gap-3 mb-3">
+          <div className="w-12 h-12 bg-amber-100 rounded-xl flex items-center justify-center group-hover:bg-amber-200 transition-colors">
+            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#f59e0b" strokeWidth="2"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>
+          </div>
+          <div>
+            <p className="text-base font-bold text-amber-800">建物のみ 自動積算</p>
+            <p className="text-xs text-amber-600">新規作成</p>
+          </div>
+        </div>
+        <p className="text-xs text-text-sub">建物図面をアップロード → AI解析 → 建物の実行予算を自動作成</p>
+        <p className="text-[10px] text-amber-600 mt-2 font-bold">※ 外構工事は含みません</p>
+      </button>
+      <button onClick={() => setView("create-exterior")} className="bg-gradient-to-br from-emerald-50 to-green-50 border-2 border-emerald-300 rounded-xl p-6 text-left hover:shadow-lg hover:border-emerald-500 transition-all group">
+        <div className="flex items-center gap-3 mb-3">
+          <div className="w-12 h-12 bg-emerald-100 rounded-xl flex items-center justify-center group-hover:bg-emerald-200 transition-colors">
+            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#059669" strokeWidth="2"><rect x="1" y="6" width="22" height="12" rx="2" ry="2"/><path d="M1 10h22"/></svg>
+          </div>
+          <div>
+            <p className="text-base font-bold text-emerald-800">外構工事のみ 自動積算</p>
+            <p className="text-xs text-emerald-600">新規作成</p>
+          </div>
+        </div>
+        <p className="text-xs text-text-sub">外構図面をアップロード → AI解析 → 外構の実行予算を自動作成</p>
+        <p className="text-[10px] text-emerald-600 mt-2 font-bold">駐車場・アプローチ・フェンス・植栽等</p>
+      </button>
+    </div>
+
     <div className="grid grid-cols-4 gap-4 mb-6">
       {[{ label: "予算総額", value: "¥2億8,500万" }, { label: "実行額", value: "¥1億9,800万" }, { label: "残予算", value: "¥8,700万" }, { label: "予算消化率", value: "69.5%" }].map((s, i) => (
         <div key={i} className="bg-white rounded-xl border border-border p-4"><p className="text-xs text-text-sub">{s.label}</p><p className="text-xl font-black text-text-main">{s.value}</p></div>
