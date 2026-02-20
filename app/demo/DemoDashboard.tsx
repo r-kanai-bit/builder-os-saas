@@ -419,6 +419,7 @@ function Budget({ onCreateNew, onExport }: ToolProps) {
   const [projectName, setProjectName] = useState("");
   const [airconCount, setAirconCount] = useState("4");
   const [airconCost, setAirconCost] = useState("");
+  const [waterproofCost, setWaterproofCost] = useState("");
   const [isAnalyzing, setIsAnalyzing] = useState(false);
   const [analyzeStep, setAnalyzeStep] = useState(0);
   const [budgetResult, setBudgetResult] = useState<{ name: string; tsubo: string; type: string; orderType: string; items: { category: string; detail: string; amount: number; note: string }[]; total: number } | null>(null);
@@ -441,6 +442,7 @@ function Budget({ onCreateNew, onExport }: ToolProps) {
     if (!futaiCost) { alert("付帯工事の金額を入力してください（必須）"); return; }
     if (!shokeihi) { alert("諸経費の金額を入力してください（必須）"); return; }
     if (!airconCost) { alert("エアコンの金額を入力してください（必須）"); return; }
+    if (!waterproofCost) { alert("防水工事の金額を入力してください（必須）"); return; }
     setIsAnalyzing(true);
     setAnalyzeStep(0);
     let step = 0;
@@ -462,7 +464,6 @@ function Budget({ onCreateNew, onExport }: ToolProps) {
           { category: "躯体工事", detail: buildingType === "店舗" ? "鉄骨造・デッキプレート" : "木造軸組・プレカット材", amount: Math.round(adjBase * 0.18), note: "図面より柱・梁数量算出" },
           { category: "屋根・板金工事", detail: buildingType === "アパート" ? "ガルバリウム鋼板葺き" : "瓦葺き・板金役物", amount: Math.round(adjBase * 0.06), note: "屋根面積: " + Math.round(t * 3.3 * (buildingType === "平屋" ? 1.2 : 0.6)) + "㎡" },
           { category: "外壁工事", detail: "窯業系サイディング16mm・通気工法", amount: Math.round(adjBase * 0.08), note: "外壁面積より算出" },
-          { category: "防水工事", detail: buildingType === "アパート" ? "シート防水・FRP防水" : "FRP防水（バルコニー）", amount: Math.round(adjBase * 0.03), note: "" },
           { category: "建具工事", detail: "アルミ樹脂複合サッシ・玄関ドア・室内建具", amount: Math.round(adjBase * 0.08), note: "Low-E複層ガラス仕様" },
           { category: "内装工事", detail: "石膏ボード・クロス・フローリング・タイル", amount: Math.round(adjBase * 0.10), note: "延床" + Math.round(t * 3.3) + "㎡" },
           { category: "電気設備工事", detail: "分電盤・配線・照明・コンセント・LAN", amount: Math.round(adjBase * 0.08), note: buildingType === "店舗" ? "動力電源含む" : "太陽光対応PB" },
@@ -474,6 +475,11 @@ function Budget({ onCreateNew, onExport }: ToolProps) {
         const acCost = parseFloat(airconCost) || 0;
         if (acCount > 0 && acCost > 0) {
           items.push({ category: "エアコン", detail: `ルームエアコン ${acCount}台`, amount: acCost, note: `${acCount}台 × 手入力` });
+        }
+        // 防水工事（手入力）
+        const wpCost = parseFloat(waterproofCost) || 0;
+        if (wpCost > 0) {
+          items.push({ category: "防水工事", detail: buildingType === "アパート" ? "シート防水・FRP防水" : "FRP防水（バルコニー）", amount: wpCost, note: "手入力" });
         }
         // 付帯工事（手入力）
         const futaiVal = parseFloat(futaiCost) || 0;
@@ -686,6 +692,16 @@ function Budget({ onCreateNew, onExport }: ToolProps) {
               </div>
             </div>
             <p className="text-[10px] text-blue-600 mt-2">ルームエアコンの台数と合計金額を入力してください → 自動加算されます</p>
+          </div>
+
+          {/* 防水工事（手入力） */}
+          <div className="bg-teal-50 border border-teal-200 rounded-xl p-4 mb-4">
+            <label className="block text-sm font-bold text-teal-800 mb-3">防水工事 <span className="text-red-500">*</span></label>
+            <div className="relative">
+              <input type="number" value={waterproofCost} onChange={e => setWaterproofCost(e.target.value)} className="w-full px-4 py-3 border border-teal-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-teal-300 pr-12" placeholder="例: 50" />
+              <span className="absolute right-3 top-1/2 -translate-y-1/2 text-xs text-text-sub">万円</span>
+            </div>
+            <p className="text-[10px] text-teal-600 mt-2">FRP防水・シート防水等の金額を入力してください → 自動加算されます</p>
           </div>
 
           <div className="grid grid-cols-2 gap-4 mb-6">
