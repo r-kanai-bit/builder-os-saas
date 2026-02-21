@@ -722,24 +722,31 @@ function Budget({ onCreateNew, onExport }: ToolProps) {
             </div>
           </div>
           <button onClick={async () => {
-            const W = window as unknown as Record<string, unknown>;
-            if (!W.XLSX) { await new Promise<void>((res, rej) => { const s = document.createElement("script"); s.src = "https://cdn.sheetjs.com/xlsx-0.20.3/package/dist/xlsx.full.min.js"; s.onload = () => res(); s.onerror = () => rej(); document.head.appendChild(s); }); }
-            const X = W.XLSX as { read: Function; writeFile: Function };
-            const wb = X.read(ESTIMATE_TEMPLATE_B64, { type: "base64" });
-            const ws = wb.Sheets["見積もり"];
-            const ws2 = wb.Sheets["建築にかかわる費用"];
-            const sc = (sh: Record<string, unknown>, ref: string, val: unknown, t = "n") => { const c = sh[ref] as Record<string, unknown> | undefined; if (c) { c.v = val; c.t = t; delete c.f; } else { sh[ref] = { v: val, t }; } };
             const extItems = extResult.items;
-            const extTotal = extItems.reduce((s, it) => s + Math.round(it.amount * 1.3), 0) * 10000;
-            const tax = Math.round(extTotal * 0.1);
-            const totalWithTax = extTotal + tax;
-            sc(ws, "B5", extResult.name + " 様", "s");
-            sc(ws, "N20", 0); sc(ws, "N22", 0); sc(ws, "N24", extTotal);
-            sc(ws, "N27", extTotal); sc(ws, "N30", tax); sc(ws, "N33", totalWithTax); sc(ws, "K10", totalWithTax);
-            sc(ws, "X65", 0); sc(ws, "N96", extTotal);
-            extItems.forEach((it, i) => { const r = 86 + i; if (r <= 94) { sc(ws, "J"+r, 1); sc(ws, "M"+r, "式", "s"); sc(ws, "U"+r, Math.round(it.amount*1.3)*10000); } });
-            if (ws2) { sc(ws2, "I11", 0); sc(ws2, "I13", extTotal); sc(ws2, "I18", extTotal); sc(ws2, "I60", extTotal); }
-            X.writeFile(wb, "外構見積書_" + extResult.name + "_" + new Date().toISOString().slice(0,10) + ".xlsx");
+            // ハイブリッド生成: バックエンドAPI優先 → クライアントフォールバック
+            const mode = await generateEstimateHybrid(
+              extResult.name, [], extItems, 0, "",
+              async () => {
+                const W = window as unknown as Record<string, unknown>;
+                if (!W.XLSX) { await new Promise<void>((res, rej) => { const s = document.createElement("script"); s.src = "https://cdn.sheetjs.com/xlsx-0.20.3/package/dist/xlsx.full.min.js"; s.onload = () => res(); s.onerror = () => rej(); document.head.appendChild(s); }); }
+                const X = W.XLSX as { read: Function; writeFile: Function };
+                const wb = X.read(ESTIMATE_TEMPLATE_B64, { type: "base64" });
+                const ws = wb.Sheets["見積もり"];
+                const ws2 = wb.Sheets["建築にかかわる費用"];
+                const sc = (sh: Record<string, unknown>, ref: string, val: unknown, tp = "n") => { const c = sh[ref] as Record<string, unknown> | undefined; if (c) { c.v = val; c.t = tp; delete c.f; } else { sh[ref] = { v: val, t: tp }; } };
+                const extTotal = extItems.reduce((s, it) => s + Math.round(it.amount * 1.3), 0) * 10000;
+                const tax = Math.round(extTotal * 0.1);
+                const totalWithTax = extTotal + tax;
+                sc(ws, "B5", extResult.name + " 様", "s");
+                sc(ws, "N20", 0); sc(ws, "N22", 0); sc(ws, "N24", extTotal);
+                sc(ws, "N27", extTotal); sc(ws, "N30", tax); sc(ws, "N33", totalWithTax); sc(ws, "K10", totalWithTax);
+                sc(ws, "X65", 0); sc(ws, "N96", extTotal);
+                extItems.forEach((it, i) => { const r = 86 + i; if (r <= 94) { sc(ws, "J"+r, 1); sc(ws, "M"+r, "式", "s"); sc(ws, "U"+r, Math.round(it.amount*1.3)*10000); } });
+                if (ws2) { sc(ws2, "I11", 0); sc(ws2, "I13", extTotal); sc(ws2, "I18", extTotal); sc(ws2, "I60", extTotal); }
+                X.writeFile(wb, "外構見積書_" + extResult.name + "_" + new Date().toISOString().slice(0,10) + ".xlsx");
+              }
+            );
+            console.log(`外構見積書生成モード: ${mode}`);
           }} className="px-6 py-3 bg-emerald-600 hover:bg-emerald-700 text-white rounded-lg font-bold text-sm transition-colors flex items-center gap-2">
             <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
             外構見積書ダウンロード（Excel）
