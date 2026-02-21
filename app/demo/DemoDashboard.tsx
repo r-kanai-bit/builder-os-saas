@@ -788,6 +788,25 @@ function Budget({ onCreateNew, onExport }: ToolProps) {
             </div>
           </div>
 
+          <div className="grid grid-cols-2 gap-4 mb-4">
+            <div>
+              <label className="block text-sm font-bold text-text-main mb-1.5">付帯工事（万円） <span className="text-red-500">*</span></label>
+              <div className="relative">
+                <input type="number" value={futaiCost} onChange={e => setFutaiCost(e.target.value)} className="w-full px-4 py-3 border border-border rounded-lg text-sm pr-12" placeholder="例: 150" />
+                <span className="absolute right-3 top-1/2 -translate-y-1/2 text-xs text-text-sub">万円</span>
+              </div>
+              <p className="text-[10px] text-text-sub mt-1">地盤改良・水道引込等（手入力 → 自動加算）</p>
+            </div>
+            <div>
+              <label className="block text-sm font-bold text-text-main mb-1.5">諸経費（万円） <span className="text-red-500">*</span></label>
+              <div className="relative">
+                <input type="number" value={shokeihi} onChange={e => setShokeihi(e.target.value)} className="w-full px-4 py-3 border border-border rounded-lg text-sm pr-12" placeholder="例: 100" />
+                <span className="absolute right-3 top-1/2 -translate-y-1/2 text-xs text-text-sub">万円</span>
+              </div>
+              <p className="text-[10px] text-text-sub mt-1">現場管理費・一般管理費等（手入力 → 自動加算）</p>
+            </div>
+          </div>
+
           {/* エアコン（あり/なし選択） */}
           <div className="bg-blue-50 border border-blue-200 rounded-xl p-4 mb-4">
             <div className="flex items-center justify-between mb-3">
@@ -887,25 +906,6 @@ function Budget({ onCreateNew, onExport }: ToolProps) {
               </>
             )}
             {solarEnabled === "なし" && <p className="text-[10px] text-gray-500">太陽光は積算に含めません</p>}
-          </div>
-
-          <div className="grid grid-cols-2 gap-4 mb-6">
-            <div>
-              <label className="block text-sm font-bold text-text-main mb-1.5">付帯工事（万円） <span className="text-red-500">*</span></label>
-              <div className="relative">
-                <input type="number" value={futaiCost} onChange={e => setFutaiCost(e.target.value)} className="w-full px-4 py-3 border border-border rounded-lg text-sm pr-12" placeholder="例: 150" />
-                <span className="absolute right-3 top-1/2 -translate-y-1/2 text-xs text-text-sub">万円</span>
-              </div>
-              <p className="text-[10px] text-text-sub mt-1">地盤改良・水道引込等（手入力 → 自動加算）</p>
-            </div>
-            <div>
-              <label className="block text-sm font-bold text-text-main mb-1.5">諸経費（万円） <span className="text-red-500">*</span></label>
-              <div className="relative">
-                <input type="number" value={shokeihi} onChange={e => setShokeihi(e.target.value)} className="w-full px-4 py-3 border border-border rounded-lg text-sm pr-12" placeholder="例: 100" />
-                <span className="absolute right-3 top-1/2 -translate-y-1/2 text-xs text-text-sub">万円</span>
-              </div>
-              <p className="text-[10px] text-text-sub mt-1">現場管理費・一般管理費等（手入力 → 自動加算）</p>
-            </div>
           </div>
 
           <div className="flex gap-3">
