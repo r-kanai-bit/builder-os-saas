@@ -1,0 +1,65 @@
+version: '3.8'
+
+services:
+  # PostgreSQL データベース
+  postgres:
+    image: postgres:15-alpine
+    container_name: excel-engine-postgres
+    environment:
+      POSTGRES_USER: excel_user
+      POSTGRES_PASSWORD: excel_password
+      POSTGRES_DB: excel_engine
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U excel_user -d excel_engine"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    networks:
+      - excel-network
+
+  # FastAPI バックエンド
+  backend:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: excel-engine-backend
+    environment:
+      DEBUG: "True"
+      LOG_LEVEL: "INFO"
+      DATABASE_URL: "postgresql+asyncpg://excel_user:excel_password@postgres:5432/excel_engine"
+      STORAGE_TYPE: "local"
+      STORAGE_LOCAL_PATH: "/app/storage"
+      STORAGE_TEMPLATES_PATH: "/app/storage/templates"
+      STORAGE_OUTPUTS_PATH: "/app/storage/outputs"
+      SECRET_KEY: "dev-secret-key-change-in-production"
+      ALLOWED_ORIGINS: '["http://localhost:3000", "http://localhost:8000"]'
+    ports:
+      - "8000:8000"
+    volumes:
+      - ./app:/app/app
+      - ./alembic:/app/alembic
+      - ./storage:/app/storage
+    depends_on:
+      postgres:
+        condition: service_healthy
+    networks:
+      - excel-network
+    command: >
+      sh -c "
+        echo 'Waiting for database...' &&
+        sleep 2 &&
+        alembic upgrade head &&
+        uvicorn app.main:app --host 0.0.0.0 --port 8000 --reload
+      "
+
+volumes:
+  postgres_data:
+    driver: local
+
+networks:
+  excel-network:
+    driver: bridge

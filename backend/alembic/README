@@ -1,0 +1,126 @@
+# Alembic マイグレーション
+
+このディレクトリには SQLAlchemy のデータベーススキーママイグレーション定義が含まれます。
+
+## 使用方法
+
+### マイグレーションの作成
+
+```bash
+# モデルの変更を自動検出してマイグレーションを生成
+alembic revision --autogenerate -m "説明文"
+
+# 例:
+alembic revision --autogenerate -m "Add generation_status column"
+```
+
+### マイグレーションの適用
+
+```bash
+# 最新のマイグレーションまで適用
+alembic upgrade head
+
+# 特定のリビジョンまで適用
+alembic upgrade <revision>
+
+# 例:
+alembic upgrade 1234567890ab
+```
+
+### マイグレーションの戻す
+
+```bash
+# 1段階戻す
+alembic downgrade -1
+
+# 特定のリビジョンまで戻す
+alembic downgrade <revision>
+```
+
+### マイグレーション履歴を表示
+
+```bash
+# 現在のリビジョン
+alembic current
+
+# マイグレーション履歴を表示
+alembic history
+```
+
+## ディレクトリ構成
+
+```
+alembic/
+├── versions/          # マイグレーションスクリプト
+├── env.py            # マイグレーション実行環境設定
+├── script.py.mako    # マイグレーションテンプレート
+└── README            # このファイル
+```
+
+## マイグレーションスクリプトのベストプラクティス
+
+### バージョニング
+
+各マイグレーションは以下の情報を含みます:
+
+```python
+# revision identifiers, used by Alembic.
+revision = '1234567890ab'
+down_revision = 'abcdef123456'
+branch_labels = None
+depends_on = None
+```
+
+### Upgrade と Downgrade
+
+変更を適用 (upgrade) と戻す (downgrade) の両方を定義してください:
+
+```python
+def upgrade() -> None:
+    # テーブル作成、カラム追加など
+    op.create_table(
+        'new_table',
+        sa.Column('id', sa.Integer, primary_key=True),
+        sa.Column('name', sa.String(255), nullable=False),
+    )
+
+def downgrade() -> None:
+    # upgrade で作成した変更を戻す
+    op.drop_table('new_table')
+```
+
+## トラブルシューティング
+
+### マイグレーション検出に失敗する
+
+モデルが正しくインポートされているか確認:
+
+```python
+# env.py で
+from app.database import Base
+from app.models import *  # 全モデルをインポート
+```
+
+### スキーマミスマッチ
+
+```bash
+# 現在のスキーマを確認
+alembic current
+
+# データベーススキーマを確認
+sqlalchemy.inspect(connection).get_table_names()
+```
+
+### マイグレーション失敗時
+
+ロールバック:
+```bash
+alembic downgrade -1
+```
+
+を実行して前のリビジョンに戻してください。
+
+## 参考資料
+
+- Alembic ドキュメント: https://alembic.sqlalchemy.org/
+- SQLAlchemy: https://docs.sqlalchemy.org/
