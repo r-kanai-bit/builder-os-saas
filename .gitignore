@@ -1,0 +1,7 @@
+.next/
+node_modules/
+*.txt
+__next.*
+.env*
+_backup/
+out/
