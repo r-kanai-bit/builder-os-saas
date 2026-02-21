@@ -3182,7 +3182,7 @@ export default function DemoDashboard() {
   const [expandedGroups, setExpandedGroups] = useState<string[]>([]);
   const toggleGroup = (group: string) => setExpandedGroups(prev => prev.includes(group) ? prev.filter(g => g !== group) : [...prev, group]);
 
-  const estimateChildren = ["budget", "schedule", "order", "cost"];
+  const estimateChildren = ["budget", "spec-sheet", "schedule", "order", "cost"];
   const managementChildren = ["document", "customer", "after-service", "vendor"];
   const estimateGroupOpen = expandedGroups.includes("estimate");
   const managementGroupOpen = expandedGroups.includes("management");
@@ -3250,7 +3250,6 @@ export default function DemoDashboard() {
             </button>
             <div className="pt-3 pb-2"><p className="px-3 text-[10px] font-bold text-white/40 uppercase tracking-wider">ツール</p></div>
             {renderSidebarTool("construction-ledger")}
-            {renderSidebarTool("spec-sheet")}
             {renderSidebarTool("land-search")}
             {renderSidebarTool("subsidy")}
             <div>
