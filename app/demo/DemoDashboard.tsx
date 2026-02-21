@@ -3138,12 +3138,207 @@ function DashboardHome({ onToolSelect }: { onToolSelect: (id: string) => void })
   </>);
 }
 
+// ============ 仕様書 ============
+
+function SpecSheet({ onCreateNew, onExport }: ToolProps) {
+  const [view, setView] = useState<"list" | "create" | "detail">("list");
+  const [specs, setSpecs] = useState([
+    { id: 1, project: "田中邸 新築工事", category: "建築仕様", structure: "木造在来", floors: "2階建", foundation: "ベタ基礎", roofing: "ガルバリウム鋼板", exterior: "窯業系サイディング", insulation: "吹付断熱（ウレタン）", window: "アルミ樹脂複合（Low-E複層）", flooring: "無垢フローリング", kitchen: "LIXIL リシェルSI / 2550", bath: "TOTO サザナ 1616", toilet: "TOTO ネオレスト", aircon: "ルームエアコン", ventilation: "第3種換気", note: "", date: "2025-06-15", status: "承認済" },
+    { id: 2, project: "佐藤邸 新築工事", category: "建築仕様", structure: "木造2×4", floors: "平屋", foundation: "ベタ基礎", roofing: "コロニアル", exterior: "金属サイディング", insulation: "充填断熱（グラスウール）", window: "樹脂サッシ（Low-Eトリプル）", flooring: "複合フローリング", kitchen: "Panasonic ラクシーナ / 2700", bath: "LIXIL アライズ 1616", toilet: "Panasonic アラウーノ", aircon: "全館空調", ventilation: "第1種換気（熱交換）", note: "ZEH対応", date: "2025-07-02", status: "下書き" },
+  ]);
+  const [selected, setSelected] = useState<typeof specs[0] | null>(null);
+  const [form, setForm] = useState<Record<string, string>>({});
+
+  const specFields = [
+    { key: "structure", label: "構造種別" }, { key: "floors", label: "階数" },
+    { key: "foundation", label: "基礎形式" }, { key: "roofing", label: "屋根材" },
+    { key: "exterior", label: "外壁材" }, { key: "insulation", label: "断熱仕様" },
+    { key: "window", label: "サッシ・窓" }, { key: "flooring", label: "床材（LDK）" },
+    { key: "kitchen", label: "キッチン" }, { key: "bath", label: "浴室" },
+    { key: "toilet", label: "トイレ" }, { key: "aircon", label: "空調方式" },
+    { key: "ventilation", label: "換気方式" },
+  ];
+
+  const selectOptions: Record<string, string[]> = {
+    category: ["建築仕様", "構造仕様", "設備仕様", "外構仕様", "内装仕様"],
+    structure: ["木造在来", "木造2×4", "鉄骨造", "RC造", "SRC造", "混構造"],
+    floors: ["平屋", "2階建", "3階建", "4階建以上"],
+    foundation: ["布基礎", "ベタ基礎", "杭基礎", "独立基礎"],
+    roofing: ["ガルバリウム鋼板", "コロニアル", "瓦（陶器）", "瓦（セメント）", "アスファルトシングル", "金属瓦"],
+    exterior: ["窯業系サイディング", "金属サイディング", "ALC", "タイル", "モルタル", "板張り"],
+    insulation: ["充填断熱（グラスウール）", "充填断熱（ロックウール）", "吹付断熱（ウレタン）", "外張断熱", "付加断熱", "ダブル断熱"],
+    window: ["アルミ樹脂複合（Low-E複層）", "樹脂サッシ（Low-Eトリプル）", "アルミサッシ（複層）", "木製サッシ"],
+    flooring: ["無垢フローリング", "複合フローリング", "シートフローリング", "タイル", "畳"],
+    aircon: ["ルームエアコン", "全館空調", "床暖房+エアコン", "ヒートポンプ式温水暖房"],
+    ventilation: ["第1種換気（熱交換）", "第3種換気", "ダクトレス第1種換気"],
+  };
+
+  // === 一覧 ===
+  if (view === "list") {
+    return (<>
+      <ToolHeader title="仕様書" color="#0d9488" onCreateNew={() => { setForm({}); setView("create"); }} onExport={onExport} />
+      <div className="grid grid-cols-3 gap-4 mb-6">
+        <div className="bg-white rounded-xl border border-border p-4"><p className="text-xs text-text-sub">仕様書数</p><p className="text-2xl font-black text-teal-600">{specs.length}</p></div>
+        <div className="bg-white rounded-xl border border-border p-4"><p className="text-xs text-text-sub">承認済</p><p className="text-2xl font-black text-green-600">{specs.filter(s => s.status === "承認済").length}</p></div>
+        <div className="bg-white rounded-xl border border-border p-4"><p className="text-xs text-text-sub">下書き</p><p className="text-2xl font-black text-gray-500">{specs.filter(s => s.status === "下書き").length}</p></div>
+      </div>
+      <DataTable headers={["工事名", "仕様区分", "構造", "階数", "日付", "ステータス", ""]} rows={specs.map(s => [
+        <span key={`p${s.id}`} className="font-bold">{s.project}</span>,
+        s.category,
+        s.structure,
+        s.floors,
+        s.date,
+        <StatusBadge key={`s${s.id}`} status={s.status} />,
+        <button key={`b${s.id}`} onClick={() => { setSelected(s); setView("detail"); }} className="text-xs text-teal-600 hover:text-teal-800 font-bold">詳細</button>,
+      ])} />
+    </>);
+  }
+
+  // === 新規作成 ===
+  if (view === "create") {
+    const handleCreate = () => {
+      const newSpec = {
+        id: specs.length + 1,
+        project: form.project || "新規工事",
+        category: form.category || "建築仕様",
+        structure: form.structure || "", floors: form.floors || "",
+        foundation: form.foundation || "", roofing: form.roofing || "",
+        exterior: form.exterior || "", insulation: form.insulation || "",
+        window: form.window || "", flooring: form.flooring || "",
+        kitchen: form.kitchen || "", bath: form.bath || "",
+        toilet: form.toilet || "", aircon: form.aircon || "",
+        ventilation: form.ventilation || "", note: form.note || "",
+        date: new Date().toISOString().slice(0, 10), status: "下書き",
+      };
+      setSpecs([newSpec, ...specs]);
+      setSelected(newSpec);
+      setView("detail");
+    };
+    return (<>
+      <ToolHeader title="仕様書 新規作成" color="#0d9488" onCreateNew={() => setView("list")} onExport={onExport} />
+      <div className="bg-white rounded-xl border border-border p-6 space-y-4">
+        <div>
+          <label className="block text-sm font-bold text-text-main mb-1">工事名 <span className="text-red-500">*</span></label>
+          <input type="text" value={form.project || ""} onChange={e => setForm({ ...form, project: e.target.value })} className="w-full px-4 py-3 border border-border rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-teal-200 focus:border-teal-400" placeholder="例: 田中邸 新築工事" />
+        </div>
+        <div>
+          <label className="block text-sm font-bold text-text-main mb-1">仕様区分</label>
+          <select value={form.category || ""} onChange={e => setForm({ ...form, category: e.target.value })} className="w-full px-4 py-3 border border-border rounded-lg text-sm bg-white focus:outline-none focus:ring-2 focus:ring-teal-200">
+            <option value="">選択してください</option>
+            {selectOptions.category.map(o => <option key={o} value={o}>{o}</option>)}
+          </select>
+        </div>
+        <div className="grid grid-cols-2 gap-4">
+          {specFields.map(f => (
+            <div key={f.key}>
+              <label className="block text-sm font-bold text-text-main mb-1">{f.label}</label>
+              {selectOptions[f.key] ? (
+                <select value={form[f.key] || ""} onChange={e => setForm({ ...form, [f.key]: e.target.value })} className="w-full px-4 py-3 border border-border rounded-lg text-sm bg-white focus:outline-none focus:ring-2 focus:ring-teal-200">
+                  <option value="">選択してください</option>
+                  {selectOptions[f.key].map(o => <option key={o} value={o}>{o}</option>)}
+                </select>
+              ) : (
+                <input type="text" value={form[f.key] || ""} onChange={e => setForm({ ...form, [f.key]: e.target.value })} className="w-full px-4 py-3 border border-border rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-teal-200" placeholder={`${f.label}を入力`} />
+              )}
+            </div>
+          ))}
+        </div>
+        <div>
+          <label className="block text-sm font-bold text-text-main mb-1">特記事項</label>
+          <textarea value={form.note || ""} onChange={e => setForm({ ...form, note: e.target.value })} className="w-full px-4 py-3 border border-border rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-teal-200 resize-none" rows={3} placeholder="追加仕様・グレード変更・オプション等" />
+        </div>
+        <div className="flex gap-3 pt-4 border-t border-border">
+          <button onClick={() => setView("list")} className="px-6 py-3 text-sm font-medium border border-border rounded-lg hover:bg-gray-50">戻る</button>
+          <button onClick={handleCreate} className="flex-1 py-3 text-white font-bold rounded-lg hover:opacity-90 transition-opacity bg-teal-600">保存する</button>
+        </div>
+      </div>
+    </>);
+  }
+
+  // === 詳細プレビュー ===
+  if (view === "detail" && selected) {
+    const printSpec = () => {
+      const printContent = document.getElementById("spec-print-area");
+      if (!printContent) return;
+      const win = window.open("", "_blank");
+      if (!win) return;
+      win.document.write(`<!DOCTYPE html><html><head><meta charset="utf-8"><title>仕様書 - ${selected.project}</title>
+        <style>
+          body { font-family: "Hiragino Kaku Gothic ProN", "Yu Gothic", sans-serif; padding: 40px; color: #1a1a1a; }
+          h1 { font-size: 24px; border-bottom: 3px solid #0d9488; padding-bottom: 8px; margin-bottom: 24px; }
+          .meta { color: #666; font-size: 13px; margin-bottom: 20px; }
+          table { width: 100%; border-collapse: collapse; margin-bottom: 24px; }
+          th, td { border: 1px solid #ddd; padding: 10px 14px; text-align: left; font-size: 14px; }
+          th { background: #f0fdfa; font-weight: bold; width: 160px; color: #0d9488; }
+          .note { background: #f9fafb; border: 1px solid #e5e7eb; border-radius: 8px; padding: 16px; font-size: 13px; }
+          .stamp { text-align: right; margin-top: 40px; }
+          .stamp-box { display: inline-block; border: 2px solid #ccc; width: 80px; height: 80px; text-align: center; line-height: 80px; font-size: 11px; color: #999; margin-left: 12px; }
+          @media print { body { padding: 20px; } }
+        </style>
+      </head><body>${printContent.innerHTML}</body></html>`);
+      win.document.close();
+      win.print();
+    };
+
+    return (<>
+      <ToolHeader title="仕様書" color="#0d9488" onCreateNew={() => setView("list")} onExport={onExport} />
+      <div className="flex items-center justify-between mb-4">
+        <button onClick={() => setView("list")} className="flex items-center gap-1 text-sm text-teal-600 hover:text-teal-800 font-bold">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><polyline points="15 18 9 12 15 6"/></svg>
+          一覧に戻る
+        </button>
+        <div className="flex gap-2">
+          <StatusBadge status={selected.status} />
+          <button onClick={printSpec} className="px-4 py-2 text-sm font-bold text-white bg-teal-600 hover:bg-teal-700 rounded-lg flex items-center gap-2">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><polyline points="6 9 6 2 18 2 18 9"/><path d="M6 18H4a2 2 0 0 1-2-2v-5a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v5a2 2 0 0 1-2 2h-2"/><rect x="6" y="14" width="12" height="8"/></svg>
+            印刷 / PDF出力
+          </button>
+        </div>
+      </div>
+      <div id="spec-print-area" className="bg-white rounded-xl border border-border p-8">
+        <h1 className="text-xl font-black text-text-main border-b-2 border-teal-500 pb-2 mb-2">仕様書</h1>
+        <p className="text-sm text-text-sub mb-6">{selected.project}　|　{selected.category}　|　{selected.date}</p>
+        <table className="w-full text-sm border-collapse mb-6">
+          <tbody>
+            {specFields.map(f => {
+              const val = (selected as unknown as Record<string, string>)[f.key];
+              return val ? (
+                <tr key={f.key} className="border-b border-border">
+                  <th className="text-left px-4 py-3 bg-teal-50 text-teal-700 font-bold w-40">{f.label}</th>
+                  <td className="px-4 py-3">{val}</td>
+                </tr>
+              ) : null;
+            })}
+          </tbody>
+        </table>
+        {selected.note && (
+          <div className="bg-gray-50 border border-border rounded-lg p-4">
+            <p className="text-xs font-bold text-text-sub mb-1">特記事項</p>
+            <p className="text-sm">{selected.note}</p>
+          </div>
+        )}
+        <div className="flex justify-end mt-8 gap-3">
+          {["設計", "施工", "承認"].map(label => (
+            <div key={label} className="text-center">
+              <div className="w-20 h-20 border-2 border-gray-300 rounded flex items-center justify-center text-xs text-gray-400">{label === "承認" && selected.status === "承認済" ? <span className="text-red-500 font-bold text-lg">済</span> : label}</div>
+              <p className="text-[10px] text-text-sub mt-1">{label}</p>
+            </div>
+          ))}
+        </div>
+      </div>
+    </>);
+  }
+
+  return null;
+}
+
 // ============ メインコンポーネント ============
 
 const toolComponents: Record<string, React.FC<ToolProps>> = {
   "construction-ledger": ConstructionLedger,
   estimate: Estimate,
   budget: Budget,
+  "spec-sheet": SpecSheet,
   order: OrderManagement,
   schedule: Schedule,
   payment: PaymentManagement,
