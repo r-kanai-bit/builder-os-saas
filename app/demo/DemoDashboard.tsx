@@ -216,9 +216,9 @@ const formDefs: Record<string, { title: string; fields: FormFieldDef[] }> = {
       { name: "insulation", label: "断熱仕様", type: "select", options: ["充填断熱（グラスウール）", "充填断熱（ロックウール）", "吹付断熱（ウレタン）", "外張断熱", "付加断熱", "ダブル断熱"] },
       { name: "window", label: "サッシ・窓", type: "select", options: ["アルミ樹脂複合（Low-E複層）", "樹脂サッシ（Low-Eトリプル）", "アルミサッシ（複層）", "木製サッシ"] },
       { name: "flooring", label: "床材（LDK）", type: "select", options: ["無垢フローリング", "複合フローリング", "シートフローリング", "タイル", "畳"] },
-      { name: "kitchen", label: "キッチン", type: "text", placeholder: "例: LIXIL リシェルSI / 2550" },
-      { name: "bath", label: "浴室", type: "text", placeholder: "例: TOTO サザナ 1616" },
-      { name: "toilet", label: "トイレ", type: "text", placeholder: "例: TOTO ネオレスト / Panasonic アラウーノ" },
+      { name: "kitchen", label: "キッチン", type: "select", options: ["LIXIL リシェルSI", "LIXIL アレスタ", "LIXIL シエラ", "Panasonic ラクシーナ", "Panasonic リフォムス", "TOTO ザ・クラッソ", "TOTO ミッテ", "クリナップ ステディア", "クリナップ ラクエラ", "タカラスタンダード オフェリア", "タカラスタンダード グランディア"] },
+      { name: "bath", label: "UB", type: "select", options: ["TOTO サザナ 1616", "TOTO サザナ 1620", "TOTO シンラ 1616", "TOTO シンラ 1620", "LIXIL アライズ 1616", "LIXIL アライズ 1620", "LIXIL スパージュ 1616", "LIXIL スパージュ 1620", "Panasonic オフローラ 1616", "Panasonic Lクラス 1616", "タカラスタンダード グランスパ 1616", "ハウステック LL 1616"] },
+      { name: "toilet", label: "トイレ", type: "select", options: ["TOTO ネオレスト AS", "TOTO ネオレスト RS", "TOTO GG", "TOTO ZJ", "TOTO ピュアレスト", "Panasonic アラウーノ L150", "Panasonic アラウーノ S160", "LIXIL サティス", "LIXIL プレアス", "LIXIL アメージュ"] },
       { name: "aircon", label: "空調方式", type: "select", options: ["ルームエアコン", "全館空調", "床暖房+エアコン", "ヒートポンプ式温水暖房"] },
       { name: "ventilation", label: "換気方式", type: "select", options: ["第1種換気（熱交換）", "第3種換気", "ダクトレス第1種換気"] },
       { name: "note", label: "特記事項", type: "textarea", placeholder: "追加仕様・グレード変更・オプション等" },
@@ -3094,7 +3094,7 @@ function DashboardHome({ onToolSelect }: { onToolSelect: (id: string) => void })
       </div>
     </div>
     <div className="grid grid-cols-2 lg:grid-cols-4 gap-4 mb-6">
-      {[{ label: "進行中の工事", value: "12", change: "+2", color: "#3b82f6" }, { label: "今月の売上", value: "¥1,520万", change: "+8.3%", color: "#10b981" }, { label: "未回収金額", value: "¥210万", change: "-12%", color: "#f59e0b" }, { label: "今月の粗利率", value: "23.5%", change: "+1.2%", color: "#8b5cf6" }].map((card, i) => (
+      {[{ label: "進行中の工事", value: "12", change: "+2", color: "#3b82f6" }, { label: "今月の売上", value: "1,520万", change: "+8.3%", color: "#10b981" }, { label: "未回収金額", value: "210万", change: "-12%", color: "#f59e0b" }, { label: "今月の粗利率", value: "23.5%", change: "+1.2%", color: "#8b5cf6" }].map((card, i) => (
         <div key={i} className="bg-white rounded-xl border border-border p-4 sm:p-5"><p className="text-xs text-text-sub mb-1">{card.label}</p><p className="text-xl sm:text-2xl font-black text-text-main">{card.value}</p><p className="text-xs font-medium mt-1" style={{ color: card.color }}>{card.change} 前月比</p></div>
       ))}
     </div>
@@ -3143,8 +3143,8 @@ function DashboardHome({ onToolSelect }: { onToolSelect: (id: string) => void })
 function SpecSheet({ onCreateNew, onExport }: ToolProps) {
   const [view, setView] = useState<"list" | "create" | "detail">("list");
   const [specs, setSpecs] = useState([
-    { id: 1, project: "田中邸 新築工事", category: "建築仕様", structure: "木造在来", floors: "2階建", foundation: "ベタ基礎", roofing: "ガルバリウム鋼板", exterior: "窯業系サイディング", insulation: "吹付断熱（ウレタン）", window: "アルミ樹脂複合（Low-E複層）", flooring: "無垢フローリング", kitchen: "LIXIL リシェルSI / 2550", bath: "TOTO サザナ 1616", toilet: "TOTO ネオレスト", aircon: "ルームエアコン", ventilation: "第3種換気", note: "", date: "2025-06-15", status: "承認済" },
-    { id: 2, project: "佐藤邸 新築工事", category: "建築仕様", structure: "木造2×4", floors: "平屋", foundation: "ベタ基礎", roofing: "コロニアル", exterior: "金属サイディング", insulation: "充填断熱（グラスウール）", window: "樹脂サッシ（Low-Eトリプル）", flooring: "複合フローリング", kitchen: "Panasonic ラクシーナ / 2700", bath: "LIXIL アライズ 1616", toilet: "Panasonic アラウーノ", aircon: "全館空調", ventilation: "第1種換気（熱交換）", note: "ZEH対応", date: "2025-07-02", status: "下書き" },
+    { id: 1, project: "田中邸 新築工事", category: "建築仕様", structure: "木造在来", floors: "2階建", foundation: "ベタ基礎", roofing: "ガルバリウム鋼板", exterior: "窯業系サイディング", insulation: "吹付断熱（ウレタン）", window: "アルミ樹脂複合（Low-E複層）", flooring: "無垢フローリング", kitchen: "LIXIL リシェルSI", bath: "TOTO サザナ 1616", toilet: "TOTO ネオレスト AS", aircon: "ルームエアコン", ventilation: "第3種換気", note: "", date: "2025-06-15", status: "承認済" },
+    { id: 2, project: "佐藤邸 新築工事", category: "建築仕様", structure: "木造2×4", floors: "平屋", foundation: "ベタ基礎", roofing: "コロニアル", exterior: "金属サイディング", insulation: "充填断熱（グラスウール）", window: "樹脂サッシ（Low-Eトリプル）", flooring: "複合フローリング", kitchen: "Panasonic ラクシーナ", bath: "LIXIL アライズ 1616", toilet: "Panasonic アラウーノ L150", aircon: "全館空調", ventilation: "第1種換気（熱交換）", note: "ZEH対応", date: "2025-07-02", status: "下書き" },
   ]);
   const [selected, setSelected] = useState<typeof specs[0] | null>(null);
   const [form, setForm] = useState<Record<string, string>>({});
@@ -3154,7 +3154,7 @@ function SpecSheet({ onCreateNew, onExport }: ToolProps) {
     { key: "foundation", label: "基礎形式" }, { key: "roofing", label: "屋根材" },
     { key: "exterior", label: "外壁材" }, { key: "insulation", label: "断熱仕様" },
     { key: "window", label: "サッシ・窓" }, { key: "flooring", label: "床材（LDK）" },
-    { key: "kitchen", label: "キッチン" }, { key: "bath", label: "浴室" },
+    { key: "kitchen", label: "キッチン" }, { key: "bath", label: "UB" },
     { key: "toilet", label: "トイレ" }, { key: "aircon", label: "空調方式" },
     { key: "ventilation", label: "換気方式" },
   ];
@@ -3169,6 +3169,9 @@ function SpecSheet({ onCreateNew, onExport }: ToolProps) {
     insulation: ["充填断熱（グラスウール）", "充填断熱（ロックウール）", "吹付断熱（ウレタン）", "外張断熱", "付加断熱", "ダブル断熱"],
     window: ["アルミ樹脂複合（Low-E複層）", "樹脂サッシ（Low-Eトリプル）", "アルミサッシ（複層）", "木製サッシ"],
     flooring: ["無垢フローリング", "複合フローリング", "シートフローリング", "タイル", "畳"],
+    kitchen: ["LIXIL リシェルSI", "LIXIL アレスタ", "LIXIL シエラ", "Panasonic ラクシーナ", "Panasonic リフォムス", "TOTO ザ・クラッソ", "TOTO ミッテ", "クリナップ ステディア", "クリナップ ラクエラ", "タカラスタンダード オフェリア", "タカラスタンダード グランディア"],
+    bath: ["TOTO サザナ 1616", "TOTO サザナ 1620", "TOTO シンラ 1616", "TOTO シンラ 1620", "LIXIL アライズ 1616", "LIXIL アライズ 1620", "LIXIL スパージュ 1616", "LIXIL スパージュ 1620", "Panasonic オフローラ 1616", "Panasonic Lクラス 1616", "タカラスタンダード グランスパ 1616", "ハウステック LL 1616"],
+    toilet: ["TOTO ネオレスト AS", "TOTO ネオレスト RS", "TOTO GG", "TOTO ZJ", "TOTO ピュアレスト", "Panasonic アラウーノ L150", "Panasonic アラウーノ S160", "LIXIL サティス", "LIXIL プレアス", "LIXIL アメージュ"],
     aircon: ["ルームエアコン", "全館空調", "床暖房+エアコン", "ヒートポンプ式温水暖房"],
     ventilation: ["第1種換気（熱交換）", "第3種換気", "ダクトレス第1種換気"],
   };
