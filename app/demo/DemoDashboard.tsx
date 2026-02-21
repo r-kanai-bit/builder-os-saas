@@ -27,6 +27,7 @@ const tools: ToolDef[] = [
   { id: "land-search", name: "土地探し", icon: "M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z M12 10a3 3 0 1 0-3-3 3 3 0 0 0 3 3z", color: "#059669" },
   { id: "subsidy", name: "補助金・助成金", icon: "M12 1v22 M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6", color: "#7c3aed" },
   { id: "analytics", name: "経営分析", icon: "M18 20V10 M12 20V4 M6 20v-6", color: "#e11d48" },
+  { id: "spec-sheet", name: "仕様書", icon: "M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z M14 2v6h6 M9 13h6 M9 17h6 M9 9h1", color: "#0d9488" },
 ];
 
 const demoUser = { email: "demo@builder-os.jp", companyName: "株式会社デモ建設" };
@@ -199,6 +200,27 @@ const formDefs: Record<string, { title: string; fields: FormFieldDef[] }> = {
       { name: "type", label: "レポート種別", type: "select", options: ["月次経営レポート", "粗利分析", "工事別収支", "業者別支払実績", "顧客別売上"], required: true },
       { name: "period", label: "対象期間", type: "select", options: ["今月", "先月", "今四半期", "前四半期", "今年度", "前年度"], required: true },
       { name: "format", label: "出力形式", type: "select", options: ["PDF", "Excel", "画面表示"] },
+    ],
+  },
+  "spec-sheet": {
+    title: "仕様書 新規作成",
+    fields: [
+      { name: "project", label: "工事名", type: "select", options: projectOptions, required: true },
+      { name: "category", label: "仕様区分", type: "select", options: ["建築仕様", "構造仕様", "設備仕様", "外構仕様", "内装仕様"], required: true },
+      { name: "structure", label: "構造種別", type: "select", options: ["木造在来", "木造2×4", "鉄骨造", "RC造", "SRC造", "混構造"] },
+      { name: "floors", label: "階数", type: "select", options: ["平屋", "2階建", "3階建", "4階建以上"] },
+      { name: "foundation", label: "基礎形式", type: "select", options: ["布基礎", "ベタ基礎", "杭基礎", "独立基礎"] },
+      { name: "roofing", label: "屋根材", type: "select", options: ["ガルバリウム鋼板", "コロニアル", "瓦（陶器）", "瓦（セメント）", "アスファルトシングル", "金属瓦"] },
+      { name: "exterior", label: "外壁材", type: "select", options: ["窯業系サイディング", "金属サイディング", "ALC", "タイル", "モルタル", "板張り"] },
+      { name: "insulation", label: "断熱仕様", type: "select", options: ["充填断熱（グラスウール）", "充填断熱（ロックウール）", "吹付断熱（ウレタン）", "外張断熱", "付加断熱", "ダブル断熱"] },
+      { name: "window", label: "サッシ・窓", type: "select", options: ["アルミ樹脂複合（Low-E複層）", "樹脂サッシ（Low-Eトリプル）", "アルミサッシ（複層）", "木製サッシ"] },
+      { name: "flooring", label: "床材（LDK）", type: "select", options: ["無垢フローリング", "複合フローリング", "シートフローリング", "タイル", "畳"] },
+      { name: "kitchen", label: "キッチン", type: "text", placeholder: "例: LIXIL リシェルSI / 2550" },
+      { name: "bath", label: "浴室", type: "text", placeholder: "例: TOTO サザナ 1616" },
+      { name: "toilet", label: "トイレ", type: "text", placeholder: "例: TOTO ネオレスト / Panasonic アラウーノ" },
+      { name: "aircon", label: "空調方式", type: "select", options: ["ルームエアコン", "全館空調", "床暖房+エアコン", "ヒートポンプ式温水暖房"] },
+      { name: "ventilation", label: "換気方式", type: "select", options: ["第1種換気（熱交換）", "第3種換気", "ダクトレス第1種換気"] },
+      { name: "note", label: "特記事項", type: "textarea", placeholder: "追加仕様・グレード変更・オプション等" },
     ],
   },
 };
@@ -3228,6 +3250,7 @@ export default function DemoDashboard() {
             </button>
             <div className="pt-3 pb-2"><p className="px-3 text-[10px] font-bold text-white/40 uppercase tracking-wider">ツール</p></div>
             {renderSidebarTool("construction-ledger")}
+            {renderSidebarTool("spec-sheet")}
             {renderSidebarTool("land-search")}
             {renderSidebarTool("subsidy")}
             <div>
