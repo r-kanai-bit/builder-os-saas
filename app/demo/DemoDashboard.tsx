@@ -619,10 +619,10 @@ function Budget({ onCreateNew, onExport }: ToolProps) {
             const optionCats = ["仮設工事","基礎工事","躯体工事","屋根・板金工事","外壁工事","建具工事","内装工事","電気設備工事","給排水衛生設備","空調換気設備","エアコン","防水工事"];
             const mainItems = budgetResult.items.filter(it => !futaiCats.includes(it.category));
             const futaiItems = budgetResult.items.filter(it => futaiCats.includes(it.category));
-            const bodyPrice = mainItems.reduce((s, it) => s + Math.round(it.amount * 1.3), 0) * 10000;
-            const futaiTotal = futaiItems.reduce((s, it) => s + Math.round(it.amount * 1.3), 0) * 10000;
             const optionTotal = mainItems.reduce((s, it) => s + Math.round(it.amount * 1.3), 0) * 10000;
-            const contractAmt = bodyPrice + optionTotal + futaiTotal;
+            const futaiTotal = futaiItems.reduce((s, it) => s + Math.round(it.amount * 1.3), 0) * 10000;
+            const bodyPrice = 0; // 本体工事費はオプション工事に含む（新テンプレート仕様）
+            const contractAmt = optionTotal + futaiTotal;
             const tax = Math.round(contractAmt * 0.1);
             const totalWithTax = contractAmt + tax;
             // 見積もりシート（新テンプレート行番号）
