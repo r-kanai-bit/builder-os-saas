@@ -424,6 +424,10 @@ function Budget({ onCreateNew, onExport }: ToolProps) {
   const [airconCost, setAirconCost] = useState("");
   const [waterproofEnabled, setWaterproofEnabled] = useState<"あり"|"なし">("あり");
   const [waterproofCost, setWaterproofCost] = useState("");
+  const [batteryEnabled, setBatteryEnabled] = useState<"あり"|"なし">("なし");
+  const [batteryCost, setBatteryCost] = useState("");
+  const [solarEnabled, setSolarEnabled] = useState<"あり"|"なし">("なし");
+  const [solarCost, setSolarCost] = useState("");
   const [isAnalyzing, setIsAnalyzing] = useState(false);
   const [analyzeStep, setAnalyzeStep] = useState(0);
   const [budgetResult, setBudgetResult] = useState<{ name: string; tsubo: string; type: string; orderType: string; items: { category: string; detail: string; amount: number; note: string }[]; total: number } | null>(null);
@@ -447,6 +451,8 @@ function Budget({ onCreateNew, onExport }: ToolProps) {
     if (!shokeihi) { alert("諸経費の金額を入力してください（必須）"); return; }
     if (airconEnabled === "あり" && !airconCost) { alert("エアコンの金額を入力してください（必須）"); return; }
     if (waterproofEnabled === "あり" && !waterproofCost) { alert("防水工事の金額を入力してください（必須）"); return; }
+    if (batteryEnabled === "あり" && !batteryCost) { alert("蓄電池の金額を入力してください（必須）"); return; }
+    if (solarEnabled === "あり" && !solarCost) { alert("太陽光の金額を入力してください（必須）"); return; }
     setIsAnalyzing(true);
     setAnalyzeStep(0);
     let step = 0;
@@ -487,6 +493,20 @@ function Budget({ onCreateNew, onExport }: ToolProps) {
           const wpCost = parseFloat(waterproofCost) || 0;
           if (wpCost > 0) {
             items.push({ category: "防水工事", detail: buildingType === "アパート" ? "シート防水・FRP防水" : "FRP防水（バルコニー）", amount: wpCost, note: "手入力" });
+          }
+        }
+        // 蓄電池（あり/なし選択 → ありの場合のみ手入力）
+        if (batteryEnabled === "あり") {
+          const btCost = parseFloat(batteryCost) || 0;
+          if (btCost > 0) {
+            items.push({ category: "蓄電池", detail: "家庭用蓄電池システム", amount: btCost, note: "手入力" });
+          }
+        }
+        // 太陽光（あり/なし選択 → ありの場合のみ手入力）
+        if (solarEnabled === "あり") {
+          const slCost = parseFloat(solarCost) || 0;
+          if (slCost > 0) {
+            items.push({ category: "太陽光", detail: "太陽光発電システム", amount: slCost, note: "手入力" });
           }
         }
         // 付帯工事（手入力）
@@ -823,6 +843,50 @@ function Budget({ onCreateNew, onExport }: ToolProps) {
               </>
             )}
             {waterproofEnabled === "なし" && <p className="text-[10px] text-gray-500">防水工事は積算に含めません</p>}
+          </div>
+
+          {/* 蓄電池（あり/なし選択） */}
+          <div className="bg-purple-50 border border-purple-200 rounded-xl p-4 mb-4">
+            <div className="flex items-center justify-between mb-3">
+              <label className="text-sm font-bold text-purple-800">蓄電池</label>
+              <div className="flex gap-2">
+                {(["あり", "なし"] as const).map(v => (
+                  <button key={v} onClick={() => setBatteryEnabled(v)} className={`px-4 py-1.5 rounded-lg text-xs font-bold transition-colors ${batteryEnabled === v ? (v === "あり" ? "bg-purple-600 text-white" : "bg-gray-500 text-white") : "bg-white border border-purple-200 text-purple-600 hover:bg-purple-100"}`}>{v}</button>
+                ))}
+              </div>
+            </div>
+            {batteryEnabled === "あり" && (
+              <>
+                <div className="relative">
+                  <input type="number" value={batteryCost} onChange={e => setBatteryCost(e.target.value)} className="w-full px-4 py-3 border border-purple-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-purple-300 pr-12" placeholder="例: 150" />
+                  <span className="absolute right-3 top-1/2 -translate-y-1/2 text-xs text-text-sub">万円</span>
+                </div>
+                <p className="text-[10px] text-purple-600 mt-2">蓄電池システムの金額を入力 → 自動加算</p>
+              </>
+            )}
+            {batteryEnabled === "なし" && <p className="text-[10px] text-gray-500">蓄電池は積算に含めません</p>}
+          </div>
+
+          {/* 太陽光（あり/なし選択） */}
+          <div className="bg-orange-50 border border-orange-200 rounded-xl p-4 mb-4">
+            <div className="flex items-center justify-between mb-3">
+              <label className="text-sm font-bold text-orange-800">太陽光</label>
+              <div className="flex gap-2">
+                {(["あり", "なし"] as const).map(v => (
+                  <button key={v} onClick={() => setSolarEnabled(v)} className={`px-4 py-1.5 rounded-lg text-xs font-bold transition-colors ${solarEnabled === v ? (v === "あり" ? "bg-orange-600 text-white" : "bg-gray-500 text-white") : "bg-white border border-orange-200 text-orange-600 hover:bg-orange-100"}`}>{v}</button>
+                ))}
+              </div>
+            </div>
+            {solarEnabled === "あり" && (
+              <>
+                <div className="relative">
+                  <input type="number" value={solarCost} onChange={e => setSolarCost(e.target.value)} className="w-full px-4 py-3 border border-orange-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-orange-300 pr-12" placeholder="例: 200" />
+                  <span className="absolute right-3 top-1/2 -translate-y-1/2 text-xs text-text-sub">万円</span>
+                </div>
+                <p className="text-[10px] text-orange-600 mt-2">太陽光発電システムの金額を入力 → 自動加算</p>
+              </>
+            )}
+            {solarEnabled === "なし" && <p className="text-[10px] text-gray-500">太陽光は積算に含めません</p>}
           </div>
 
           <div className="grid grid-cols-2 gap-4 mb-6">
