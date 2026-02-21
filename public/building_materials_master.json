@@ -1,0 +1,2802 @@
+[
+  {
+    "category": "住宅設備",
+    "sub_category": "システムキッチン",
+    "manufacturer": "TOTO",
+    "products": [
+      {
+        "product_name": "ザ・クラッソ",
+        "sku_code": "KSKK-SKL",
+        "colors": [
+          {
+            "color_name": "ホワイト",
+            "color_code": "WH"
+          },
+          {
+            "color_name": "シルバー",
+            "color_code": "SV"
+          },
+          {
+            "color_name": "ブラック",
+            "color_code": "BK"
+          }
+        ],
+        "spec": {
+          "width": "2550mm",
+          "depth": "650mm",
+          "cabinet": "スチール"
+        },
+        "price": {
+          "list_price": 0,
+          "unit": "式"
+        },
+        "status": "active",
+        "data_status": ""
+      }
+    ]
+  },
+  {
+    "category": "住宅設備",
+    "sub_category": "システムバス",
+    "manufacturer": "TOTO",
+    "products": [
+      {
+        "product_name": "サザナ",
+        "sku_code": "HTV1616UPX6",
+        "colors": [
+          {
+            "color_name": "スノーホワイト",
+            "color_code": "WH"
+          },
+          {
+            "color_name": "シャイニーベージュ",
+            "color_code": "BG"
+          }
+        ],
+        "spec": {
+          "size": "1616",
+          "material": "FRP",
+          "floor_type": "リズムフロア"
+        },
+        "price": {
+          "list_price": 0,
+          "unit": "式"
+        },
+        "status": "active",
+        "data_status": ""
+      },
+      {
+        "product_name": "サザナ",
+        "sku_code": "HTV1620UPX6",
+        "colors": [
+          {
+            "color_name": "スノーホワイト",
+            "color_code": "WH"
+          },
+          {
+            "color_name": "シャイニーベージュ",
+            "color_code": "BG"
+          }
+        ],
+        "spec": {
+          "size": "1620",
+          "material": "FRP",
+          "floor_type": "リズムフロア"
+        },
+        "price": {
+          "list_price": 0,
+          "unit": "式"
+        },
+        "status": "active",
+        "data_status": ""
+      },
+      {
+        "product_name": "サザナ",
+        "sku_code": "HTV1624UPX6",
+        "colors": [
+          {
+            "color_name": "スノーホワイト",
+            "color_code": "WH"
+          },
+          {
+            "color_name": "シャイニーベージュ",
+            "color_code": "BG"
+          }
+        ],
+        "spec": {
+          "size": "1624",
+          "material": "FRP",
+          "floor_type": "リズムフロア"
+        },
+        "price": {
+          "list_price": 0,
+          "unit": "式"
+        },
+        "status": "active",
+        "data_status": ""
+      },
+      {
+        "product_name": "ネオレスト",
+        "sku_code": "NX",
+        "colors": [
+          {
+            "color_name": "ホワイト",
+            "color_code": "WH"
+          },
+          {
+            "color_name": "パールベージュ",
+            "color_code": "BG"
+          }
+        ],
+        "spec": {
+          "type": "温水洗浄便座",
+          "function": "暖房/乾燥"
+        },
+        "price": {
+          "list_price": 0,
+          "unit": "台"
+        },
+        "status": "active",
+        "data_status": ""
+      }
+    ]
+  },
+  {
+    "category": "住宅設備",
+    "sub_category": "トイレ",
+    "manufacturer": "TOTO",
+    "products": [
+      {
+        "product_name": "ネオレスト AS",
+        "sku_code": "AS",
+        "colors": [
+          {
+            "color_name": "ホワイト",
+            "color_code": "WH"
+          }
+        ],
+        "spec": {
+          "type": "一体型",
+          "function": "自動洗浄/脱臭"
+        },
+        "price": {
+          "list_price": 0,
+          "unit": "台"
+        },
+        "status": "active",
+        "data_status": ""
+      },
+      {
+        "product_name": "ネオレスト RS",
+        "sku_code": "RS",
+        "colors": [
+          {
+            "color_name": "ホワイト",
+            "color_code": "WH"
+          }
+        ],
+        "spec": {
+          "type": "一体型",
+          "function": "自動洗浄"
+        },
+        "price": {
+          "list_price": 0,
+          "unit": "台"
+        },
+        "status": "active",
+        "data_status": ""
+      }
+    ]
+  },
+  {
+    "category": "住宅設備",
+    "sub_category": "洗面化粧台",
+    "manufacturer": "TOTO",
+    "products": [
+      {
+        "product_name": "オクターブ",
+        "sku_code": "LDSWB075BAGEN",
+        "colors": [
+          {
+            "color_name": "ホワイト",
+            "color_code": "WH"
+          },
+          {
+            "color_name": "カベージュ",
+            "color_code": "BG"
+          }
+        ],
+        "spec": {
+          "width": "750mm",
+          "material": "陶器ボウル",
+          "cabinet": "キャビネット"
+        },
+        "price": {
+          "list_price": 0,
+          "unit": "式"
+        },
+        "status": "active",
+        "data_status": ""
+      }
+    ]
+  },
+  {
+    "category": "住宅設備",
+    "sub_category": "給湯器",
+    "manufacturer": "リンナイ",
+    "products": [
+      {
+        "product_name": "エコジョーズ",
+        "sku_code": "RUF-E2406AW",
+        "colors": [
+          {
+            "color_name": "ホワイト",
+            "color_code": "WH"
+          }
+        ],
+        "spec": {
+          "capacity": "24号",
+          "type": "都市ガス",
+          "efficiency": "95%"
+        },
+        "price": {
+          "list_price": 0,
+          "unit": "台"
+        },
+        "status": "active",
+        "data_status": ""
+      },
+      {
+        "product_name": "エコジョーズ",
+        "sku_code": "RUF-E2006AW",
+        "colors": [
+          {
+            "color_name": "ホワイト",
+            "color_code": "WH"
+          }
+        ],
+        "spec": {
+          "capacity": "20号",
+          "type": "都市ガス",
+          "efficiency": "95%"
+        },
+        "price": {
+          "list_price": 0,
+          "unit": "台"
+        },
+        "status": "active",
+        "data_status": ""
+      }
+    ]
+  },
+  {
+    "category": "住宅設備",
+    "sub_category": "システムキッチン",
+    "manufacturer": "LIXIL",
+    "products": [
+      {
+        "product_name": "アレスタ",
+        "sku_code": "ALESTA-2550",
+        "colors": [
+          {
+            "color_name": "ホワイト",
+            "color_code": "WH"
+          },
+          {
+            "color_name": "ウッド",
+            "color_code": "WD"
+          }
+        ],
+        "spec": {
+          "width": "2550mm",
+          "material": "ステンレス天板",
+          "cabinet": "強化プリント"
+        },
+        "price": {
+          "list_price": 0,
+          "unit": "式"
+        },
+        "status": "discontinued",
+        "successor_sku": "NOCT-2550",
+        "data_status": ""
+      },
+      {
+        "product_name": "ノクト",
+        "sku_code": "NOCT-2550",
+        "colors": [
+          {
+            "color_name": "ホワイト",
+            "color_code": "WH"
+          },
+          {
+            "color_name": "ウッドダーク",
+            "color_code": "DK"
+          }
+        ],
+        "spec": {
+          "width": "2550mm",
+          "material": "人工大理石天板",
+          "cabinet": "ポリエステル"
+        },
+        "price": {
+          "list_price": 0,
+          "unit": "式"
+        },
+        "status": "active",
+        "data_status": ""
+      }
+    ]
+  },
+  {
+    "category": "住宅設備",
+    "sub_category": "システムバス",
+    "manufacturer": "LIXIL",
+    "products": [
+      {
+        "product_name": "リデア",
+        "sku_code": "REDIA-1616",
+        "colors": [
+          {
+            "color_name": "ホワイト",
+            "color_code": "WH"
+          },
+          {
+            "color_name": "ベージュ",
+            "color_code": "BG"
+          }
+        ],
+        "spec": {
+          "size": "1616",
+          "material": "FRP",
+          "floor": "キレイサーモフロア"
+        },
+        "price": {
+          "list_price": 0,
+          "unit": "式"
+        },
+        "status": "active",
+        "data_status": ""
+      }
+    ]
+  },
+  {
+    "category": "住宅設備",
+    "sub_category": "トイレ",
+    "manufacturer": "LIXIL",
+    "products": [
+      {
+        "product_name": "サティス",
+        "sku_code": "SATIS-G",
+        "colors": [
+          {
+            "color_name": "ホワイト",
+            "color_code": "WH"
+          }
+        ],
+        "spec": {
+          "type": "一体型",
+          "function": "自動洗浄/脱臭/除菌"
+        },
+        "price": {
+          "list_price": 0,
+          "unit": "台"
+        },
+        "status": "active",
+        "data_status": ""
+      }
+    ]
+  },
+  {
+    "category": "住宅設備",
+    "sub_category": "洗面化粧台",
+    "manufacturer": "LIXIL",
+    "products": [
+      {
+        "product_name": "ルミシス",
+        "sku_code": "LUMISIS-750",
+        "colors": [
+          {
+            "color_name": "ホワイト",
+            "color_code": "WH"
+          },
+          {
+            "color_name": "オーク",
+            "color_code": "OK"
+          }
+        ],
+        "spec": {
+          "width": "750mm",
+          "material": "セラミックトップ",
+          "cabinet": "キャビネット"
+        },
+        "price": {
+          "list_price": 0,
+          "unit": "式"
+        },
+        "status": "active",
+        "data_status": ""
+      }
+    ]
+  },
+  {
+    "category": "住宅設備",
+    "sub_category": "システムキッチン",
+    "manufacturer": "Panasonic",
+    "products": [
+      {
+        "product_name": "ラクシーナ",
+        "sku_code": "LACUCINA-2550",
+        "colors": [
+          {
+            "color_name": "ホワイト",
+            "color_code": "WH"
+          },
+          {
+            "color_name": "シルバー",
+            "color_code": "SV"
+          }
+        ],
+        "spec": {
+          "width": "2550mm",
+          "material": "ステンレス天板",
+          "cabinet": "スチール"
+        },
+        "price": {
+          "list_price": 0,
+          "unit": "式"
+        },
+        "status": "active",
+        "data_status": ""
+      }
+    ]
+  },
+  {
+    "category": "住宅設備",
+    "sub_category": "システムバス",
+    "manufacturer": "Panasonic",
+    "products": [
+      {
+        "product_name": "オフローラ",
+        "sku_code": "OFFLORA-1616",
+        "colors": [
+          {
+            "color_name": "ホワイト",
+            "color_code": "WH"
+          },
+          {
+            "color_name": "ベージュ",
+            "color_code": "BG"
+          }
+        ],
+        "spec": {
+          "size": "1616",
+          "material": "FRP",
+          "floor": "ひろびろフロア"
+        },
+        "price": {
+          "list_price": 0,
+          "unit": "式"
+        },
+        "status": "active",
+        "data_status": ""
+      }
+    ]
+  },
+  {
+    "category": "住宅設備",
+    "sub_category": "トイレ",
+    "manufacturer": "Panasonic",
+    "products": [
+      {
+        "product_name": "アラウーノ L150",
+        "sku_code": "ARAWUNO-L150",
+        "colors": [
+          {
+            "color_name": "ホワイト",
+            "color_code": "WH"
+          }
+        ],
+        "spec": {
+          "type": "タンクレス",
+          "function": "自動洗浄/暖房"
+        },
+        "price": {
+          "list_price": 0,
+          "unit": "台"
+        },
+        "status": "active",
+        "data_status": ""
+      },
+      {
+        "product_name": "アラウーノ S160",
+        "sku_code": "ARAWUNO-S160",
+        "colors": [
+          {
+            "color_name": "ホワイト",
+            "color_code": "WH"
+          }
+        ],
+        "spec": {
+          "type": "タンクレス",
+          "function": "自動洗浄"
+        },
+        "price": {
+          "list_price": 0,
+          "unit": "台"
+        },
+        "status": "active",
+        "data_status": ""
+      }
+    ]
+  },
+  {
+    "category": "住宅設備",
+    "sub_category": "システムキッチン",
+    "manufacturer": "タカラスタンダード",
+    "products": [
+      {
+        "product_name": "グランディア",
+        "sku_code": "GRANDIA-2550",
+        "colors": [
+          {
+            "color_name": "ホワイト",
+            "color_code": "WH"
+          },
+          {
+            "color_name": "ブラウン",
+            "color_code": "BR"
+          }
+        ],
+        "spec": {
+          "width": "2550mm",
+          "material": "人工大理石天板",
+          "cabinet": "スチール"
+        },
+        "price": {
+          "list_price": 0,
+          "unit": "式"
+        },
+        "status": "active",
+        "data_status": ""
+      },
+      {
+        "product_name": "オフェリア",
+        "sku_code": "OFELIA-2550",
+        "colors": [
+          {
+            "color_name": "ホワイト",
+            "color_code": "WH"
+          },
+          {
+            "color_name": "ウッド",
+            "color_code": "WD"
+          }
+        ],
+        "spec": {
+          "width": "2550mm",
+          "material": "人工大理石天板",
+          "cabinet": "強化プリント"
+        },
+        "price": {
+          "list_price": 0,
+          "unit": "式"
+        },
+        "status": "active",
+        "data_status": ""
+      }
+    ]
+  },
+  {
+    "category": "住宅設備",
+    "sub_category": "システムバス",
+    "manufacturer": "タカラスタンダード",
+    "products": [
+      {
+        "product_name": "プレデンシア",
+        "sku_code": "PRUDENCIA-1616",
+        "colors": [
+          {
+            "color_name": "ホワイト",
+            "color_code": "WH"
+          },
+          {
+            "color_name": "ベージュ",
+            "color_code": "BG"
+          }
+        ],
+        "spec": {
+          "size": "1616",
+          "material": "ホーロー壁",
+          "floor": "魔法びん浴槽"
+        },
+        "price": {
+          "list_price": 0,
+          "unit": "式"
+        },
+        "status": "active",
+        "data_status": ""
+      }
+    ]
+  },
+  {
+    "category": "住宅設備",
+    "sub_category": "システムキッチン",
+    "manufacturer": "クリナップ",
+    "products": [
+      {
+        "product_name": "ステディア",
+        "sku_code": "STEDIA-2550",
+        "colors": [
+          {
+            "color_name": "ホワイト",
+            "color_code": "WH"
+          },
+          {
+            "color_name": "シルバー",
+            "color_code": "SV"
+          }
+        ],
+        "spec": {
+          "width": "2550mm",
+          "material": "ステンレス天板",
+          "cabinet": "スチール"
+        },
+        "price": {
+          "list_price": 0,
+          "unit": "式"
+        },
+        "status": "active",
+        "data_status": ""
+      },
+      {
+        "product_name": "ラクエラ",
+        "sku_code": "LACUELA-2550",
+        "colors": [
+          {
+            "color_name": "ホワイト",
+            "color_code": "WH"
+          },
+          {
+            "color_name": "ウッド",
+            "color_code": "WD"
+          }
+        ],
+        "spec": {
+          "width": "2550mm",
+          "material": "人工大理石天板",
+          "cabinet": "強化プリント"
+        },
+        "price": {
+          "list_price": 0,
+          "unit": "式"
+        },
+        "status": "active",
+        "data_status": ""
+      }
+    ]
+  },
+  {
+    "category": "住宅設備",
+    "sub_category": "給湯器",
+    "manufacturer": "ノーリツ",
+    "products": [
+      {
+        "product_name": "GT-C2462シリーズ",
+        "sku_code": "GT-C2462SAWX",
+        "colors": [
+          {
+            "color_name": "ホワイト",
+            "color_code": "WH"
+          }
+        ],
+        "spec": {
+          "capacity": "24号",
+          "type": "都市ガス",
+          "efficiency": "94%"
+        },
+        "price": {
+          "list_price": 0,
+          "unit": "台"
+        },
+        "status": "active",
+        "data_status": ""
+      }
+    ]
+  },
+  {
+    "category": "外壁",
+    "sub_category": "窯業サイディング",
+    "manufacturer": "ニチハ",
+    "products": [
+      {
+        "product_name": "モエンエクセラード16 フラーグ",
+        "sku_code": "EFF222",
+        "colors": [
+          {
+            "color_name": "ホワイト",
+            "color_code": "WH"
+          },
+          {
+            "color_name": "グレー",
+            "color_code": "GY"
+          },
+          {
+            "color_name": "ブラウン",
+            "color_code": "BR"
+          }
+        ],
+        "spec": {
+          "thickness": "16mm",
+          "fire_rating": "準耐火",
+          "size": "3030×455"
+        },
+        "price": {
+          "list_price": 0,
+          "unit": "㎡"
+        },
+        "status": "active",
+        "data_status": ""
+      },
+      {
+        "product_name": "モエンエクセラード16 i-cube",
+        "sku_code": "EFF333",
+        "colors": [
+          {
+            "color_name": "ホワイト",
+            "color_code": "WH"
+          },
+          {
+            "color_name": "ベージュ",
+            "color_code": "BG"
+          },
+          {
+            "color_name": "ブラック",
+            "color_code": "BK"
+          }
+        ],
+        "spec": {
+          "thickness": "16mm",
+          "fire_rating": "準耐火",
+          "size": "3030×455"
+        },
+        "price": {
+          "list_price": 0,
+          "unit": "㎡"
+        },
+        "status": "active",
+        "data_status": ""
+      },
+      {
+        "product_name": "モエンエクセラード16 COOL",
+        "sku_code": "EFF444",
+        "colors": [
+          {
+            "color_name": "ホワイト",
+            "color_code": "WH"
+          },
+          {
+            "color_name": "シルバー",
+            "color_code": "SV"
+          }
+        ],
+        "spec": {
+          "thickness": "16mm",
+          "fire_rating": "準耐火",
+          "size": "3030×455",
+          "feature": "遮熱"
+        },
+        "price": {
+          "list_price": 0,
+          "unit": "㎡"
+        },
+        "status": "active",
+        "data_status": ""
+      },
+      {
+        "product_name": "モエンエクセラード16 NOHAS",
+        "sku_code": "EFF555",
+        "colors": [
+          {
+            "color_name": "ホワイト",
+            "color_code": "WH"
+          },
+          {
+            "color_name": "グレー",
+            "color_code": "GY"
+          }
+        ],
+        "spec": {
+          "thickness": "16mm",
+          "fire_rating": "準耐火",
+          "size": "3030×455",
+          "feature": "親水"
+        },
+        "price": {
+          "list_price": 0,
+          "unit": "㎡"
+        },
+        "status": "active",
+        "data_status": ""
+      },
+      {
+        "product_name": "モエンサイディング M14",
+        "sku_code": "MOE-M14",
+        "colors": [
+          {
+            "color_name": "ホワイト",
+            "color_code": "WH"
+          },
+          {
+            "color_name": "グレー",
+            "color_code": "GY"
+          },
+          {
+            "color_name": "ベージュ",
+            "color_code": "BG"
+          }
+        ],
+        "spec": {
+          "thickness": "14mm",
+          "fire_rating": "準耐火",
+          "size": "3030×405"
+        },
+        "price": {
+          "list_price": 0,
+          "unit": "㎡"
+        },
+        "status": "active",
+        "data_status": ""
+      }
+    ]
+  },
+  {
+    "category": "外壁",
+    "sub_category": "窯業サイディング",
+    "manufacturer": "ケイミュー",
+    "products": [
+      {
+        "product_name": "ネオロック光セラ18 エクラス",
+        "sku_code": "NEOROCK18E",
+        "colors": [
+          {
+            "color_name": "ホワイト",
+            "color_code": "WH"
+          },
+          {
+            "color_name": "グレー",
+            "color_code": "GY"
+          },
+          {
+            "color_name": "ベージュ",
+            "color_code": "BG"
+          }
+        ],
+        "spec": {
+          "thickness": "18mm",
+          "fire_rating": "準耐火",
+          "size": "3030×455"
+        },
+        "price": {
+          "list_price": 0,
+          "unit": "㎡"
+        },
+        "status": "active",
+        "data_status": ""
+      },
+      {
+        "product_name": "ネオロック光セラ18 カンタービレ",
+        "sku_code": "NEOROCK18C",
+        "colors": [
+          {
+            "color_name": "ホワイト",
+            "color_code": "WH"
+          },
+          {
+            "color_name": "ブラウン",
+            "color_code": "BR"
+          }
+        ],
+        "spec": {
+          "thickness": "18mm",
+          "fire_rating": "準耐火",
+          "size": "3030×455"
+        },
+        "price": {
+          "list_price": 0,
+          "unit": "㎡"
+        },
+        "status": "active",
+        "data_status": ""
+      },
+      {
+        "product_name": "フィルテクト親水16",
+        "sku_code": "FILTECH16",
+        "colors": [
+          {
+            "color_name": "ホワイト",
+            "color_code": "WH"
+          },
+          {
+            "color_name": "グレー",
+            "color_code": "GY"
+          }
+        ],
+        "spec": {
+          "thickness": "16mm",
+          "fire_rating": "準耐火",
+          "size": "3030×455",
+          "feature": "親水"
+        },
+        "price": {
+          "list_price": 0,
+          "unit": "㎡"
+        },
+        "status": "active",
+        "data_status": ""
+      },
+      {
+        "product_name": "セラディール親水14",
+        "sku_code": "CERADEAL14",
+        "colors": [
+          {
+            "color_name": "ホワイト",
+            "color_code": "WH"
+          },
+          {
+            "color_name": "ベージュ",
+            "color_code": "BG"
+          }
+        ],
+        "spec": {
+          "thickness": "14mm",
+          "fire_rating": "準耐火",
+          "size": "3030×405",
+          "feature": "親水"
+        },
+        "price": {
+          "list_price": 0,
+          "unit": "㎡"
+        },
+        "status": "active",
+        "data_status": ""
+      }
+    ]
+  },
+  {
+    "category": "外壁",
+    "sub_category": "窯業サイディング",
+    "manufacturer": "旭トステム外装",
+    "products": [
+      {
+        "product_name": "AT-WALL",
+        "sku_code": "ATWALL-16",
+        "colors": [
+          {
+            "color_name": "ホワイト",
+            "color_code": "WH"
+          },
+          {
+            "color_name": "グレー",
+            "color_code": "GY"
+          },
+          {
+            "color_name": "ブラウン",
+            "color_code": "BR"
+          }
+        ],
+        "spec": {
+          "thickness": "16mm",
+          "fire_rating": "準耐火",
+          "size": "3030×455"
+        },
+        "price": {
+          "list_price": 0,
+          "unit": "㎡"
+        },
+        "status": "active",
+        "data_status": ""
+      },
+      {
+        "product_name": "ガーディナル",
+        "sku_code": "GARDINAL-14",
+        "colors": [
+          {
+            "color_name": "ホワイト",
+            "color_code": "WH"
+          },
+          {
+            "color_name": "ベージュ",
+            "color_code": "BG"
+          }
+        ],
+        "spec": {
+          "thickness": "14mm",
+          "fire_rating": "準耐火",
+          "size": "3030×405"
+        },
+        "price": {
+          "list_price": 0,
+          "unit": "㎡"
+        },
+        "status": "active",
+        "data_status": ""
+      }
+    ]
+  },
+  {
+    "category": "外壁",
+    "sub_category": "金属サイディング",
+    "manufacturer": "アイジー工業",
+    "products": [
+      {
+        "product_name": "SF-ガルブライト JFシリーズ",
+        "sku_code": "GALBRIGHT-JF",
+        "colors": [
+          {
+            "color_name": "ホワイト",
+            "color_code": "WH"
+          },
+          {
+            "color_name": "シルバー",
+            "color_code": "SV"
+          },
+          {
+            "color_name": "ブラウン",
+            "color_code": "BR"
+          }
+        ],
+        "spec": {
+          "thickness": "12mm",
+          "material": "ガルバリウム鋼板",
+          "size": "3030×455"
+        },
+        "price": {
+          "list_price": 0,
+          "unit": "㎡"
+        },
+        "status": "active",
+        "data_status": ""
+      },
+      {
+        "product_name": "SF-ガルブライト NFシリーズ",
+        "sku_code": "GALBRIGHT-NF",
+        "colors": [
+          {
+            "color_name": "ホワイト",
+            "color_code": "WH"
+          },
+          {
+            "color_name": "グレー",
+            "color_code": "GY"
+          }
+        ],
+        "spec": {
+          "thickness": "12mm",
+          "material": "ガルバリウム鋼板",
+          "size": "3030×405"
+        },
+        "price": {
+          "list_price": 0,
+          "unit": "㎡"
+        },
+        "status": "active",
+        "data_status": ""
+      }
+    ]
+  },
+  {
+    "category": "屋根",
+    "sub_category": "化粧スレート",
+    "manufacturer": "ケイミュー",
+    "products": [
+      {
+        "product_name": "コロニアル グラッサ",
+        "sku_code": "COLONIAL-GLA",
+        "colors": [
+          {
+            "color_name": "ブラック",
+            "color_code": "BK"
+          },
+          {
+            "color_name": "グレー",
+            "color_code": "GY"
+          },
+          {
+            "color_name": "ブラウン",
+            "color_code": "BR"
+          }
+        ],
+        "spec": {
+          "material": "化粧スレート",
+          "thickness": "5.5mm",
+          "size": "3030×455"
+        },
+        "price": {
+          "list_price": 0,
+          "unit": "㎡"
+        },
+        "status": "active",
+        "data_status": ""
+      },
+      {
+        "product_name": "コロニアル クァッド",
+        "sku_code": "COLONIAL-QUAD",
+        "colors": [
+          {
+            "color_name": "ブラック",
+            "color_code": "BK"
+          },
+          {
+            "color_name": "グレー",
+            "color_code": "GY"
+          }
+        ],
+        "spec": {
+          "material": "化粧スレート",
+          "thickness": "5.5mm",
+          "size": "3030×455"
+        },
+        "price": {
+          "list_price": 0,
+          "unit": "㎡"
+        },
+        "status": "active",
+        "data_status": ""
+      }
+    ]
+  },
+  {
+    "category": "屋根",
+    "sub_category": "金属屋根",
+    "manufacturer": "アイジー工業",
+    "products": [
+      {
+        "product_name": "スーパーガルテクト",
+        "sku_code": "SUPER-GALTECT",
+        "colors": [
+          {
+            "color_name": "ブラック",
+            "color_code": "BK"
+          },
+          {
+            "color_name": "シルバー",
+            "color_code": "SV"
+          },
+          {
+            "color_name": "ブラウン",
+            "color_code": "BR"
+          }
+        ],
+        "spec": {
+          "material": "ガルバリウム鋼板",
+          "thickness": "0.35mm",
+          "size": "3030×1000"
+        },
+        "price": {
+          "list_price": 0,
+          "unit": "㎡"
+        },
+        "status": "active",
+        "data_status": ""
+      },
+      {
+        "product_name": "ガルバリウム鋼板",
+        "sku_code": "GALBARIUM-STD",
+        "colors": [
+          {
+            "color_name": "シルバー",
+            "color_code": "SV"
+          },
+          {
+            "color_name": "ブラウン",
+            "color_code": "BR"
+          }
+        ],
+        "spec": {
+          "material": "ガルバリウム鋼板",
+          "thickness": "0.3mm",
+          "size": "3030×1000"
+        },
+        "price": {
+          "list_price": 0,
+          "unit": "㎡"
+        },
+        "status": "active",
+        "data_status": ""
+      }
+    ]
+  },
+  {
+    "category": "屋根",
+    "sub_category": "瓦",
+    "manufacturer": "鶴弥",
+    "products": [
+      {
+        "product_name": "スーパートライ110",
+        "sku_code": "SUPER-TRY110",
+        "colors": [
+          {
+            "color_name": "いぶし黒",
+            "color_code": "BK"
+          },
+          {
+            "color_name": "銀鼠",
+            "color_code": "GY"
+          },
+          {
+            "color_name": "赤褐",
+            "color_code": "RD"
+          }
+        ],
+        "spec": {
+          "material": "陶製瓦",
+          "type": "和瓦",
+          "size": "227×110mm"
+        },
+        "price": {
+          "list_price": 0,
+          "unit": "㎡"
+        },
+        "status": "active",
+        "data_status": ""
+      },
+      {
+        "product_name": "エース",
+        "sku_code": "ACE-KAWARA",
+        "colors": [
+          {
+            "color_name": "いぶし黒",
+            "color_code": "BK"
+          },
+          {
+            "color_name": "銀鼠",
+            "color_code": "GY"
+          }
+        ],
+        "spec": {
+          "material": "陶製瓦",
+          "type": "洋瓦",
+          "size": "227×110mm"
+        },
+        "price": {
+          "list_price": 0,
+          "unit": "㎡"
+        },
+        "status": "active",
+        "data_status": ""
+      }
+    ]
+  },
+  {
+    "category": "サッシ",
+    "sub_category": "樹脂窓",
+    "manufacturer": "YKK AP",
+    "products": [
+      {
+        "product_name": "APW330",
+        "sku_code": "APW330-17",
+        "colors": [
+          {
+            "color_name": "ホワイト",
+            "color_code": "WH"
+          },
+          {
+            "color_name": "ブラック",
+            "color_code": "BK"
+          },
+          {
+            "color_name": "ダークブラウン",
+            "color_code": "DB"
+          },
+          {
+            "color_name": "ライトブラウン",
+            "color_code": "LB"
+          },
+          {
+            "color_name": "シルバー",
+            "color_code": "SV"
+          }
+        ],
+        "spec": {
+          "type": "樹脂窓",
+          "glass": "複層ガラス",
+          "internal_colors": 5
+        },
+        "price": {
+          "list_price": 0,
+          "unit": "㎡"
+        },
+        "status": "active",
+        "data_status": ""
+      }
+    ]
+  },
+  {
+    "category": "サッシ",
+    "sub_category": "アルミ樹脂複合窓",
+    "manufacturer": "YKK AP",
+    "products": [
+      {
+        "product_name": "APW430",
+        "sku_code": "APW430-3",
+        "colors": [
+          {
+            "color_name": "ホワイト",
+            "color_code": "WH"
+          },
+          {
+            "color_name": "ブラック",
+            "color_code": "BK"
+          }
+        ],
+        "spec": {
+          "type": "樹脂複層窓",
+          "glass": "トリプルガラス",
+          "insulation": "High"
+        },
+        "price": {
+          "list_price": 0,
+          "unit": "㎡"
+        },
+        "status": "active",
+        "data_status": ""
+      }
+    ]
+  },
+  {
+    "category": "サッシ",
+    "sub_category": "玄関ドア",
+    "manufacturer": "YKK AP",
+    "products": [
+      {
+        "product_name": "ヴェナートD30",
+        "sku_code": "VENATO-D30",
+        "colors": [
+          {
+            "color_name": "ダークオーク",
+            "color_code": "DO"
+          },
+          {
+            "color_name": "ナチュラル",
+            "color_code": "NA"
+          },
+          {
+            "color_name": "ホワイト",
+            "color_code": "WH"
+          }
+        ],
+        "spec": {
+          "type": "玄関ドア",
+          "thickness": "30mm",
+          "lock_type": "スマートロック対応"
+        },
+        "price": {
+          "list_price": 0,
+          "unit": "間"
+        },
+        "status": "active",
+        "data_status": ""
+      }
+    ]
+  },
+  {
+    "category": "サッシ",
+    "sub_category": "樹脂窓",
+    "manufacturer": "三協アルミ",
+    "products": [
+      {
+        "product_name": "アルジオ",
+        "sku_code": "ALGEO-17",
+        "colors": [
+          {
+            "color_name": "ホワイト",
+            "color_code": "WH"
+          },
+          {
+            "color_name": "ブラウン",
+            "color_code": "BR"
+          }
+        ],
+        "spec": {
+          "type": "樹脂複合窓",
+          "glass": "複層ガラス",
+          "insulation": "Middle"
+        },
+        "price": {
+          "list_price": 0,
+          "unit": "㎡"
+        },
+        "status": "active",
+        "data_status": ""
+      }
+    ]
+  },
+  {
+    "category": "サッシ",
+    "sub_category": "樹脂窓",
+    "manufacturer": "三協アルミ",
+    "products": [
+      {
+        "product_name": "マディオ",
+        "sku_code": "MADIO-17",
+        "colors": [
+          {
+            "color_name": "ホワイト",
+            "color_code": "WH"
+          },
+          {
+            "color_name": "グレー",
+            "color_code": "GY"
+          }
+        ],
+        "spec": {
+          "type": "樹脂複合窓",
+          "glass": "複層ガラス",
+          "insulation": "High"
+        },
+        "price": {
+          "list_price": 0,
+          "unit": "㎡"
+        },
+        "status": "active",
+        "data_status": ""
+      }
+    ]
+  },
+  {
+    "category": "サッシ",
+    "sub_category": "樹脂窓",
+    "manufacturer": "LIXIL",
+    "products": [
+      {
+        "product_name": "EW",
+        "sku_code": "EW-17",
+        "colors": [
+          {
+            "color_name": "ホワイト",
+            "color_code": "WH"
+          },
+          {
+            "color_name": "ブラック",
+            "color_code": "BK"
+          }
+        ],
+        "spec": {
+          "type": "樹脂窓",
+          "glass": "複層ガラス",
+          "insulation": "Middle"
+        },
+        "price": {
+          "list_price": 0,
+          "unit": "㎡"
+        },
+        "status": "active",
+        "data_status": ""
+      }
+    ]
+  },
+  {
+    "category": "サッシ",
+    "sub_category": "アルミ樹脂複合窓",
+    "manufacturer": "LIXIL",
+    "products": [
+      {
+        "product_name": "サーモスX",
+        "sku_code": "THERMOS-X",
+        "colors": [
+          {
+            "color_name": "ホワイト",
+            "color_code": "WH"
+          },
+          {
+            "color_name": "ブラック",
+            "color_code": "BK"
+          }
+        ],
+        "spec": {
+          "type": "樹脂複層窓",
+          "glass": "複層ガラス",
+          "insulation": "High"
+        },
+        "price": {
+          "list_price": 0,
+          "unit": "㎡"
+        },
+        "status": "active",
+        "data_status": ""
+      },
+      {
+        "product_name": "サーモスL",
+        "sku_code": "THERMOS-L",
+        "colors": [
+          {
+            "color_name": "ホワイト",
+            "color_code": "WH"
+          },
+          {
+            "color_name": "ブラウン",
+            "color_code": "BR"
+          }
+        ],
+        "spec": {
+          "type": "樹脂複層窓",
+          "glass": "トリプルガラス",
+          "insulation": "VeryHigh"
+        },
+        "price": {
+          "list_price": 0,
+          "unit": "㎡"
+        },
+        "status": "active",
+        "data_status": ""
+      }
+    ]
+  },
+  {
+    "category": "サッシ",
+    "sub_category": "玄関ドア",
+    "manufacturer": "LIXIL",
+    "products": [
+      {
+        "product_name": "ジエスタ2",
+        "sku_code": "JIESTA2-K4",
+        "colors": [
+          {
+            "color_name": "ダークオーク",
+            "color_code": "DO"
+          },
+          {
+            "color_name": "ナチュラル",
+            "color_code": "NA"
+          }
+        ],
+        "spec": {
+          "type": "玄関ドア",
+          "thickness": "40mm",
+          "security": "DIC",
+          "lock_type": "スマートロック対応"
+        },
+        "price": {
+          "list_price": 0,
+          "unit": "間"
+        },
+        "status": "active",
+        "data_status": ""
+      }
+    ]
+  },
+  {
+    "category": "内装建材",
+    "sub_category": "フローリング",
+    "manufacturer": "大建工業",
+    "products": [
+      {
+        "product_name": "ハピアフロア ベーシック",
+        "sku_code": "YN7001-WH",
+        "colors": [
+          {
+            "color_name": "ホワイト",
+            "color_code": "WH"
+          }
+        ],
+        "spec": {
+          "material": "複合フローリング",
+          "thickness": "12mm",
+          "size": "303×1818mm"
+        },
+        "price": {
+          "list_price": 0,
+          "unit": "㎡"
+        },
+        "status": "active",
+        "data_status": ""
+      },
+      {
+        "product_name": "ハピアフロア ベーシック",
+        "sku_code": "YN7001-MA",
+        "colors": [
+          {
+            "color_name": "メープル",
+            "color_code": "MA"
+          }
+        ],
+        "spec": {
+          "material": "複合フローリング",
+          "thickness": "12mm",
+          "size": "303×1818mm"
+        },
+        "price": {
+          "list_price": 0,
+          "unit": "㎡"
+        },
+        "status": "active",
+        "data_status": ""
+      },
+      {
+        "product_name": "ハピアフロア ベーシック",
+        "sku_code": "YN7001-MT",
+        "colors": [
+          {
+            "color_name": "マットシルバー",
+            "color_code": "MT"
+          }
+        ],
+        "spec": {
+          "material": "複合フローリング",
+          "thickness": "12mm",
+          "size": "303×1818mm"
+        },
+        "price": {
+          "list_price": 0,
+          "unit": "㎡"
+        },
+        "status": "active",
+        "data_status": ""
+      },
+      {
+        "product_name": "ハピアフロア ベーシック",
+        "sku_code": "YN7001-MW",
+        "colors": [
+          {
+            "color_name": "マットホワイト",
+            "color_code": "MW"
+          }
+        ],
+        "spec": {
+          "material": "複合フローリング",
+          "thickness": "12mm",
+          "size": "303×1818mm"
+        },
+        "price": {
+          "list_price": 0,
+          "unit": "㎡"
+        },
+        "status": "active",
+        "data_status": ""
+      },
+      {
+        "product_name": "ハピアフロア ベーシック",
+        "sku_code": "YN7001-ML",
+        "colors": [
+          {
+            "color_name": "マットライト",
+            "color_code": "ML"
+          }
+        ],
+        "spec": {
+          "material": "複合フローリング",
+          "thickness": "12mm",
+          "size": "303×1818mm"
+        },
+        "price": {
+          "list_price": 0,
+          "unit": "㎡"
+        },
+        "status": "active",
+        "data_status": ""
+      },
+      {
+        "product_name": "ハピアフロア ベーシック",
+        "sku_code": "YN7001-MG",
+        "colors": [
+          {
+            "color_name": "マットグレー",
+            "color_code": "MG"
+          }
+        ],
+        "spec": {
+          "material": "複合フローリング",
+          "thickness": "12mm",
+          "size": "303×1818mm"
+        },
+        "price": {
+          "list_price": 0,
+          "unit": "㎡"
+        },
+        "status": "active",
+        "data_status": ""
+      },
+      {
+        "product_name": "ハピアフロア ベーシック",
+        "sku_code": "YN7001-MP",
+        "colors": [
+          {
+            "color_name": "マットパイン",
+            "color_code": "MP"
+          }
+        ],
+        "spec": {
+          "material": "複合フローリング",
+          "thickness": "12mm",
+          "size": "303×1818mm"
+        },
+        "price": {
+          "list_price": 0,
+          "unit": "㎡"
+        },
+        "status": "active",
+        "data_status": ""
+      },
+      {
+        "product_name": "ハピアフロア 石目柄II",
+        "sku_code": "YN83-WH",
+        "colors": [
+          {
+            "color_name": "ホワイト",
+            "color_code": "WH"
+          }
+        ],
+        "spec": {
+          "material": "複合フローリング",
+          "thickness": "12mm",
+          "size": "303×1818mm",
+          "pattern": "石目柄"
+        },
+        "price": {
+          "list_price": 0,
+          "unit": "㎡"
+        },
+        "status": "active",
+        "data_status": ""
+      }
+    ]
+  },
+  {
+    "category": "内装建材",
+    "sub_category": "室内ドア",
+    "manufacturer": "大建工業",
+    "products": [
+      {
+        "product_name": "ハピアドア",
+        "sku_code": "HAPIA-DOOR",
+        "colors": [
+          {
+            "color_name": "ホワイト",
+            "color_code": "WH"
+          },
+          {
+            "color_name": "ウッド",
+            "color_code": "WD"
+          }
+        ],
+        "spec": {
+          "type": "室内ドア",
+          "thickness": "40mm",
+          "size": "787×1912mm"
+        },
+        "price": {
+          "list_price": 0,
+          "unit": "間"
+        },
+        "status": "active",
+        "data_status": ""
+      }
+    ]
+  },
+  {
+    "category": "内装建材",
+    "sub_category": "フローリング",
+    "manufacturer": "永大産業",
+    "products": [
+      {
+        "product_name": "銘樹",
+        "sku_code": "MEIJU-STD",
+        "colors": [
+          {
+            "color_name": "オーク",
+            "color_code": "OK"
+          },
+          {
+            "color_name": "チェリー",
+            "color_code": "CY"
+          },
+          {
+            "color_name": "ウォルナット",
+            "color_code": "WN"
+          }
+        ],
+        "spec": {
+          "material": "複合フローリング",
+          "thickness": "12mm",
+          "size": "303×1818mm"
+        },
+        "price": {
+          "list_price": 0,
+          "unit": "㎡"
+        },
+        "status": "active",
+        "data_status": ""
+      },
+      {
+        "product_name": "アトムフィット",
+        "sku_code": "ATOM-FIT",
+        "colors": [
+          {
+            "color_name": "ナチュラル",
+            "color_code": "NA"
+          },
+          {
+            "color_name": "ダーク",
+            "color_code": "DK"
+          }
+        ],
+        "spec": {
+          "material": "複合フローリング",
+          "thickness": "15mm",
+          "size": "303×1818mm"
+        },
+        "price": {
+          "list_price": 0,
+          "unit": "㎡"
+        },
+        "status": "active",
+        "data_status": ""
+      }
+    ]
+  },
+  {
+    "category": "内装建材",
+    "sub_category": "フローリング",
+    "manufacturer": "ノダ",
+    "products": [
+      {
+        "product_name": "ネクシオ",
+        "sku_code": "NEXIO-STD",
+        "colors": [
+          {
+            "color_name": "ホワイト",
+            "color_code": "WH"
+          },
+          {
+            "color_name": "グレー",
+            "color_code": "GY"
+          },
+          {
+            "color_name": "ブラウン",
+            "color_code": "BR"
+          }
+        ],
+        "spec": {
+          "material": "複合フローリング",
+          "thickness": "12mm",
+          "size": "303×1818mm"
+        },
+        "price": {
+          "list_price": 0,
+          "unit": "㎡"
+        },
+        "status": "active",
+        "data_status": ""
+      },
+      {
+        "product_name": "ラスティックフェイス",
+        "sku_code": "RUSTIC-FACE",
+        "colors": [
+          {
+            "color_name": "ナチュラル",
+            "color_code": "NA"
+          },
+          {
+            "color_name": "ダーク",
+            "color_code": "DK"
+          }
+        ],
+        "spec": {
+          "material": "複合フローリング",
+          "thickness": "15mm",
+          "size": "303×1818mm",
+          "texture": "浮造り"
+        },
+        "price": {
+          "list_price": 0,
+          "unit": "㎡"
+        },
+        "status": "active",
+        "data_status": ""
+      }
+    ]
+  },
+  {
+    "category": "内装建材",
+    "sub_category": "壁紙クロス",
+    "manufacturer": "サンゲツ",
+    "products": [
+      {
+        "product_name": "SPシリーズ",
+        "sku_code": "SP2801",
+        "colors": [
+          {
+            "color_name": "ホワイト",
+            "color_code": "WH"
+          }
+        ],
+        "spec": {
+          "material": "ビニルクロス",
+          "width": "1000mm",
+          "pattern": "無地"
+        },
+        "price": {
+          "list_price": 0,
+          "unit": "㎡"
+        },
+        "status": "active",
+        "data_status": ""
+      },
+      {
+        "product_name": "SPシリーズ",
+        "sku_code": "SP2850",
+        "colors": [
+          {
+            "color_name": "グレー",
+            "color_code": "GY"
+          }
+        ],
+        "spec": {
+          "material": "ビニルクロス",
+          "width": "1000mm",
+          "pattern": "石目柄"
+        },
+        "price": {
+          "list_price": 0,
+          "unit": "㎡"
+        },
+        "status": "active",
+        "data_status": ""
+      },
+      {
+        "product_name": "SPシリーズ",
+        "sku_code": "SP2899",
+        "colors": [
+          {
+            "color_name": "ベージュ",
+            "color_code": "BG"
+          }
+        ],
+        "spec": {
+          "material": "ビニルクロス",
+          "width": "1000mm",
+          "pattern": "木目柄"
+        },
+        "price": {
+          "list_price": 0,
+          "unit": "㎡"
+        },
+        "status": "active",
+        "data_status": ""
+      },
+      {
+        "product_name": "リザーブシリーズ",
+        "sku_code": "RE51001",
+        "colors": [
+          {
+            "color_name": "ホワイト",
+            "color_code": "WH"
+          }
+        ],
+        "spec": {
+          "material": "ビニルクロス",
+          "width": "1000mm",
+          "pattern": "無地",
+          "quality": "Premium"
+        },
+        "price": {
+          "list_price": 0,
+          "unit": "㎡"
+        },
+        "status": "active",
+        "data_status": ""
+      },
+      {
+        "product_name": "FINEシリーズ",
+        "sku_code": "FINE-201",
+        "colors": [
+          {
+            "color_name": "ホワイト",
+            "color_code": "WH"
+          },
+          {
+            "color_name": "グレー",
+            "color_code": "GY"
+          }
+        ],
+        "spec": {
+          "material": "ビニルクロス",
+          "width": "1000mm",
+          "pattern": "texture",
+          "quality": "High"
+        },
+        "price": {
+          "list_price": 0,
+          "unit": "㎡"
+        },
+        "status": "active",
+        "data_status": ""
+      }
+    ]
+  },
+  {
+    "category": "断熱材",
+    "sub_category": "グラスウール",
+    "manufacturer": "旭ファイバーグラス",
+    "products": [
+      {
+        "product_name": "アクリアネクスト",
+        "sku_code": "ACLIA-14K",
+        "colors": [
+          {
+            "color_name": "ピンク",
+            "color_code": "PK"
+          }
+        ],
+        "spec": {
+          "density": "14kg/m3",
+          "thickness": "50mm",
+          "size": "910×1820mm"
+        },
+        "price": {
+          "list_price": 0,
+          "unit": "㎡"
+        },
+        "status": "active",
+        "data_status": ""
+      },
+      {
+        "product_name": "アクリアネクスト",
+        "sku_code": "ACLIA-16K",
+        "colors": [
+          {
+            "color_name": "ピンク",
+            "color_code": "PK"
+          }
+        ],
+        "spec": {
+          "density": "16kg/m3",
+          "thickness": "100mm",
+          "size": "910×1820mm"
+        },
+        "price": {
+          "list_price": 0,
+          "unit": "㎡"
+        },
+        "status": "active",
+        "data_status": ""
+      },
+      {
+        "product_name": "アクリアネクスト",
+        "sku_code": "ACLIA-24K",
+        "colors": [
+          {
+            "color_name": "ピンク",
+            "color_code": "PK"
+          }
+        ],
+        "spec": {
+          "density": "24kg/m3",
+          "thickness": "150mm",
+          "size": "910×1820mm"
+        },
+        "price": {
+          "list_price": 0,
+          "unit": "㎡"
+        },
+        "status": "active",
+        "data_status": ""
+      },
+      {
+        "product_name": "アクリアUボード",
+        "sku_code": "ACLIA-UBOARD",
+        "colors": [
+          {
+            "color_name": "ホワイト",
+            "color_code": "WH"
+          }
+        ],
+        "spec": {
+          "type": "ボード断熱",
+          "thickness": "50mm",
+          "size": "910×1820mm"
+        },
+        "price": {
+          "list_price": 0,
+          "unit": "㎡"
+        },
+        "status": "active",
+        "data_status": ""
+      }
+    ]
+  },
+  {
+    "category": "断熱材",
+    "sub_category": "グラスウール",
+    "manufacturer": "マグ・イゾベール",
+    "products": [
+      {
+        "product_name": "イゾベール スタンダード",
+        "sku_code": "ISOVELLE-STD",
+        "colors": [
+          {
+            "color_name": "ピンク",
+            "color_code": "PK"
+          }
+        ],
+        "spec": {
+          "density": "16kg/m3",
+          "thickness": "50mm",
+          "size": "910×1820mm"
+        },
+        "price": {
+          "list_price": 0,
+          "unit": "㎡"
+        },
+        "status": "active",
+        "data_status": ""
+      },
+      {
+        "product_name": "イゾベール コンフォート",
+        "sku_code": "ISOVELLE-COM",
+        "colors": [
+          {
+            "color_name": "ピンク",
+            "color_code": "PK"
+          }
+        ],
+        "spec": {
+          "density": "24kg/m3",
+          "thickness": "100mm",
+          "size": "910×1820mm"
+        },
+        "price": {
+          "list_price": 0,
+          "unit": "㎡"
+        },
+        "status": "active",
+        "data_status": ""
+      }
+    ]
+  },
+  {
+    "category": "断熱材",
+    "sub_category": "吹付断熱",
+    "manufacturer": "日本アクア",
+    "products": [
+      {
+        "product_name": "アクアフォーム",
+        "sku_code": "AQUA-FOAM",
+        "colors": [
+          {
+            "color_name": "茶色",
+            "color_code": "BR"
+          }
+        ],
+        "spec": {
+          "type": "ウレタンフォーム現場吹付",
+          "density": "30kg/m3",
+          "application": "壁・天井"
+        },
+        "price": {
+          "list_price": 0,
+          "unit": "㎡"
+        },
+        "status": "active",
+        "data_status": ""
+      }
+    ]
+  },
+  {
+    "category": "電気設備",
+    "sub_category": "照明器具",
+    "manufacturer": "Panasonic",
+    "products": [
+      {
+        "product_name": "LEDダウンライト",
+        "sku_code": "LGB75003",
+        "colors": [
+          {
+            "color_name": "シルバー",
+            "color_code": "SV"
+          }
+        ],
+        "spec": {
+          "type": "ダウンライト",
+          "led_wattage": "6W",
+          "color_temp": "3000K"
+        },
+        "price": {
+          "list_price": 0,
+          "unit": "台"
+        },
+        "status": "active",
+        "data_status": ""
+      },
+      {
+        "product_name": "LEDダウンライト",
+        "sku_code": "LGD3116",
+        "colors": [
+          {
+            "color_name": "白",
+            "color_code": "WH"
+          }
+        ],
+        "spec": {
+          "type": "ダウンライト",
+          "led_wattage": "7W",
+          "color_temp": "4000K"
+        },
+        "price": {
+          "list_price": 0,
+          "unit": "台"
+        },
+        "status": "active",
+        "data_status": ""
+      }
+    ]
+  },
+  {
+    "category": "電気設備",
+    "sub_category": "照明器具",
+    "manufacturer": "Panasonic",
+    "products": [
+      {
+        "product_name": "配線器具 コスモシリーズ",
+        "sku_code": "WTP5012",
+        "colors": [
+          {
+            "color_name": "ホワイト",
+            "color_code": "WH"
+          }
+        ],
+        "spec": {
+          "type": "スイッチ",
+          "rating": "15A",
+          "style": "modern"
+        },
+        "price": {
+          "list_price": 0,
+          "unit": "個"
+        },
+        "status": "active",
+        "data_status": ""
+      },
+      {
+        "product_name": "配線器具 コスモシリーズ",
+        "sku_code": "WTF1013",
+        "colors": [
+          {
+            "color_name": "ホワイト",
+            "color_code": "WH"
+          }
+        ],
+        "spec": {
+          "type": "コンセント",
+          "rating": "15A",
+          "style": "modern"
+        },
+        "price": {
+          "list_price": 0,
+          "unit": "個"
+        },
+        "status": "active",
+        "data_status": ""
+      }
+    ]
+  },
+  {
+    "category": "電気設備",
+    "sub_category": "照明器具",
+    "manufacturer": "オーデリック",
+    "products": [
+      {
+        "product_name": "LEDシーリングライト",
+        "sku_code": "OL291",
+        "colors": [
+          {
+            "color_name": "ホワイト",
+            "color_code": "WH"
+          }
+        ],
+        "spec": {
+          "type": "シーリング",
+          "wattage": "60W相当",
+          "diameter": "500mm"
+        },
+        "price": {
+          "list_price": 0,
+          "unit": "台"
+        },
+        "status": "active",
+        "data_status": ""
+      },
+      {
+        "product_name": "LEDダウンライト",
+        "sku_code": "OD261",
+        "colors": [
+          {
+            "color_name": "シルバー",
+            "color_code": "SV"
+          }
+        ],
+        "spec": {
+          "type": "ダウンライト",
+          "wattage": "8W",
+          "color_temp": "3000K"
+        },
+        "price": {
+          "list_price": 0,
+          "unit": "台"
+        },
+        "status": "active",
+        "data_status": ""
+      }
+    ]
+  },
+  {
+    "category": "電気設備",
+    "sub_category": "エアコン",
+    "manufacturer": "ダイキン工業",
+    "products": [
+      {
+        "product_name": "うるさらX",
+        "sku_code": "S254ATRS",
+        "colors": [
+          {
+            "color_name": "ホワイト",
+            "color_code": "WH"
+          }
+        ],
+        "spec": {
+          "capacity": "2.5kW",
+          "type": "ルームエアコン",
+          "feature": "加湿"
+        },
+        "price": {
+          "list_price": 0,
+          "unit": "台"
+        },
+        "status": "active",
+        "data_status": ""
+      },
+      {
+        "product_name": "うるさらX",
+        "sku_code": "S284ATRS",
+        "colors": [
+          {
+            "color_name": "ホワイト",
+            "color_code": "WH"
+          }
+        ],
+        "spec": {
+          "capacity": "2.8kW",
+          "type": "ルームエアコン",
+          "feature": "加湿"
+        },
+        "price": {
+          "list_price": 0,
+          "unit": "台"
+        },
+        "status": "active",
+        "data_status": ""
+      },
+      {
+        "product_name": "うるさらX",
+        "sku_code": "S364ATRS",
+        "colors": [
+          {
+            "color_name": "ホワイト",
+            "color_code": "WH"
+          }
+        ],
+        "spec": {
+          "capacity": "3.6kW",
+          "type": "ルームエアコン",
+          "feature": "加湿"
+        },
+        "price": {
+          "list_price": 0,
+          "unit": "台"
+        },
+        "status": "active",
+        "data_status": ""
+      },
+      {
+        "product_name": "うるさらX",
+        "sku_code": "S404ATRS",
+        "colors": [
+          {
+            "color_name": "ホワイト",
+            "color_code": "WH"
+          }
+        ],
+        "spec": {
+          "capacity": "4.0kW",
+          "type": "ルームエアコン",
+          "feature": "加湿"
+        },
+        "price": {
+          "list_price": 0,
+          "unit": "台"
+        },
+        "status": "active",
+        "data_status": ""
+      },
+      {
+        "product_name": "スゴ暖",
+        "sku_code": "SUGO-ATSUI",
+        "colors": [
+          {
+            "color_name": "ホワイト",
+            "color_code": "WH"
+          }
+        ],
+        "spec": {
+          "capacity": "5.0kW",
+          "type": "ルームエアコン",
+          "feature": "高温暖房"
+        },
+        "price": {
+          "list_price": 0,
+          "unit": "台"
+        },
+        "status": "active",
+        "data_status": ""
+      }
+    ]
+  },
+  {
+    "category": "電気設備",
+    "sub_category": "エアコン",
+    "manufacturer": "三菱電機",
+    "products": [
+      {
+        "product_name": "霧ヶ峰 Zシリーズ",
+        "sku_code": "MSZ-ZW2525",
+        "colors": [
+          {
+            "color_name": "ホワイト",
+            "color_code": "WH"
+          }
+        ],
+        "spec": {
+          "capacity": "2.5kW",
+          "type": "ルームエアコン",
+          "feature": "プラズマW"
+        },
+        "price": {
+          "list_price": 0,
+          "unit": "台"
+        },
+        "status": "active",
+        "data_status": ""
+      },
+      {
+        "product_name": "霧ヶ峰 Zシリーズ",
+        "sku_code": "MSZ-ZW3625",
+        "colors": [
+          {
+            "color_name": "ホワイト",
+            "color_code": "WH"
+          }
+        ],
+        "spec": {
+          "capacity": "3.6kW",
+          "type": "ルームエアコン",
+          "feature": "プラズマW"
+        },
+        "price": {
+          "list_price": 0,
+          "unit": "台"
+        },
+        "status": "active",
+        "data_status": ""
+      },
+      {
+        "product_name": "霧ヶ峰 Zシリーズ",
+        "sku_code": "MSZ-ZW4025",
+        "colors": [
+          {
+            "color_name": "ホワイト",
+            "color_code": "WH"
+          }
+        ],
+        "spec": {
+          "capacity": "4.0kW",
+          "type": "ルームエアコン",
+          "feature": "プラズマW"
+        },
+        "price": {
+          "list_price": 0,
+          "unit": "台"
+        },
+        "status": "active",
+        "data_status": ""
+      }
+    ]
+  },
+  {
+    "category": "電気設備",
+    "sub_category": "換気システム",
+    "manufacturer": "三菱電機",
+    "products": [
+      {
+        "product_name": "ロスナイ",
+        "sku_code": "VL-12S3",
+        "colors": [
+          {
+            "color_name": "ホワイト",
+            "color_code": "WH"
+          }
+        ],
+        "spec": {
+          "type": "熱交換換気",
+          "airflow": "120m3/h",
+          "recovery_rate": "80%"
+        },
+        "price": {
+          "list_price": 0,
+          "unit": "台"
+        },
+        "status": "active",
+        "data_status": ""
+      }
+    ]
+  },
+  {
+    "category": "外構",
+    "sub_category": "カーポート",
+    "manufacturer": "LIXIL",
+    "products": [
+      {
+        "product_name": "ネスカ",
+        "sku_code": "NESKA-M",
+        "colors": [
+          {
+            "color_name": "ホワイト",
+            "color_code": "WH"
+          },
+          {
+            "color_name": "シルバー",
+            "color_code": "SV"
+          },
+          {
+            "color_name": "ブラック",
+            "color_code": "BK"
+          }
+        ],
+        "spec": {
+          "type": "カーポート",
+          "size": "2550×5000mm",
+          "roof": "ポリカ"
+        },
+        "price": {
+          "list_price": 0,
+          "unit": "組"
+        },
+        "status": "active",
+        "data_status": ""
+      }
+    ]
+  },
+  {
+    "category": "外構",
+    "sub_category": "フェンス",
+    "manufacturer": "LIXIL",
+    "products": [
+      {
+        "product_name": "ハイグリッドフェンス",
+        "sku_code": "HIGHGRID-F",
+        "colors": [
+          {
+            "color_name": "ホワイト",
+            "color_code": "WH"
+          },
+          {
+            "color_name": "シルバー",
+            "color_code": "SV"
+          }
+        ],
+        "spec": {
+          "type": "フェンス",
+          "height": "1200mm",
+          "material": "アルミ"
+        },
+        "price": {
+          "list_price": 0,
+          "unit": "m"
+        },
+        "status": "active",
+        "data_status": ""
+      }
+    ]
+  },
+  {
+    "category": "外構",
+    "sub_category": "ウッドデッキ",
+    "manufacturer": "LIXIL",
+    "products": [
+      {
+        "product_name": "樹ら楽ステージ",
+        "sku_code": "KIRA-STAGE",
+        "colors": [
+          {
+            "color_name": "ナチュラル",
+            "color_code": "NA"
+          },
+          {
+            "color_name": "ダーク",
+            "color_code": "DK"
+          }
+        ],
+        "spec": {
+          "type": "ウッドデッキ",
+          "material": "樹脂",
+          "size": "3000×3000mm"
+        },
+        "price": {
+          "list_price": 0,
+          "unit": "式"
+        },
+        "status": "active",
+        "data_status": ""
+      }
+    ]
+  },
+  {
+    "category": "外構",
+    "sub_category": "カーポート",
+    "manufacturer": "YKK AP",
+    "products": [
+      {
+        "product_name": "エフルージュ",
+        "sku_code": "EFLU-M",
+        "colors": [
+          {
+            "color_name": "ホワイト",
+            "color_code": "WH"
+          },
+          {
+            "color_name": "ブラック",
+            "color_code": "BK"
+          }
+        ],
+        "spec": {
+          "type": "カーポート",
+          "size": "2550×5000mm",
+          "roof": "ポリカ"
+        },
+        "price": {
+          "list_price": 0,
+          "unit": "組"
+        },
+        "status": "active",
+        "data_status": ""
+      }
+    ]
+  },
+  {
+    "category": "外構",
+    "sub_category": "ウッドデッキ",
+    "manufacturer": "YKK AP",
+    "products": [
+      {
+        "product_name": "リウッドデッキ",
+        "sku_code": "RIWOOD-DECK",
+        "colors": [
+          {
+            "color_name": "ナチュラル",
+            "color_code": "NA"
+          },
+          {
+            "color_name": "ダーク",
+            "color_code": "DK"
+          }
+        ],
+        "spec": {
+          "type": "ウッドデッキ",
+          "material": "樹脂",
+          "size": "3000×3000mm"
+        },
+        "price": {
+          "list_price": 0,
+          "unit": "式"
+        },
+        "status": "active",
+        "data_status": ""
+      }
+    ]
+  },
+  {
+    "category": "外構",
+    "sub_category": "門扉",
+    "manufacturer": "YKK AP",
+    "products": [
+      {
+        "product_name": "ルシアス門扉",
+        "sku_code": "LUCIUS-GATE",
+        "colors": [
+          {
+            "color_name": "ダークオーク",
+            "color_code": "DO"
+          },
+          {
+            "color_name": "ナチュラル",
+            "color_code": "NA"
+          }
+        ],
+        "spec": {
+          "type": "門扉",
+          "material": "アルミ",
+          "size": "1000×1200mm"
+        },
+        "price": {
+          "list_price": 0,
+          "unit": "式"
+        },
+        "status": "active",
+        "data_status": ""
+      }
+    ]
+  },
+  {
+    "category": "外構",
+    "sub_category": "カーポート",
+    "manufacturer": "三協アルミ",
+    "products": [
+      {
+        "product_name": "セルフィ",
+        "sku_code": "SELFY-M",
+        "colors": [
+          {
+            "color_name": "ホワイト",
+            "color_code": "WH"
+          },
+          {
+            "color_name": "シルバー",
+            "color_code": "SV"
+          }
+        ],
+        "spec": {
+          "type": "カーポート",
+          "size": "2550×5000mm",
+          "roof": "ポリカ"
+        },
+        "price": {
+          "list_price": 0,
+          "unit": "組"
+        },
+        "status": "active",
+        "data_status": ""
+      }
+    ]
+  },
+  {
+    "category": "外構",
+    "sub_category": "ウッドデッキ",
+    "manufacturer": "三協アルミ",
+    "products": [
+      {
+        "product_name": "ひとと木",
+        "sku_code": "HITO-MOKU",
+        "colors": [
+          {
+            "color_name": "ナチュラル",
+            "color_code": "NA"
+          },
+          {
+            "color_name": "ダーク",
+            "color_code": "DK"
+          }
+        ],
+        "spec": {
+          "type": "ウッドデッキ",
+          "material": "樹脂",
+          "size": "3000×3000mm"
+        },
+        "price": {
+          "list_price": 0,
+          "unit": "式"
+        },
+        "status": "active",
+        "data_status": ""
+      }
+    ]
+  }
+]
