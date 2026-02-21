@@ -30,8 +30,11 @@ class Settings(BaseSettings):
     ALLOWED_METHODS: list[str] = ["GET", "POST", "PUT", "DELETE", "OPTIONS"]
     ALLOWED_HEADERS: list[str] = ["*"]
 
+    # 環境設定
+    ENVIRONMENT: str = "development"
+
     # データベース設定
-    DATABASE_URL: str = "postgresql+asyncpg://user:password@localhost:5432/excel_engine"
+    DATABASE_URL: str = "sqlite+aiosqlite:///./excel_engine.db"
     DATABASE_ECHO: bool = False
     DATABASE_POOL_SIZE: int = 20
     DATABASE_MAX_OVERFLOW: int = 10
@@ -91,15 +94,13 @@ class Settings(BaseSettings):
 
     def is_production(self) -> bool:
         """本番環境かどうかを判定"""
-        return not self.is_development()
+        return self.ENVIRONMENT == "production"
 
 
 # グローバル設定インスタンス
 settings = Settings()
 
-# 必須設定の検証
+# 必須設定の検証（本番環境のみ）
 if settings.is_production():
     if settings.SECRET_KEY == "your-secret-key-change-in-production":
         raise ValueError("本番環境では SECRET_KEY を変更してください")
-    if settings.S3_ACCESS_KEY_ID == "":
-        raise ValueError("S3ストレージを使用する場合は S3_ACCESS_KEY_ID を設定してください")

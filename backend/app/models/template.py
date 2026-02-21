@@ -2,25 +2,27 @@
 Excel帳票テンプレート関連モデル
 
 ExcelTemplate、CellMapping、GenerationHistory のSQLAlchemy ORM定義です。
+SQLAlchemy 2.0 Mapped スタイルを使用。
 """
 
 import enum
 from datetime import datetime
+from typing import Optional
 
 from sqlalchemy import (
     JSON,
     Boolean,
     DateTime,
     Enum,
+    ForeignKey,
+    Index,
     Integer,
     String,
     Text,
     UniqueConstraint,
     func,
-    Index,
-    ForeignKey,
 )
-from sqlalchemy.orm import relationship
+from sqlalchemy.orm import Mapped, mapped_column, relationship
 
 from app.database import Base
 
@@ -44,48 +46,29 @@ class ExcelTemplate(Base):
 
     __tablename__ = "excel_templates"
 
-    # 主キー
-    id: int = Integer(primary_key=True, index=True)
-
-    # テナント情報
-    tenant_id: int = Integer(nullable=False, index=True)
-
-    # テンプレート情報
-    name: str = String(255, nullable=False)
-    slug: str = String(255, nullable=False)  # URL友好なID
-    file_path: str = String(512, nullable=False)
-    description: str = Text
-    version: int = Integer(default=1)
-    is_active: bool = Boolean(default=True)
-
-    # タイムスタンプ
-    created_at: datetime = DateTime(
-        nullable=False,
-        default=datetime.utcnow,
-        server_default=func.now(),
+    id: Mapped[int] = mapped_column(Integer, primary_key=True, index=True)
+    tenant_id: Mapped[int] = mapped_column(Integer, nullable=False, index=True)
+    name: Mapped[str] = mapped_column(String(255), nullable=False)
+    slug: Mapped[str] = mapped_column(String(255), nullable=False)
+    file_path: Mapped[str] = mapped_column(String(512), nullable=False)
+    description: Mapped[Optional[str]] = mapped_column(Text, nullable=True)
+    version: Mapped[int] = mapped_column(Integer, default=1)
+    is_active: Mapped[bool] = mapped_column(Boolean, default=True)
+    created_at: Mapped[datetime] = mapped_column(
+        DateTime, nullable=False, server_default=func.now()
     )
-    updated_at: datetime = DateTime(
-        nullable=False,
-        default=datetime.utcnow,
-        onupdate=datetime.utcnow,
-        server_default=func.now(),
+    updated_at: Mapped[datetime] = mapped_column(
+        DateTime, nullable=False, server_default=func.now(), onupdate=func.now()
     )
 
     # リレーション
-    cell_mappings = relationship(
-        "CellMapping",
-        back_populates="template",
-        cascade="all, delete-orphan",
-        lazy="selectin",
+    cell_mappings: Mapped[list["CellMapping"]] = relationship(
+        back_populates="template", cascade="all, delete-orphan", lazy="selectin"
     )
-    generation_histories = relationship(
-        "GenerationHistory",
-        back_populates="template",
-        cascade="all, delete-orphan",
-        lazy="select",
+    generation_histories: Mapped[list["GenerationHistory"]] = relationship(
+        back_populates="template", cascade="all, delete-orphan", lazy="select"
     )
 
-    # ユニーク制約
     __table_args__ = (
         UniqueConstraint("tenant_id", "slug", name="uk_tenant_slug"),
         Index("idx_tenant_active", "tenant_id", "is_active"),
@@ -105,55 +88,33 @@ class CellMapping(Base):
 
     __tablename__ = "cell_mappings"
 
-    # 主キー
-    id: int = Integer(primary_key=True, index=True)
-
-    # 外部キー
-    template_id: int = Integer(
-        ForeignKey("excel_templates.id", ondelete="CASCADE"),
-        nullable=False,
-        index=True,
+    id: Mapped[int] = mapped_column(Integer, primary_key=True, index=True)
+    template_id: Mapped[int] = mapped_column(
+        Integer, ForeignKey("excel_templates.id", ondelete="CASCADE"),
+        nullable=False, index=True
+    )
+    cell_ref: Mapped[str] = mapped_column(String(20), nullable=False)
+    field_name: Mapped[str] = mapped_column(String(255), nullable=False)
+    data_type: Mapped[str] = mapped_column(String(50), default="string")
+    format_pattern: Mapped[Optional[str]] = mapped_column(String(255), nullable=True)
+    description: Mapped[Optional[str]] = mapped_column(String(500), nullable=True)
+    sort_order: Mapped[int] = mapped_column(Integer, default=0)
+    created_at: Mapped[datetime] = mapped_column(
+        DateTime, nullable=False, server_default=func.now()
+    )
+    updated_at: Mapped[datetime] = mapped_column(
+        DateTime, nullable=False, server_default=func.now(), onupdate=func.now()
     )
 
-    # セル情報
-    cell_ref: str = String(20, nullable=False)  # A1, B2:D5など
-    field_name: str = String(255, nullable=False)
+    template: Mapped["ExcelTemplate"] = relationship(back_populates="cell_mappings")
 
-    # データ型・フォーマット
-    data_type: str = String(50, default="string")  # string, int, float, date
-    format_pattern: str = String(255)  # #,##0.00 など
-
-    # その他
-    description: str = String(500)
-    sort_order: int = Integer(default=0)
-
-    # タイムスタンプ
-    created_at: datetime = DateTime(
-        nullable=False,
-        default=datetime.utcnow,
-        server_default=func.now(),
-    )
-    updated_at: datetime = DateTime(
-        nullable=False,
-        default=datetime.utcnow,
-        onupdate=datetime.utcnow,
-        server_default=func.now(),
-    )
-
-    # リレーション
-    template = relationship("ExcelTemplate", back_populates="cell_mappings")
-
-    # ユニーク制約
     __table_args__ = (
         UniqueConstraint("template_id", "cell_ref", name="uk_template_cellref"),
         Index("idx_template_field", "template_id", "field_name"),
     )
 
     def __repr__(self) -> str:
-        return (
-            f"<CellMapping(id={self.id}, cell_ref={self.cell_ref}, "
-            f"field_name={self.field_name})>"
-        )
+        return f"<CellMapping(id={self.id}, cell_ref={self.cell_ref}, field_name={self.field_name})>"
 
 
 class GenerationHistory(Base):
@@ -166,42 +127,26 @@ class GenerationHistory(Base):
 
     __tablename__ = "generation_histories"
 
-    # 主キー
-    id: int = Integer(primary_key=True, index=True)
-
-    # 外部キー・テナント情報
-    template_id: int = Integer(
-        ForeignKey("excel_templates.id", ondelete="CASCADE"),
-        nullable=False,
-        index=True,
+    id: Mapped[int] = mapped_column(Integer, primary_key=True, index=True)
+    template_id: Mapped[int] = mapped_column(
+        Integer, ForeignKey("excel_templates.id", ondelete="CASCADE"),
+        nullable=False, index=True
     )
-    tenant_id: int = Integer(nullable=False, index=True)
-    user_id: int = Integer(nullable=False)
-
-    # 入出力情報
-    input_data: dict = JSON(nullable=True)  # 入力データ (検索用)
-    output_path: str = String(512)  # 出力ファイルパス
-    file_size: int = Integer()  # ファイルサイズ (bytes)
-
-    # ステータス
-    status: GenerationStatus = Enum(
-        GenerationStatus,
-        default=GenerationStatus.PENDING,
+    tenant_id: Mapped[int] = mapped_column(Integer, nullable=False, index=True)
+    user_id: Mapped[int] = mapped_column(Integer, nullable=False)
+    input_data: Mapped[Optional[dict]] = mapped_column(JSON, nullable=True)
+    output_path: Mapped[Optional[str]] = mapped_column(String(512), nullable=True)
+    file_size: Mapped[Optional[int]] = mapped_column(Integer, nullable=True)
+    status: Mapped[GenerationStatus] = mapped_column(
+        Enum(GenerationStatus), default=GenerationStatus.PENDING
     )
-    error_message: str = Text
-
-    # タイムスタンプ
-    created_at: datetime = DateTime(
-        nullable=False,
-        default=datetime.utcnow,
-        index=True,
-        server_default=func.now(),
+    error_message: Mapped[Optional[str]] = mapped_column(Text, nullable=True)
+    created_at: Mapped[datetime] = mapped_column(
+        DateTime, nullable=False, index=True, server_default=func.now()
     )
 
-    # リレーション
-    template = relationship("ExcelTemplate", back_populates="generation_histories")
+    template: Mapped["ExcelTemplate"] = relationship(back_populates="generation_histories")
 
-    # インデックス
     __table_args__ = (
         Index("idx_tenant_created", "tenant_id", "created_at"),
         Index("idx_template_status", "template_id", "status"),
@@ -209,7 +154,4 @@ class GenerationHistory(Base):
     )
 
     def __repr__(self) -> str:
-        return (
-            f"<GenerationHistory(id={self.id}, template_id={self.template_id}, "
-            f"status={self.status})>"
-        )
+        return f"<GenerationHistory(id={self.id}, template_id={self.template_id}, status={self.status})>"

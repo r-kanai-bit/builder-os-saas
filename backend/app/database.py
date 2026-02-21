@@ -18,14 +18,19 @@ from app.config import settings
 Base = declarative_base()
 
 # 非同期エンジンの作成
-engine = create_async_engine(
-    settings.DATABASE_URL,
-    echo=settings.DATABASE_ECHO,
-    pool_size=settings.DATABASE_POOL_SIZE,
-    max_overflow=settings.DATABASE_MAX_OVERFLOW,
-    pool_pre_ping=settings.DATABASE_POOL_PRE_PING,
-    future=True,
-)
+_engine_kwargs: dict = {
+    "echo": settings.DATABASE_ECHO,
+    "future": True,
+}
+# SQLite以外の場合のみコネクションプール設定を追加
+if not settings.DATABASE_URL.startswith("sqlite"):
+    _engine_kwargs.update({
+        "pool_size": settings.DATABASE_POOL_SIZE,
+        "max_overflow": settings.DATABASE_MAX_OVERFLOW,
+        "pool_pre_ping": settings.DATABASE_POOL_PRE_PING,
+    })
+
+engine = create_async_engine(settings.DATABASE_URL, **_engine_kwargs)
 
 # 非同期セッションファクトリ
 async_session_maker = sessionmaker(
