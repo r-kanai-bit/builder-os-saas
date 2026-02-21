@@ -2,6 +2,7 @@
 
 import React, { useState, useEffect, useRef } from "react";
 import Link from "next/link";
+import { generateEstimateHybrid, buildEstimateRequest } from "@/lib/api/excel-api";
 
 // ============ 型定義 ============
 
@@ -630,42 +631,45 @@ function Budget({ onCreateNew, onExport }: ToolProps) {
             </div>
           </div>
           <button onClick={async () => {
-            const W = window as unknown as Record<string, unknown>;
-            if (!W.XLSX) { await new Promise<void>((res, rej) => { const s = document.createElement("script"); s.src = "https://cdn.sheetjs.com/xlsx-0.20.3/package/dist/xlsx.full.min.js"; s.onload = () => res(); s.onerror = () => rej(); document.head.appendChild(s); }); }
-            const X = W.XLSX as { read: Function; writeFile: Function };
-            const wb = X.read(ESTIMATE_TEMPLATE_B64, { type: "base64" });
-            const ws = wb.Sheets["見積もり"];
-            const ws2 = wb.Sheets["建築にかかわる費用"];
-            const sc = (sh: Record<string, unknown>, ref: string, val: unknown, t = "n") => { const c = sh[ref] as Record<string, unknown> | undefined; if (c) { c.v = val; c.t = t; delete c.f; } else { sh[ref] = { v: val, t }; } };
             const futaiCats = ["付帯工事","諸経費","エアコン","防水工事","蓄電池","太陽光","EV充電器","外構工事"];
-            const optionCats = ["仮設工事","基礎工事","躯体工事","屋根・板金工事","外壁工事","建具工事","内装工事","電気設備工事","給排水衛生設備","空調換気設備","エアコン","防水工事"];
             const mainItems = budgetResult.items.filter(it => !futaiCats.includes(it.category));
             const futaiItems = budgetResult.items.filter(it => futaiCats.includes(it.category));
-            const optionTotal = mainItems.reduce((s, it) => s + Math.round(it.amount * 1.3), 0) * 10000;
-            const futaiTotal = futaiItems.reduce((s, it) => s + Math.round(it.amount * 1.3), 0) * 10000;
-            const bodyPrice = 0; // 本体工事費はオプション工事に含む（新テンプレート仕様）
-            const contractAmt = optionTotal + futaiTotal;
-            const tax = Math.round(contractAmt * 0.1);
-            const totalWithTax = contractAmt + tax;
-            // 見積もりシート（新テンプレート行番号）
-            sc(ws, "B5", budgetResult.name + " 様", "s");
-            sc(ws, "N20", bodyPrice); sc(ws, "N22", optionTotal); sc(ws, "N24", futaiTotal);
-            sc(ws, "N27", contractAmt); sc(ws, "N30", tax); sc(ws, "N33", totalWithTax); sc(ws, "K10", totalWithTax);
-            sc(ws, "X65", bodyPrice);
-            // オプション工事明細 rows 69-80
-            mainItems.forEach((it, i) => { const r = 69 + i; if (r <= 80) { sc(ws, "J"+r, 1); sc(ws, "M"+r, "式", "s"); sc(ws, "U"+r, Math.round(it.amount*1.3)*10000); } });
-            // 付帯工事明細 rows 86-94（新テンプレート: 付帯/諸経費/エアコン/防水/太陽光/蓄電池/EV充電器/外構）
-            const futaiMap: Record<string, number> = { "付帯工事": 86, "諸経費": 87, "エアコン": 88, "防水工事": 89, "太陽光": 90, "蓄電池": 91, "EV充電器": 92, "外構工事": 93 };
-            futaiItems.forEach(it => { const r = futaiMap[it.category]; if (r) { sc(ws, "J"+r, 1); sc(ws, "M"+r, "式", "s"); sc(ws, "U"+r, Math.round(it.amount*1.3)*10000); } });
-            sc(ws, "N82", optionTotal); sc(ws, "N96", futaiTotal);
-            // 床面積
-            const t = parseFloat(budgetResult.tsubo) || 30; const is1f = budgetResult.type === "平屋";
-            sc(ws, "E48", is1f ? Math.round(t*3.3) : Math.round(t*3.3*0.55)); sc(ws, "I48", is1f ? Math.round(t*10)/10 : Math.round(t*0.55*10)/10);
-            sc(ws, "E49", is1f ? 0 : Math.round(t*3.3*0.45)); sc(ws, "I49", is1f ? 0 : Math.round(t*0.45*10)/10);
-            sc(ws, "E51", Math.round(t*3.3)); sc(ws, "I51", t);
-            // 建築にかかわる費用シート
-            if (ws2) { sc(ws2, "I11", bodyPrice); sc(ws2, "I13", futaiTotal); sc(ws2, "I18", contractAmt); }
-            X.writeFile(wb, "見積書_" + budgetResult.name + "_" + new Date().toISOString().slice(0,10) + ".xlsx");
+            const t = parseFloat(budgetResult.tsubo) || 30;
+            // ハイブリッド生成: バックエンドAPI優先 → クライアントフォールバック
+            const mode = await generateEstimateHybrid(
+              budgetResult.name, mainItems, futaiItems, t, budgetResult.type,
+              async () => {
+                // クライアントサイドフォールバック（SheetJS）
+                const W = window as unknown as Record<string, unknown>;
+                if (!W.XLSX) { await new Promise<void>((res, rej) => { const s = document.createElement("script"); s.src = "https://cdn.sheetjs.com/xlsx-0.20.3/package/dist/xlsx.full.min.js"; s.onload = () => res(); s.onerror = () => rej(); document.head.appendChild(s); }); }
+                const X = W.XLSX as { read: Function; writeFile: Function };
+                const wb = X.read(ESTIMATE_TEMPLATE_B64, { type: "base64" });
+                const ws = wb.Sheets["見積もり"];
+                const ws2 = wb.Sheets["建築にかかわる費用"];
+                const sc = (sh: Record<string, unknown>, ref: string, val: unknown, tp = "n") => { const c = sh[ref] as Record<string, unknown> | undefined; if (c) { c.v = val; c.t = tp; delete c.f; } else { sh[ref] = { v: val, t: tp }; } };
+                const optionTotal = mainItems.reduce((s, it) => s + Math.round(it.amount * 1.3), 0) * 10000;
+                const futaiTotal = futaiItems.reduce((s, it) => s + Math.round(it.amount * 1.3), 0) * 10000;
+                const bodyPrice = 0;
+                const contractAmt = optionTotal + futaiTotal;
+                const tax = Math.round(contractAmt * 0.1);
+                const totalWithTax = contractAmt + tax;
+                sc(ws, "B5", budgetResult.name + " 様", "s");
+                sc(ws, "N20", bodyPrice); sc(ws, "N22", optionTotal); sc(ws, "N24", futaiTotal);
+                sc(ws, "N27", contractAmt); sc(ws, "N30", tax); sc(ws, "N33", totalWithTax); sc(ws, "K10", totalWithTax);
+                sc(ws, "X65", bodyPrice);
+                mainItems.forEach((it, i) => { const r = 69 + i; if (r <= 80) { sc(ws, "J"+r, 1); sc(ws, "M"+r, "式", "s"); sc(ws, "U"+r, Math.round(it.amount*1.3)*10000); } });
+                const futaiMap: Record<string, number> = { "付帯工事": 86, "諸経費": 87, "エアコン": 88, "防水工事": 89, "太陽光": 90, "蓄電池": 91, "EV充電器": 92, "外構工事": 93 };
+                futaiItems.forEach(it => { const r = futaiMap[it.category]; if (r) { sc(ws, "J"+r, 1); sc(ws, "M"+r, "式", "s"); sc(ws, "U"+r, Math.round(it.amount*1.3)*10000); } });
+                sc(ws, "N82", optionTotal); sc(ws, "N96", futaiTotal);
+                const is1f = budgetResult.type === "平屋";
+                sc(ws, "E48", is1f ? Math.round(t*3.3) : Math.round(t*3.3*0.55)); sc(ws, "I48", is1f ? Math.round(t*10)/10 : Math.round(t*0.55*10)/10);
+                sc(ws, "E49", is1f ? 0 : Math.round(t*3.3*0.45)); sc(ws, "I49", is1f ? 0 : Math.round(t*0.45*10)/10);
+                sc(ws, "E51", Math.round(t*3.3)); sc(ws, "I51", t);
+                if (ws2) { sc(ws2, "I11", bodyPrice); sc(ws2, "I13", futaiTotal); sc(ws2, "I18", contractAmt); }
+                X.writeFile(wb, "見積書_" + budgetResult.name + "_" + new Date().toISOString().slice(0,10) + ".xlsx");
+              }
+            );
+            console.log(`見積書生成モード: ${mode}`);
           }} className="px-6 py-3 bg-emerald-600 hover:bg-emerald-700 text-white rounded-lg font-bold text-sm transition-colors flex items-center gap-2">
             <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
             見積書ダウンロード（Excel）
