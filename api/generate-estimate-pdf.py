@@ -6,13 +6,14 @@ from datetime import datetime, timedelta
 from typing import Optional, Any
 from fpdf import FPDF
 
-# フォントパス検索
+# フォントパス検索（バンドル済みフォント優先）
 _FONT_PATH: Optional[str] = None
+_BUNDLED_FONT = str(Path(__file__).parent / "DroidSansFallbackFull.ttf")
 for _p in [
+    _BUNDLED_FONT,  # Vercel: api/ 同梱フォント
     "/usr/share/fonts/truetype/droid/DroidSansFallbackFull.ttf",
     "/usr/share/fonts/truetype/noto/NotoSansCJK-Regular.ttc",
     "/usr/share/fonts/opentype/noto/NotoSansCJK-Regular.ttc",
-    # Vercel Lambda にはフォントがない場合がある → _has_jp = False で Helvetica フォールバック
 ]:
     if Path(_p).exists():
         _FONT_PATH = _p
