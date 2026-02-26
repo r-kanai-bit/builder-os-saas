@@ -2,7 +2,7 @@
 
 import React, { useState, useEffect, useRef } from "react";
 import Link from "next/link";
-// Excel/PDF生成はRailway APIのみ使用（SheetJSフォールバック廃止）
+// Excel/PDF生成はVercel Serverless Functions（/api/）を使用
 
 // ============ 型定義 ============
 
@@ -631,7 +631,7 @@ function Budget({ onCreateNew, onExport }: ToolProps) {
           </div>
           {(() => {
             const _buildEstimateBody = () => {
-              const API_URL = process.env.NEXT_PUBLIC_API_BASE_URL || "https://sunny-hope-production.up.railway.app";
+              const API_URL = "";
               const futaiCats = ["付帯工事","諸経費","エアコン","防水工事","蓄電池","太陽光","EV充電器","外構工事"];
               const mainItems = budgetResult.items.filter((it: {category:string}) => !futaiCats.includes(it.category));
               const futaiItems = budgetResult.items.filter((it: {category:string}) => futaiCats.includes(it.category));
@@ -659,28 +659,27 @@ function Budget({ onCreateNew, onExport }: ToolProps) {
                 const blob = await res.blob();
                 const url = URL.createObjectURL(blob);
                 const a = document.createElement("a"); a.href = url; a.download = `見積書_${budgetResult.name}_${new Date().toISOString().slice(0,10)}.${ext}`; a.click(); URL.revokeObjectURL(url);
-              } catch(e) { alert(`生成に失敗しました。Railway APIに接続できません。\n\nエラー: ${(e as Error).message}\n\nRailwayのデプロイ状況を確認してください。`); }
+              } catch(e) { alert(`見積書の生成に失敗しました。\n\nエラー: ${(e as Error).message}`); }
             };
             return (<>
-              <button onClick={() => _download("/generate-estimate", "xlsx")} className="px-5 py-3 bg-emerald-600 hover:bg-emerald-700 text-white rounded-lg font-bold text-sm transition-colors flex items-center gap-2">
+              <button onClick={() => _download("/api/generate-estimate", "xlsx")} className="px-5 py-3 bg-emerald-600 hover:bg-emerald-700 text-white rounded-lg font-bold text-sm transition-colors flex items-center gap-2">
                 <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
                 Excel（社内編集用）
               </button>
-              <button onClick={() => _download("/generate-estimate-pdf", "pdf")} className="px-5 py-3 bg-red-600 hover:bg-red-700 text-white rounded-lg font-bold text-sm transition-colors flex items-center gap-2">
+              <button onClick={() => _download("/api/generate-estimate-pdf", "pdf")} className="px-5 py-3 bg-red-600 hover:bg-red-700 text-white rounded-lg font-bold text-sm transition-colors flex items-center gap-2">
                 <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><path d="M9 15l3-3 3 3"/></svg>
                 PDF（お客様提出用）
               </button>
             </>);
           })()}
         </div>
-        {/* Railway API 接続診断 */}
+        {/* API 接続診断 */}
         <div className="mt-3 flex items-center gap-2">
           <button onClick={async () => {
-            const API_URL = process.env.NEXT_PUBLIC_API_BASE_URL || "https://sunny-hope-production.up.railway.app";
-            const el = document.getElementById("railway-status");
+            const el = document.getElementById("api-status");
             if(el) el.textContent = "接続テスト中...";
             try {
-              const res = await fetch(`${API_URL}/health`, { method:"GET", signal: AbortSignal.timeout(10000) });
+              const res = await fetch("/api/health", { method:"GET", signal: AbortSignal.timeout(10000) });
               const j = await res.json();
               if(el) el.textContent = `✅ 接続OK (${j.app} v${j.version})`;
               if(el) el.className = "text-xs text-green-700";
@@ -689,9 +688,9 @@ function Budget({ onCreateNew, onExport }: ToolProps) {
               if(el) el.className = "text-xs text-red-600";
             }
           }} className="text-[10px] px-2 py-1 bg-gray-100 hover:bg-gray-200 text-gray-600 rounded border border-gray-200">
-            Railway API 接続テスト
+            API 接続テスト
           </button>
-          <span id="railway-status" className="text-xs text-gray-400">未テスト</span>
+          <span id="api-status" className="text-xs text-gray-400">未テスト</span>
         </div>
       </div>
     </>);
@@ -741,7 +740,7 @@ function Budget({ onCreateNew, onExport }: ToolProps) {
           </div>
           {(() => {
             const _buildExtBody = () => {
-              const API_URL = process.env.NEXT_PUBLIC_API_BASE_URL || "https://sunny-hope-production.up.railway.app";
+              const API_URL = "";
               const extItems = extResult.items;
               const futaiMap: Record<string,string> = {"付帯工事":"futai_01_amount","諸経費":"futai_02_amount","エアコン工事":"futai_03_amount","防水工事":"futai_04_amount","太陽光":"futai_05_amount","蓄電池":"futai_06_amount","EV充電器":"futai_07_amount","外構工事":"futai_08_amount"};
               const body: Record<string,unknown> = {
@@ -759,14 +758,14 @@ function Budget({ onCreateNew, onExport }: ToolProps) {
                 const blob = await res.blob();
                 const url = URL.createObjectURL(blob);
                 const a = document.createElement("a"); a.href = url; a.download = `外構見積書_${extResult.name}_${new Date().toISOString().slice(0,10)}.${ext}`; a.click(); URL.revokeObjectURL(url);
-              } catch(e) { alert(`生成に失敗しました。Railway APIに接続できません。\n\nエラー: ${(e as Error).message}\n\nRailwayのデプロイ状況を確認してください。`); }
+              } catch(e) { alert(`見積書の生成に失敗しました。\n\nエラー: ${(e as Error).message}`); }
             };
             return (<>
-              <button onClick={() => _download("/generate-estimate", "xlsx")} className="px-5 py-3 bg-emerald-600 hover:bg-emerald-700 text-white rounded-lg font-bold text-sm transition-colors flex items-center gap-2">
+              <button onClick={() => _download("/api/generate-estimate", "xlsx")} className="px-5 py-3 bg-emerald-600 hover:bg-emerald-700 text-white rounded-lg font-bold text-sm transition-colors flex items-center gap-2">
                 <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
                 Excel（社内編集用）
               </button>
-              <button onClick={() => _download("/generate-estimate-pdf", "pdf")} className="px-5 py-3 bg-red-600 hover:bg-red-700 text-white rounded-lg font-bold text-sm transition-colors flex items-center gap-2">
+              <button onClick={() => _download("/api/generate-estimate-pdf", "pdf")} className="px-5 py-3 bg-red-600 hover:bg-red-700 text-white rounded-lg font-bold text-sm transition-colors flex items-center gap-2">
                 <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><path d="M9 15l3-3 3 3"/></svg>
                 PDF（お客様提出用）
               </button>
@@ -3305,7 +3304,7 @@ function SpecSheet({ onCreateNew, onExport }: ToolProps) {
     };
 
     const downloadExcel = async () => {
-      const API_URL = process.env.NEXT_PUBLIC_API_BASE_URL || "https://sunny-hope-production.up.railway.app";
+      const API_URL = "";
       try {
         const res = await fetch(`${API_URL}/generate-spec`, {
           method: "POST",
