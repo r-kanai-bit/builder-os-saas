@@ -31,8 +31,11 @@ COPY --chown=appuser:appuser alembic ./alembic
 COPY --chown=appuser:appuser alembic.ini .
 COPY --chown=appuser:appuser .env.example .env
 
-# ストレージディレクトリを作成
-RUN mkdir -p storage/templates storage/outputs && chown -R appuser:appuser storage
+# テンプレートファイルをコピー（見積書テンプレート等）
+COPY --chown=appuser:appuser storage/templates ./storage/templates
+
+# 出力ディレクトリを作成
+RUN mkdir -p storage/outputs && chown -R appuser:appuser storage
 
 # ユーザーを切り替え
 USER appuser

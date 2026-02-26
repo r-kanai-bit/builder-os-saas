@@ -29,7 +29,7 @@ ESTIMATE_TEMPLATE = {
     "tenant_id": 1,
     "name": "見積書テンプレート v2",
     "slug": "estimate-v2",
-    "file_path": "storage/templates/【クロード用】見積書.xlsx",
+    "file_path": "storage/templates/estimate_v2.xlsx",
     "description": "建築工事見積書（180セル結合対応）",
     "version": 1,
     "is_active": True,
