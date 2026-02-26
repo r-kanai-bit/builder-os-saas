@@ -3283,6 +3283,28 @@ function SpecSheet({ onCreateNew, onExport }: ToolProps) {
       win.print();
     };
 
+    const downloadExcel = async () => {
+      const API_URL = process.env.NEXT_PUBLIC_API_BASE_URL || "https://sunny-hope-production.up.railway.app";
+      try {
+        const res = await fetch(`${API_URL}/generate-spec`, {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify(selected),
+        });
+        if (!res.ok) throw new Error(`HTTP ${res.status}`);
+        const blob = await res.blob();
+        const url = URL.createObjectURL(blob);
+        const a = document.createElement("a");
+        a.href = url;
+        a.download = `仕様書_${selected.project}_${new Date().toISOString().slice(0, 10)}.xlsx`;
+        a.click();
+        URL.revokeObjectURL(url);
+      } catch (err) {
+        console.error("Excel生成エラー:", err);
+        alert("Excel生成に失敗しました。印刷/PDF出力をお試しください。");
+      }
+    };
+
     return (<>
       <ToolHeader title="仕様書" color="#0d9488" onCreateNew={() => setView("list")} onExport={onExport} />
       <div className="flex items-center justify-between mb-4">
@@ -3292,6 +3314,10 @@ function SpecSheet({ onCreateNew, onExport }: ToolProps) {
         </button>
         <div className="flex gap-2">
           <StatusBadge status={selected.status} />
+          <button onClick={downloadExcel} className="px-4 py-2 text-sm font-bold text-white bg-emerald-600 hover:bg-emerald-700 rounded-lg flex items-center gap-2">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+            Excel出力
+          </button>
           <button onClick={printSpec} className="px-4 py-2 text-sm font-bold text-white bg-teal-600 hover:bg-teal-700 rounded-lg flex items-center gap-2">
             <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><polyline points="6 9 6 2 18 2 18 9"/><path d="M6 18H4a2 2 0 0 1-2-2v-5a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v5a2 2 0 0 1-2 2h-2"/><rect x="6" y="14" width="12" height="8"/></svg>
             印刷 / PDF出力

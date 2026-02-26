@@ -115,62 +115,300 @@ async def health_check():
 # ============================================================
 
 class GenerateRequest(BaseModel):
-    """仕様書Excel生成リクエスト"""
+    """仕様書Excel生成リクエスト（基本3フィールド）"""
     project_name: str = ""
     version: str = ""
     author: str = ""
 
 
-@app.post("/generate", tags=["generate"])
-async def generate_spec_excel(req: GenerateRequest):
-    """
-    仕様書Excelを生成してダウンロード
+class SpecSheetRequest(BaseModel):
+    """仕様書Excel生成リクエスト（全フィールド対応）"""
+    project: str = ""
+    category: str = ""
+    structure: str = ""
+    floors: str = ""
+    foundation: str = ""
+    roofing: str = ""
+    exterior: str = ""
+    insulation: str = ""
+    window: str = ""
+    flooring: str = ""
+    kitchen: str = ""
+    bath: str = ""
+    toilet: str = ""
+    aircon: str = ""
+    ventilation: str = ""
+    note: str = ""
+    date: str = ""
+    status: str = ""
 
-    入力JSONを受け取り、openpyxlでExcelを生成し、FileResponseで返します。
-    /tmp 配下に一時保存してからレスポンスします。
-    """
-    # Excel ワークブック作成
+
+# 共通スタイル定義
+from openpyxl.styles import Font, Alignment, PatternFill, Border, Side
+
+_TITLE_FONT = Font(bold=True, size=16, color="0D9488")
+_SECTION_FONT = Font(bold=True, size=12, color="FFFFFF")
+_HEADER_FONT = Font(bold=True, size=10)
+_VALUE_FONT = Font(size=10)
+_HEADER_FILL = PatternFill(start_color="E0F2F1", end_color="E0F2F1", fill_type="solid")
+_SECTION_FILL = PatternFill(start_color="0D9488", end_color="0D9488", fill_type="solid")
+_NOTE_FILL = PatternFill(start_color="F9FAFB", end_color="F9FAFB", fill_type="solid")
+_THIN_BORDER = Border(
+    left=Side(style="thin", color="CCCCCC"),
+    right=Side(style="thin", color="CCCCCC"),
+    top=Side(style="thin", color="CCCCCC"),
+    bottom=Side(style="thin", color="CCCCCC"),
+)
+_CENTER = Alignment(horizontal="center", vertical="center")
+_LEFT = Alignment(vertical="center")
+
+
+def _build_spec_workbook(data: dict) -> Workbook:
+    """仕様書Excelワークブックを構築"""
     wb = Workbook()
     ws = wb.active
     ws.title = "仕様書"
 
-    # ヘッダー列幅設定
-    ws.column_dimensions["A"].width = 20
-    ws.column_dimensions["B"].width = 40
+    # 列幅
+    ws.column_dimensions["A"].width = 22
+    ws.column_dimensions["B"].width = 45
 
-    # データ書き込み
-    ws["A1"] = "プロジェクト名"
-    ws["B1"] = req.project_name
-    ws["A2"] = "バージョン"
-    ws["B2"] = req.version
-    ws["A3"] = "作成者"
-    ws["B3"] = req.author
+    # 印刷設定
+    ws.page_setup.paperSize = ws.PAPERSIZE_A4
+    ws.page_setup.orientation = "portrait"
+    ws.print_options.horizontalCentered = True
+    ws.page_margins.left = 0.6
+    ws.page_margins.right = 0.6
 
-    # ヘッダー行のスタイル（太字）
-    from openpyxl.styles import Font, Alignment, PatternFill, Border, Side
-    header_font = Font(bold=True, size=11)
-    header_fill = PatternFill(start_color="E2EFDA", end_color="E2EFDA", fill_type="solid")
-    thin_border = Border(
-        left=Side(style="thin"),
-        right=Side(style="thin"),
-        top=Side(style="thin"),
-        bottom=Side(style="thin"),
-    )
-    for row in range(1, 4):
-        ws.cell(row=row, column=1).font = header_font
-        ws.cell(row=row, column=1).fill = header_fill
-        ws.cell(row=row, column=1).border = thin_border
-        ws.cell(row=row, column=1).alignment = Alignment(vertical="center")
-        ws.cell(row=row, column=2).border = thin_border
-        ws.cell(row=row, column=2).alignment = Alignment(vertical="center")
+    row = 1
 
-    # /tmp に保存（Railway はエフェメラルなので /tmp を使用）
+    # === タイトル ===
+    ws.merge_cells("A1:B1")
+    title_cell = ws.cell(row=1, column=1, value="建 築 仕 様 書")
+    title_cell.font = _TITLE_FONT
+    title_cell.alignment = Alignment(horizontal="center", vertical="center")
+    ws.row_dimensions[1].height = 40
+    row = 3
+
+    # === 基本情報セクション ===
+    basic_fields = [
+        ("工事名", data.get("project", "")),
+        ("仕様区分", data.get("category", "")),
+        ("作成日", data.get("date", datetime.now().strftime("%Y-%m-%d"))),
+        ("ステータス", data.get("status", "")),
+    ]
+    ws.merge_cells(f"A{row}:B{row}")
+    sec = ws.cell(row=row, column=1, value="基本情報")
+    sec.font = _SECTION_FONT
+    sec.fill = _SECTION_FILL
+    sec.alignment = _CENTER
+    ws.cell(row=row, column=2).fill = _SECTION_FILL
+    ws.row_dimensions[row].height = 28
+    row += 1
+
+    for label, val in basic_fields:
+        ws.cell(row=row, column=1, value=label).font = _HEADER_FONT
+        ws.cell(row=row, column=1).fill = _HEADER_FILL
+        ws.cell(row=row, column=1).border = _THIN_BORDER
+        ws.cell(row=row, column=1).alignment = _LEFT
+        ws.cell(row=row, column=2, value=val).font = _VALUE_FONT
+        ws.cell(row=row, column=2).border = _THIN_BORDER
+        ws.cell(row=row, column=2).alignment = _LEFT
+        ws.row_dimensions[row].height = 24
+        row += 1
+
+    row += 1
+
+    # === 構造・躯体セクション ===
+    struct_fields = [
+        ("構造種別", data.get("structure", "")),
+        ("階数", data.get("floors", "")),
+        ("基礎形式", data.get("foundation", "")),
+        ("屋根材", data.get("roofing", "")),
+        ("外壁材", data.get("exterior", "")),
+    ]
+    ws.merge_cells(f"A{row}:B{row}")
+    sec = ws.cell(row=row, column=1, value="構造・躯体")
+    sec.font = _SECTION_FONT
+    sec.fill = _SECTION_FILL
+    sec.alignment = _CENTER
+    ws.cell(row=row, column=2).fill = _SECTION_FILL
+    ws.row_dimensions[row].height = 28
+    row += 1
+
+    for label, val in struct_fields:
+        ws.cell(row=row, column=1, value=label).font = _HEADER_FONT
+        ws.cell(row=row, column=1).fill = _HEADER_FILL
+        ws.cell(row=row, column=1).border = _THIN_BORDER
+        ws.cell(row=row, column=1).alignment = _LEFT
+        ws.cell(row=row, column=2, value=val).font = _VALUE_FONT
+        ws.cell(row=row, column=2).border = _THIN_BORDER
+        ws.cell(row=row, column=2).alignment = _LEFT
+        ws.row_dimensions[row].height = 24
+        row += 1
+
+    row += 1
+
+    # === 断熱・開口部セクション ===
+    insul_fields = [
+        ("断熱仕様", data.get("insulation", "")),
+        ("サッシ・窓", data.get("window", "")),
+    ]
+    ws.merge_cells(f"A{row}:B{row}")
+    sec = ws.cell(row=row, column=1, value="断熱・開口部")
+    sec.font = _SECTION_FONT
+    sec.fill = _SECTION_FILL
+    sec.alignment = _CENTER
+    ws.cell(row=row, column=2).fill = _SECTION_FILL
+    ws.row_dimensions[row].height = 28
+    row += 1
+
+    for label, val in insul_fields:
+        ws.cell(row=row, column=1, value=label).font = _HEADER_FONT
+        ws.cell(row=row, column=1).fill = _HEADER_FILL
+        ws.cell(row=row, column=1).border = _THIN_BORDER
+        ws.cell(row=row, column=1).alignment = _LEFT
+        ws.cell(row=row, column=2, value=val).font = _VALUE_FONT
+        ws.cell(row=row, column=2).border = _THIN_BORDER
+        ws.cell(row=row, column=2).alignment = _LEFT
+        ws.row_dimensions[row].height = 24
+        row += 1
+
+    row += 1
+
+    # === 内装・設備セクション ===
+    equip_fields = [
+        ("床材（LDK）", data.get("flooring", "")),
+        ("キッチン", data.get("kitchen", "")),
+        ("UB", data.get("bath", "")),
+        ("トイレ", data.get("toilet", "")),
+    ]
+    ws.merge_cells(f"A{row}:B{row}")
+    sec = ws.cell(row=row, column=1, value="内装・設備")
+    sec.font = _SECTION_FONT
+    sec.fill = _SECTION_FILL
+    sec.alignment = _CENTER
+    ws.cell(row=row, column=2).fill = _SECTION_FILL
+    ws.row_dimensions[row].height = 28
+    row += 1
+
+    for label, val in equip_fields:
+        ws.cell(row=row, column=1, value=label).font = _HEADER_FONT
+        ws.cell(row=row, column=1).fill = _HEADER_FILL
+        ws.cell(row=row, column=1).border = _THIN_BORDER
+        ws.cell(row=row, column=1).alignment = _LEFT
+        ws.cell(row=row, column=2, value=val).font = _VALUE_FONT
+        ws.cell(row=row, column=2).border = _THIN_BORDER
+        ws.cell(row=row, column=2).alignment = _LEFT
+        ws.row_dimensions[row].height = 24
+        row += 1
+
+    row += 1
+
+    # === 空調・換気セクション ===
+    hvac_fields = [
+        ("空調方式", data.get("aircon", "")),
+        ("換気方式", data.get("ventilation", "")),
+    ]
+    ws.merge_cells(f"A{row}:B{row}")
+    sec = ws.cell(row=row, column=1, value="空調・換気")
+    sec.font = _SECTION_FONT
+    sec.fill = _SECTION_FILL
+    sec.alignment = _CENTER
+    ws.cell(row=row, column=2).fill = _SECTION_FILL
+    ws.row_dimensions[row].height = 28
+    row += 1
+
+    for label, val in hvac_fields:
+        ws.cell(row=row, column=1, value=label).font = _HEADER_FONT
+        ws.cell(row=row, column=1).fill = _HEADER_FILL
+        ws.cell(row=row, column=1).border = _THIN_BORDER
+        ws.cell(row=row, column=1).alignment = _LEFT
+        ws.cell(row=row, column=2, value=val).font = _VALUE_FONT
+        ws.cell(row=row, column=2).border = _THIN_BORDER
+        ws.cell(row=row, column=2).alignment = _LEFT
+        ws.row_dimensions[row].height = 24
+        row += 1
+
+    row += 1
+
+    # === 特記事項 ===
+    note = data.get("note", "")
+    if note:
+        ws.merge_cells(f"A{row}:B{row}")
+        sec = ws.cell(row=row, column=1, value="特記事項")
+        sec.font = _SECTION_FONT
+        sec.fill = _SECTION_FILL
+        sec.alignment = _CENTER
+        ws.cell(row=row, column=2).fill = _SECTION_FILL
+        ws.row_dimensions[row].height = 28
+        row += 1
+        ws.merge_cells(f"A{row}:B{row}")
+        note_cell = ws.cell(row=row, column=1, value=note)
+        note_cell.font = _VALUE_FONT
+        note_cell.fill = _NOTE_FILL
+        note_cell.border = _THIN_BORDER
+        note_cell.alignment = Alignment(wrap_text=True, vertical="top")
+        ws.row_dimensions[row].height = 60
+        row += 1
+
+    row += 2
+
+    # === 承認欄 ===
+    ws.merge_cells(f"A{row}:B{row}")
+    ws.cell(row=row, column=1, value="承認").font = Font(bold=True, size=10, color="666666")
+    ws.cell(row=row, column=1).alignment = Alignment(horizontal="right")
+    row += 1
+    for label in ["設計", "施工", "承認"]:
+        ws.cell(row=row, column=1, value=label).font = Font(size=9, color="999999")
+        ws.cell(row=row, column=1).alignment = _CENTER
+        ws.cell(row=row, column=1).border = _THIN_BORDER
+        ws.cell(row=row, column=2).border = _THIN_BORDER
+        ws.row_dimensions[row].height = 40
+        row += 1
+
+    return wb
+
+
+@app.post("/generate", tags=["generate"])
+async def generate_spec_excel(req: GenerateRequest):
+    """
+    仕様書Excelを生成してダウンロード（基本3フィールド版）
+
+    入力JSONを受け取り、openpyxlでExcelを生成し、FileResponseで返します。
+    """
+    data = {"project": req.project_name, "category": "", "note": f"Version: {req.version}\nAuthor: {req.author}"}
+    wb = _build_spec_workbook(data)
+
     filename = f"spec_{uuid.uuid4().hex[:8]}.xlsx"
     filepath = os.path.join("/tmp", filename)
     wb.save(filepath)
 
-    # ダウンロード用ファイル名
     safe_name = req.project_name.replace("/", "_").replace("\\", "_") if req.project_name else "仕様書"
+    download_name = f"仕様書_{safe_name}_{datetime.now().strftime('%Y%m%d')}.xlsx"
+
+    return FileResponse(
+        path=filepath,
+        filename=download_name,
+        media_type="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
+    )
+
+
+@app.post("/generate-spec", tags=["generate"])
+async def generate_full_spec_excel(req: SpecSheetRequest):
+    """
+    仕様書Excelを生成してダウンロード（全フィールド版）
+
+    フロントエンドのSpecSheetコンポーネントから全仕様フィールドを受け取り、
+    セクション分けされた帳票Excelを生成します。
+    """
+    wb = _build_spec_workbook(req.model_dump())
+
+    filename = f"spec_{uuid.uuid4().hex[:8]}.xlsx"
+    filepath = os.path.join("/tmp", filename)
+    wb.save(filepath)
+
+    safe_name = req.project.replace("/", "_").replace("\\", "_") if req.project else "仕様書"
     download_name = f"仕様書_{safe_name}_{datetime.now().strftime('%Y%m%d')}.xlsx"
 
     return FileResponse(

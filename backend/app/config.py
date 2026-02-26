@@ -25,7 +25,7 @@ class Settings(BaseSettings):
     LOG_LEVEL: Literal["DEBUG", "INFO", "WARNING", "ERROR", "CRITICAL"] = "INFO"
 
     # CORS設定
-    ALLOWED_ORIGINS: list[str] = ["http://localhost:3000", "http://localhost:8000"]
+    ALLOWED_ORIGINS: list[str] = ["http://localhost:3000", "http://localhost:8000", "https://builder-os-saas-five.vercel.app", "https://sunny-hope-production.up.railway.app"]
     ALLOWED_CREDENTIALS: bool = True
     ALLOWED_METHODS: list[str] = ["GET", "POST", "PUT", "DELETE", "OPTIONS"]
     ALLOWED_HEADERS: list[str] = ["*"]
