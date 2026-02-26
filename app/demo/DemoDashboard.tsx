@@ -674,6 +674,36 @@ function Budget({ onCreateNew, onExport }: ToolProps) {
             <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
             見積書ダウンロード（Excel）
           </button>
+          <button onClick={async () => {
+            const API_URL = process.env.NEXT_PUBLIC_API_BASE_URL || "https://sunny-hope-production.up.railway.app";
+            const futaiCats = ["付帯工事","諸経費","エアコン","防水工事","蓄電池","太陽光","EV充電器","外構工事"];
+            const mainItems = budgetResult.items.filter((it: {category:string}) => !futaiCats.includes(it.category));
+            const futaiItems = budgetResult.items.filter((it: {category:string}) => futaiCats.includes(it.category));
+            const t = parseFloat(budgetResult.tsubo) || 30;
+            const is1f = budgetResult.type === "平屋";
+            const futaiMap: Record<string,string> = {"付帯工事":"futai_01_amount","諸経費":"futai_02_amount","エアコン":"futai_03_amount","防水工事":"futai_04_amount","太陽光":"futai_05_amount","蓄電池":"futai_06_amount","EV充電器":"futai_07_amount","外構工事":"futai_08_amount"};
+            const body: Record<string,unknown> = {
+              customer_name: budgetResult.name,
+              estimate_date: new Date().toISOString().slice(0,10),
+              floor_1f_sqm: is1f ? Math.round(t*3.3) : Math.round(t*3.3*0.55),
+              floor_1f_tsubo: is1f ? Math.round(t*10)/10 : Math.round(t*0.55*10)/10,
+              floor_2f_sqm: is1f ? 0 : Math.round(t*3.3*0.45),
+              floor_2f_tsubo: is1f ? 0 : Math.round(t*0.45*10)/10,
+              floor_total_sqm: Math.round(t*3.3), floor_total_tsubo: t,
+            };
+            mainItems.forEach((it: {amount:number}, i: number) => { if(i<10) body[`opt_${String(i+1).padStart(2,"0")}_amount`] = Math.round(it.amount*1.3)*10000; });
+            futaiItems.forEach((it: {category:string;amount:number}) => { const k = futaiMap[it.category]; if(k) body[k] = Math.round(it.amount*1.3)*10000; });
+            try {
+              const res = await fetch(`${API_URL}/generate-estimate-pdf`, { method:"POST", headers:{"Content-Type":"application/json"}, body: JSON.stringify(body) });
+              if(!res.ok) throw new Error("PDF生成失敗");
+              const blob = await res.blob();
+              const url = URL.createObjectURL(blob);
+              const a = document.createElement("a"); a.href = url; a.download = `見積書_${budgetResult.name}_${new Date().toISOString().slice(0,10)}.pdf`; a.click(); URL.revokeObjectURL(url);
+            } catch(e) { alert("PDF生成に失敗しました: " + (e as Error).message); }
+          }} className="px-6 py-3 bg-red-600 hover:bg-red-700 text-white rounded-lg font-bold text-sm transition-colors flex items-center gap-2">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><path d="M9 15l3-3 3 3"/></svg>
+            PDF（お客様提出用）
+          </button>
         </div>
       </div>
     </>);
@@ -750,6 +780,26 @@ function Budget({ onCreateNew, onExport }: ToolProps) {
           }} className="px-6 py-3 bg-emerald-600 hover:bg-emerald-700 text-white rounded-lg font-bold text-sm transition-colors flex items-center gap-2">
             <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
             外構見積書ダウンロード（Excel）
+          </button>
+          <button onClick={async () => {
+            const API_URL = process.env.NEXT_PUBLIC_API_BASE_URL || "https://sunny-hope-production.up.railway.app";
+            const extItems = extResult.items;
+            const futaiMap: Record<string,string> = {"付帯工事":"futai_01_amount","諸経費":"futai_02_amount","エアコン工事":"futai_03_amount","防水工事":"futai_04_amount","太陽光":"futai_05_amount","蓄電池":"futai_06_amount","EV充電器":"futai_07_amount","外構工事":"futai_08_amount"};
+            const body: Record<string,unknown> = {
+              customer_name: extResult.name,
+              estimate_date: new Date().toISOString().slice(0,10),
+            };
+            extItems.forEach((it: {category:string;amount:number}, i: number) => { const k = futaiMap[it.category] || `futai_${String(i+1).padStart(2,"0")}_amount`; body[k] = Math.round(it.amount*1.3)*10000; });
+            try {
+              const res = await fetch(`${API_URL}/generate-estimate-pdf`, { method:"POST", headers:{"Content-Type":"application/json"}, body: JSON.stringify(body) });
+              if(!res.ok) throw new Error("PDF生成失敗");
+              const blob = await res.blob();
+              const url = URL.createObjectURL(blob);
+              const a = document.createElement("a"); a.href = url; a.download = `外構見積書_${extResult.name}_${new Date().toISOString().slice(0,10)}.pdf`; a.click(); URL.revokeObjectURL(url);
+            } catch(e) { alert("PDF生成に失敗しました: " + (e as Error).message); }
+          }} className="px-6 py-3 bg-red-600 hover:bg-red-700 text-white rounded-lg font-bold text-sm transition-colors flex items-center gap-2">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><path d="M9 15l3-3 3 3"/></svg>
+            PDF（お客様提出用）
           </button>
         </div>
       </div>

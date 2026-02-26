@@ -19,6 +19,11 @@ FROM python:3.11-slim
 
 WORKDIR /app
 
+# 日本語フォントをインストール（PDF生成用）
+RUN apt-get update && apt-get install -y --no-install-recommends \
+    fonts-droid-fallback \
+    && rm -rf /var/lib/apt/lists/*
+
 # システムユーザーを作成
 RUN useradd -m -u 1000 appuser
 

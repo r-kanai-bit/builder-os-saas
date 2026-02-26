@@ -12,6 +12,9 @@ psycopg2-binary==2.9.9
 # Excel Processing
 openpyxl==3.1.2
 
+# PDF Generation
+fpdf2==2.8.3
+
 # Data Validation & Settings
 pydantic==2.5.3
 pydantic-settings==2.1.0
