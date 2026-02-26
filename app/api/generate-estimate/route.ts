@@ -24,11 +24,9 @@ const CELL_MAPPINGS: Record<string, string> = {
 
 // マージセルの左上セルを検出
 function findMergeTopLeft(ws: ExcelJS.Worksheet, cellRef: string): string {
-  // ExcelJS: worksheet.model.merges に結合セル範囲がある
   const merges: string[] = (ws.model as unknown as { merges?: string[] }).merges || [];
   for (const range of merges) {
     const [start, end] = range.split(":");
-    // cellRef がこの範囲内にあるか簡易チェック
     const startCell = ws.getCell(start);
     const endCell = ws.getCell(end);
     const targetCell = ws.getCell(cellRef);
@@ -50,43 +48,50 @@ function safeWrite(ws: ExcelJS.Worksheet, cellRef: string, value: unknown): void
   }
 }
 
+// テンプレートをファイルシステムまたはpublic URLから読み込み
+async function loadTemplateBuffer(): Promise<Buffer> {
+  // 1) ファイルシステムから検索
+  const candidates = [
+    path.join(process.cwd(), "api", "estimate_v2.xlsx"),
+    path.join(process.cwd(), "public", "estimate_v2.xlsx"),
+    path.join(process.cwd(), "backend", "storage", "templates", "estimate_v2.xlsx"),
+  ];
+  for (const p of candidates) {
+    try {
+      if (fs.existsSync(p)) {
+        return fs.readFileSync(p);
+      }
+    } catch { /* continue */ }
+  }
+
+  // 2) ファイルシステムで見つからない場合、public URLからfetch
+  const baseUrl = process.env.VERCEL_URL
+    ? `https://${process.env.VERCEL_URL}`
+    : process.env.NEXT_PUBLIC_BASE_URL || "http://localhost:3000";
+  const res = await fetch(`${baseUrl}/estimate_v2.xlsx`);
+  if (!res.ok) {
+    throw new Error(`テンプレート取得失敗: ${res.status} ${res.statusText}`);
+  }
+  const ab = await res.arrayBuffer();
+  return Buffer.from(ab);
+}
+
 export async function POST(req: NextRequest) {
   try {
     const body = await req.json();
 
-    // テンプレート読み込み
-    // Vercel上では api/ ディレクトリのファイルを使用
-    const templatePaths = [
-      path.join(process.cwd(), "api", "estimate_v2.xlsx"),
-      path.join(process.cwd(), "public", "estimate_v2.xlsx"),
-      path.join(process.cwd(), "backend", "storage", "templates", "estimate_v2.xlsx"),
-    ];
-
-    let templatePath = "";
-    for (const tp of templatePaths) {
-      if (fs.existsSync(tp)) {
-        templatePath = tp;
-        break;
-      }
-    }
-
-    if (!templatePath) {
-      return NextResponse.json(
-        { error: "テンプレートが見つかりません" },
-        { status: 500 }
-      );
-    }
+    // テンプレート読み込み（ファイルシステム優先、失敗時はpublic URLからfetch）
+    const templateBuffer = await loadTemplateBuffer();
 
     const wb = new ExcelJS.Workbook();
-    await wb.xlsx.readFile(templatePath);
-    const ws = wb.worksheets[0]; // 見積もりシート
+    await wb.xlsx.load(templateBuffer as unknown as ArrayBuffer);
+    const ws = wb.worksheets[0];
 
     // セルマッピングに基づいてデータ埋め込み
     for (const [fieldName, cellRef] of Object.entries(CELL_MAPPINGS)) {
       const value = body[fieldName];
       if (value !== undefined && value !== null) {
         let writeValue: unknown = value;
-        // 日付フィールド処理
         if (fieldName === "estimate_date" && typeof value === "string" && value) {
           writeValue = new Date(value);
         }

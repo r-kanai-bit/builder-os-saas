@@ -3,8 +3,9 @@ import PDFDocument from "pdfkit";
 import path from "path";
 import fs from "fs";
 
-// フォント検索
-function findFont(): string | null {
+// フォントをファイルシステムまたはpublic URLから読み込み
+async function loadFont(): Promise<Buffer | null> {
+  // 1) ファイルシステムから検索
   const candidates = [
     path.join(process.cwd(), "api", "DroidSansFallbackFull.ttf"),
     path.join(process.cwd(), "public", "DroidSansFallbackFull.ttf"),
@@ -12,8 +13,25 @@ function findFont(): string | null {
     "/usr/share/fonts/truetype/noto/NotoSansCJK-Regular.ttc",
   ];
   for (const p of candidates) {
-    if (fs.existsSync(p)) return p;
+    try {
+      if (fs.existsSync(p)) {
+        return fs.readFileSync(p);
+      }
+    } catch { /* continue */ }
   }
+
+  // 2) ファイルシステムで見つからない場合、public URLからfetch
+  try {
+    const baseUrl = process.env.VERCEL_URL
+      ? `https://${process.env.VERCEL_URL}`
+      : process.env.NEXT_PUBLIC_BASE_URL || "http://localhost:3000";
+    const res = await fetch(`${baseUrl}/DroidSansFallbackFull.ttf`);
+    if (res.ok) {
+      const ab = await res.arrayBuffer();
+      return Buffer.from(ab);
+    }
+  } catch { /* ignore */ }
+
   return null;
 }
 
@@ -25,7 +43,9 @@ function fmt(val: unknown): string {
 export async function POST(req: NextRequest) {
   try {
     const body = await req.json();
-    const fontPath = findFont();
+
+    // フォント読み込み（ファイルシステム優先、失敗時はpublic URLからfetch）
+    const fontBuffer = await loadFont();
 
     const customer = body.customer_name || "";
     const todayStr = body.estimate_date || new Date().toISOString().slice(0, 10);
@@ -60,11 +80,11 @@ export async function POST(req: NextRequest) {
     // PDF生成
     const doc = new PDFDocument({ size: "A4", margin: 20, autoFirstPage: false });
 
-    // フォント登録
-    if (fontPath) {
-      doc.registerFont("JP", fontPath);
+    // フォント登録（Bufferから直接登録）
+    if (fontBuffer) {
+      doc.registerFont("JP", fontBuffer);
     }
-    const jpFont = fontPath ? "JP" : "Helvetica";
+    const jpFont = fontBuffer ? "JP" : "Helvetica";
 
     const chunks: Buffer[] = [];
     doc.on("data", (chunk: Buffer) => chunks.push(chunk));
@@ -165,7 +185,6 @@ export async function POST(req: NextRequest) {
 
       const colX = [70, 130, 210];
       const colW = [60, 80, 80];
-      // ヘッダー
       doc.save().rect(colX[0], y, colW[0], 16).rect(colX[1], y, colW[1], 16).rect(colX[2], y, colW[2], 16).fillAndStroke("#dce1eb", "black").restore();
       doc.font(jpFont).fontSize(8).fillColor("black");
       doc.text("", colX[0], y + 4, { width: colW[0], align: "center" });
@@ -200,7 +219,6 @@ export async function POST(req: NextRequest) {
       doc.text(title, 60, y);
       y += 16;
 
-      // ヘッダー
       doc.save().rect(60, y, 180, 16).rect(240, y, 130, 16).fillAndStroke("#c8d2e6", "black").restore();
       doc.font(jpFont).fontSize(7).fillColor("black");
       doc.text("工事内容", 60, y + 4, { width: 180, align: "center" });
@@ -218,7 +236,6 @@ export async function POST(req: NextRequest) {
         y += 18;
       }
 
-      // 小計行
       doc.save().rect(60, y, 180, 18).rect(240, y, 130, 18).fillAndStroke("#f0f0f0", "black").restore();
       doc.font(jpFont).fontSize(8).fillColor("black");
       doc.text(`${title}  小計`, 65, y + 5, { width: 170, align: "right" });
