@@ -5,10 +5,16 @@ Excel帳票エンジンのメインアプリケーション定義です。
 """
 
 import logging
+import os
+import uuid
 from contextlib import asynccontextmanager
+from datetime import datetime
 
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
+from fastapi.responses import FileResponse
+from openpyxl import Workbook
+from pydantic import BaseModel
 
 from app.api.router import api_router
 from app.config import settings
@@ -76,7 +82,20 @@ app.add_middleware(
 )
 
 
-# ヘルスチェックエンドポイント
+# ============================================================
+# ルートエンドポイント（Railway ステータス確認用）
+# ============================================================
+
+@app.get("/", tags=["status"])
+async def root():
+    """Railway ステータス確認"""
+    return {"status": "Postgres connected"}
+
+
+# ============================================================
+# ヘルスチェック
+# ============================================================
+
 @app.get("/health", tags=["health"])
 async def health_check():
     """
@@ -89,6 +108,76 @@ async def health_check():
         "app": settings.APP_NAME,
         "version": settings.APP_VERSION,
     }
+
+
+# ============================================================
+# 仕様書 Excel 自動生成 API（DB不使用・最短パス）
+# ============================================================
+
+class GenerateRequest(BaseModel):
+    """仕様書Excel生成リクエスト"""
+    project_name: str = ""
+    version: str = ""
+    author: str = ""
+
+
+@app.post("/generate", tags=["generate"])
+async def generate_spec_excel(req: GenerateRequest):
+    """
+    仕様書Excelを生成してダウンロード
+
+    入力JSONを受け取り、openpyxlでExcelを生成し、FileResponseで返します。
+    /tmp 配下に一時保存してからレスポンスします。
+    """
+    # Excel ワークブック作成
+    wb = Workbook()
+    ws = wb.active
+    ws.title = "仕様書"
+
+    # ヘッダー列幅設定
+    ws.column_dimensions["A"].width = 20
+    ws.column_dimensions["B"].width = 40
+
+    # データ書き込み
+    ws["A1"] = "プロジェクト名"
+    ws["B1"] = req.project_name
+    ws["A2"] = "バージョン"
+    ws["B2"] = req.version
+    ws["A3"] = "作成者"
+    ws["B3"] = req.author
+
+    # ヘッダー行のスタイル（太字）
+    from openpyxl.styles import Font, Alignment, PatternFill, Border, Side
+    header_font = Font(bold=True, size=11)
+    header_fill = PatternFill(start_color="E2EFDA", end_color="E2EFDA", fill_type="solid")
+    thin_border = Border(
+        left=Side(style="thin"),
+        right=Side(style="thin"),
+        top=Side(style="thin"),
+        bottom=Side(style="thin"),
+    )
+    for row in range(1, 4):
+        ws.cell(row=row, column=1).font = header_font
+        ws.cell(row=row, column=1).fill = header_fill
+        ws.cell(row=row, column=1).border = thin_border
+        ws.cell(row=row, column=1).alignment = Alignment(vertical="center")
+        ws.cell(row=row, column=2).border = thin_border
+        ws.cell(row=row, column=2).alignment = Alignment(vertical="center")
+
+    # /tmp に保存（Railway はエフェメラルなので /tmp を使用）
+    filename = f"spec_{uuid.uuid4().hex[:8]}.xlsx"
+    filepath = os.path.join("/tmp", filename)
+    wb.save(filepath)
+
+    # ダウンロード用ファイル名
+    safe_name = req.project_name.replace("/", "_").replace("\\", "_") if req.project_name else "仕様書"
+    download_name = f"仕様書_{safe_name}_{datetime.now().strftime('%Y%m%d')}.xlsx"
+
+    return FileResponse(
+        path=filepath,
+        filename=download_name,
+        media_type="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
+    )
 
 
 # ルータを組み込む
