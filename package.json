@@ -11,9 +11,11 @@
   "dependencies": {
     "@supabase/ssr": "^0.8.0",
     "@supabase/supabase-js": "^2.95.3",
+    "exceljs": "^4.4.0",
     "https-proxy-agent": "^7.0.6",
     "isomorphic-git": "^1.37.1",
     "next": "16.1.6",
+    "pdfkit": "^0.17.2",
     "react": "19.2.3",
     "react-dom": "19.2.3",
     "stripe": "^20.3.1"
@@ -21,6 +23,7 @@
   "devDependencies": {
     "@tailwindcss/postcss": "^4",
     "@types/node": "^20",
+    "@types/pdfkit": "^0.17.5",
     "@types/react": "^19",
     "@types/react-dom": "^19",
     "eslint": "^9",
