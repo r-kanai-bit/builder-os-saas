@@ -7,6 +7,7 @@ import fs from "fs";
 function findFont(): string | null {
   const candidates = [
     path.join(process.cwd(), "api", "DroidSansFallbackFull.ttf"),
+    path.join(process.cwd(), "public", "DroidSansFallbackFull.ttf"),
     "/usr/share/fonts/truetype/droid/DroidSansFallbackFull.ttf",
     "/usr/share/fonts/truetype/noto/NotoSansCJK-Regular.ttc",
   ];
@@ -236,12 +237,13 @@ export async function POST(req: NextRequest) {
     const safeName = (body.customer_name || "見積書").replace(/[/\\]/g, "_");
     const date = new Date().toISOString().slice(0, 10).replace(/-/g, "");
     const filename = `見積書_${safeName}_${date}.pdf`;
+    const encodedFilename = encodeURIComponent(filename);
 
     return new NextResponse(new Uint8Array(pdfBuffer), {
       status: 200,
       headers: {
         "Content-Type": "application/pdf",
-        "Content-Disposition": `attachment; filename="${filename}"`,
+        "Content-Disposition": `attachment; filename="estimate.pdf"; filename*=UTF-8''${encodedFilename}`,
       },
     });
   } catch (e) {

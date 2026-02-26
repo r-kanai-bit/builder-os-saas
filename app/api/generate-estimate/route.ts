@@ -58,6 +58,7 @@ export async function POST(req: NextRequest) {
     // Vercel上では api/ ディレクトリのファイルを使用
     const templatePaths = [
       path.join(process.cwd(), "api", "estimate_v2.xlsx"),
+      path.join(process.cwd(), "public", "estimate_v2.xlsx"),
       path.join(process.cwd(), "backend", "storage", "templates", "estimate_v2.xlsx"),
     ];
 
@@ -99,12 +100,13 @@ export async function POST(req: NextRequest) {
     const safeName = (body.customer_name || "見積書").replace(/[/\\]/g, "_");
     const date = new Date().toISOString().slice(0, 10).replace(/-/g, "");
     const filename = `見積書_${safeName}_${date}.xlsx`;
+    const encodedFilename = encodeURIComponent(filename);
 
     return new NextResponse(buffer, {
       status: 200,
       headers: {
         "Content-Type": "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
-        "Content-Disposition": `attachment; filename="${filename}"`,
+        "Content-Disposition": `attachment; filename="estimate.xlsx"; filename*=UTF-8''${encodedFilename}`,
       },
     });
   } catch (e) {
