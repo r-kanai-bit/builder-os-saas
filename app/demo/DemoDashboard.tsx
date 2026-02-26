@@ -673,6 +673,26 @@ function Budget({ onCreateNew, onExport }: ToolProps) {
             </>);
           })()}
         </div>
+        {/* Railway API 接続診断 */}
+        <div className="mt-3 flex items-center gap-2">
+          <button onClick={async () => {
+            const API_URL = process.env.NEXT_PUBLIC_API_BASE_URL || "https://sunny-hope-production.up.railway.app";
+            const el = document.getElementById("railway-status");
+            if(el) el.textContent = "接続テスト中...";
+            try {
+              const res = await fetch(`${API_URL}/health`, { method:"GET", signal: AbortSignal.timeout(10000) });
+              const j = await res.json();
+              if(el) el.textContent = `✅ 接続OK (${j.app} v${j.version})`;
+              if(el) el.className = "text-xs text-green-700";
+            } catch(e) {
+              if(el) el.textContent = `❌ 接続失敗: ${(e as Error).message}`;
+              if(el) el.className = "text-xs text-red-600";
+            }
+          }} className="text-[10px] px-2 py-1 bg-gray-100 hover:bg-gray-200 text-gray-600 rounded border border-gray-200">
+            Railway API 接続テスト
+          </button>
+          <span id="railway-status" className="text-xs text-gray-400">未テスト</span>
+        </div>
       </div>
     </>);
   }

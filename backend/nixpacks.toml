@@ -1,2 +1,2 @@
 [phases.setup]
-aptPkgs = ["fonts-droid-fallback"]
+aptPkgs = ["...", "fonts-droid-fallback", "fontconfig"]
